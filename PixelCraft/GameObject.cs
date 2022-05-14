@@ -96,7 +96,7 @@ namespace PixelCraft
                 {
                     _Position = value;
                     matPos = Matrix4.CreateTranslation(_Position);
-                    CalculateNormalData();
+                    //CalculateNormalData();
                 }
             }
         }
@@ -110,7 +110,7 @@ namespace PixelCraft
                 {
                     _Scale = value;
                     matScale = Matrix4.CreateScale(_Scale);
-                    CalculateNormalData();
+                    //CalculateNormalData();
                 }
             }
         }
@@ -124,7 +124,7 @@ namespace PixelCraft
                 {
                     _Rotation = value;
                     matRot = Matrix4.CreateRotationX(_Rotation.X * 3.14f / 180) * Matrix4.CreateRotationY(_Rotation.Y * 3.14f / 180) * Matrix4.CreateRotationZ(_Rotation.Z * 3.14f / 180);
-                    CalculateNormalData();
+                    //CalculateNormalData();
                 }
             }
         }

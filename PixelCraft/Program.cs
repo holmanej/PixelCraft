@@ -21,7 +21,7 @@ namespace PixelCraft
 
         static void Main(string[] args)
         {
-            using (GameWindow gWin = new GameWindow(800, 600, "OpenTK Template"))
+            using (GameWindow gWin = new GameWindow(1200, 900, "OpenTK Template"))
             {
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
@@ -30,8 +30,22 @@ namespace PixelCraft
 
                 SetDir(@"/resources/models");
 
-                gWin.GameObjects.Add(new GLTFObject(new GLTF_Converter("playerCore_v1.gltf"), Shaders["texture_shader"]) { Position = new Vector3(10f, 10f, -10f), Scale = new Vector3(0.25f, 0.01f, 0.25f), Rotation = new Vector3(90, 5, 40), Collidable = true });
-                gWin.GameObjects.Add(new GLTFObject(new GLTF_Converter("asteroid_v1.gltf"), Shaders["texture_shader"]) { Position = new Vector3(0f, 0f, -10f), Scale = new Vector3(15f, 0.01f, 15f), Rotation = new Vector3(90, 0, 0), Collidable = true });
+                var core_image = new GLTFObject(new GLTF_Converter("playerCore_v1.gltf"), Shaders["texture_shader"]);
+                gWin.GameObjects.Add("Player_Core", new SpaceObject() { Position = new Vector3(0f, 0f, -10f), Scale = new Vector3(0.15f, 0.1f, 0.15f), Rotation = new Vector3(90, 0, 0), Collidable = true });
+                gWin.GameObjects["Player_Core"].RenderSections = core_image.RenderSections;
+                gWin.GameObjects["Player_Core"].Shader = core_image.Shader;
+                gWin.GameObjects.Add("Player_Turret", new GLTFObject(new GLTF_Converter("turret_v0.gltf"), Shaders["texture_shader"]) { Position = new Vector3(0f, 0f, -10f), Scale = new Vector3(0.15f, 0.1f, 0.15f), Rotation = new Vector3(90, 0, 270), Collidable = true });
+                gWin.GameObjects.Add("Player_Fab", new GLTFObject(new GLTF_Converter("fabricator_v0.gltf"), Shaders["texture_shader"]) { Position = new Vector3(0f, 0f, -10f), Scale = new Vector3(0.15f, 0.1f, 0.15f), Rotation = new Vector3(90, 0, 0), Collidable = true });
+                gWin.GameObjects.Add("Player_Exca", new GLTFObject(new GLTF_Converter("excavator_v0.gltf"), Shaders["texture_shader"]) { Position = new Vector3(0f, 0f, -10f), Scale = new Vector3(0.15f, 0.1f, 0.15f), Rotation = new Vector3(90, 0, 180), Collidable = true });
+                gWin.GameObjects.Add("Asteroid", new GLTFObject(new GLTF_Converter("asteroid_v2.gltf"), Shaders["texture_shader"]) { Position = new Vector3(0f, 0f, -11f), Scale = new Vector3(29f, 0.1f, 29f), Rotation = new Vector3(90, 0, 0), Collidable = true });
+                //Random rand = new Random();
+                //for (int i = 0; i < 100; i++)
+                //{
+                //    int x = rand.Next(-50, 50);
+                //    int y = rand.Next(-50, 50);
+                //    float s = (float)rand.NextDouble() / 10;
+                //    gWin.GameObjects.Add("Asteroid" + i.ToString(), new GLTFObject(new GLTF_Converter("asteroid_v1.gltf"), Shaders["texture_shader"]) { Position = new Vector3(x, y, -11f), Scale = new Vector3(s, 0.01f, s), Rotation = new Vector3(90, 0, 0), Collidable = true });
+                //}
 
                 sw.Stop();
                 Debug.WriteLine("Load Time: " + sw.Elapsed);

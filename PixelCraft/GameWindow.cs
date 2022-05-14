@@ -17,7 +17,7 @@ namespace PixelCraft
 {
     class GameWindow : OpenTK.GameWindow
     {
-        public List<GameObject> GameObjects = new List<GameObject>();
+        public Dictionary<string, GameObject> GameObjects = new Dictionary<string, GameObject>();
         Shader shader;
 
         public TextObject Readout_Position;
@@ -41,9 +41,9 @@ namespace PixelCraft
 
         private float YRotation = 0;
         private float XRotation = 0;
-        private float XPosition = 0;
-        private float YPosition = 0;
-        private float ZPosition = 0;
+        private float XPosition = -2;
+        private float YPosition = -24;
+        private float ZPosition = 15;
         private float XCenter = 0;
         private float YCenter = 0;
         private float CursorX = 0;
@@ -55,6 +55,7 @@ namespace PixelCraft
         private bool F3_Down = false;
         private bool F4_Down = false;
         private bool CursorLocked = true;
+        private double GameTime = 0;
 
         Stopwatch sw = new Stopwatch();
         Queue<int> avgFPS = new Queue<int>();
@@ -78,6 +79,7 @@ namespace PixelCraft
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             KeyboardState input = Keyboard.GetState();
+            GameTime += e.Time;
 
             //if (CursorLocked)
             //{
@@ -101,26 +103,49 @@ namespace PixelCraft
 
             if (input.IsKeyDown(Key.W))
             {
-                yMove += WSensitivity;
+                //yMove += WSensitivity;
+                yMove = 1;
             }
             if (input.IsKeyDown(Key.S))
             {
-                yMove -= WSensitivity;
+                //yMove -= WSensitivity;
+                yMove = -1;
             }
             if (input.IsKeyDown(Key.A))
             {
-                xMove -= WSensitivity;
+                //xMove -= WSensitivity;
+                xMove = -1;
             }
             if (input.IsKeyDown(Key.D))
             {
-                xMove += WSensitivity;
+                //xMove += WSensitivity;
+                xMove = 1;
             }
 
-            XPosition += xMove;
-            YPosition += yMove;
+            float coreX_prev = GameObjects["Player_Core"].Position.X;
+            float coreY_prev = GameObjects["Player_Core"].Position.Y;
+
+            ((SpaceObject)GameObjects["Player_Core"]).Thrust((int)xMove, (int)yMove);
+
+            float coreX = GameObjects["Player_Core"].Position.X;
+            float coreY = GameObjects["Player_Core"].Position.Y;
+
+            XPosition -= (((XPosition - coreX) * 0.05f) + ((XPosition - coreX_prev) * 0.05f)) / 2;
+            YPosition -= (((YPosition - coreY) * 0.05f) + ((YPosition - coreY_prev) * 0.05f)) / 2;
             ZPosition += zMove;
 
-            GameObjects[0].Position = new Vector3(XPosition, YPosition, -10);
+            float sin = (float)Math.Sin(GameTime / 4 + Math.PI * 2 / 3);
+            float cos = (float)Math.Cos(GameTime / 4 + Math.PI * 2 / 3);
+            GameObjects["Player_Turret"].Position = new Vector3(coreX + sin, coreY + cos, -10);
+            sin = (float)Math.Sin(GameTime / 4 + Math.PI * 4 / 3);
+            cos = (float)Math.Cos(GameTime / 4 + Math.PI * 4 / 3);
+            GameObjects["Player_Fab"].Position = new Vector3(coreX + sin, coreY + cos, -10);
+            sin = (float)Math.Sin(GameTime / 4 + Math.PI * 6 / 3);
+            cos = (float)Math.Cos(GameTime / 4 + Math.PI * 6 / 3);
+            GameObjects["Player_Exca"].Position = new Vector3(coreX + sin, coreY + cos, -10);
+            
+            GameObjects["Player_Core"].Rotate(0f, 0f, (float)(1.1 * (Math.Sin(GameTime) + Math.Cos(GameTime*2.5))));
+            GameObjects["Asteroid"].Rotate(0f, 0f, -0.002f);
 
             if (input.IsKeyDown(Key.F1))
             {
@@ -129,9 +154,9 @@ namespace PixelCraft
             }
             if (input.IsKeyDown(Key.F2))
             {
-                XPosition = 0;
-                YPosition = 0;
-                ZPosition = 0;
+                XPosition = -2;
+                YPosition = -24;
+                ZPosition = 15;
             }
             if (input.IsKeyDown(Key.F3) && !F3_Down)
             {
@@ -206,9 +231,9 @@ namespace PixelCraft
             Readout_Position = new TextObject("Hello, World!", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-1, 0.95f, 0), Color = Color.White, BGColor = Color.Black, Size = 8 };
             Readout_Rotation = new TextObject("*", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-1, 0.9f, 0), Color = Color.White, BGColor = Color.Black, Size = 8 };
             Readout_FPS = new TextObject("*", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-1, 0.85f, 0), Color = Color.White, BGColor = Color.Black, Size = 8 };
-            GameObjects.Add(Readout_Position);
-            GameObjects.Add(Readout_Rotation);
-            GameObjects.Add(Readout_FPS);
+            GameObjects.Add("pos_rdout", Readout_Position);
+            GameObjects.Add("rot_rdout", Readout_Rotation);
+            GameObjects.Add("fps_rdout", Readout_FPS);
 
             base.OnLoad(e);
         }
@@ -218,7 +243,10 @@ namespace PixelCraft
             GL.DeleteVertexArray(VertexArrayObject);
             GL.DeleteBuffer(VertexBufferObject);
             GL.DeleteTexture(TextureBufferObject);
-            GameObjects.ForEach(obj => obj.Shader.Dispose());
+            foreach (var obj in GameObjects.Values)
+            {
+                obj.Shader.Dispose();
+            }
 
             base.OnUnload(e);
         }
@@ -251,7 +279,7 @@ namespace PixelCraft
             GL.BindVertexArray(VertexArrayObject);
 
 
-            foreach (GameObject gameObject in GameObjects)
+            foreach (GameObject gameObject in GameObjects.Values)
             {
                 if (gameObject.Enabled)
                 {
