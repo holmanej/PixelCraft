@@ -15,10 +15,49 @@ using System.Threading.Tasks;
 
 namespace PixelCraft
 {
+    public class GameCursor
+    {
+        public float X;
+        public float Y;
+        public bool LeftPrev;
+        public bool LeftPressed;
+        public bool LeftReleased;
+        public bool LeftDown;
+        public bool RightPrev;
+        public bool RightPressed;
+        public bool RightReleased;
+        public bool RightDown;
+        public bool MiddlePressed;
+        public bool MiddlePrev;
+        public bool MiddleReleased;
+        public bool MiddleDown;
+
+        public void Update(MouseState m, int x, int y, int w, int h, float vX, float vY)
+        {
+            X = ((m.X - x) / (float)w - 0.5f) * 20 + vX;
+            Y = ((y - m.Y) / (float)h + 0.535f) * 20 + vY;
+            LeftDown = m.LeftButton == ButtonState.Pressed;
+            RightDown = m.RightButton == ButtonState.Pressed;
+            MiddleDown = m.MiddleButton == ButtonState.Pressed;
+
+            LeftPressed = !LeftPrev && LeftDown;
+            LeftReleased = LeftPrev && !LeftDown;
+            RightPressed = !RightPrev && RightDown;
+            RightReleased = RightPrev && !RightDown;
+            MiddlePressed = !MiddlePrev && MiddleDown;
+            MiddleReleased = MiddlePrev && !MiddleDown;
+
+            LeftPrev = LeftDown;
+            RightPrev = RightDown;
+            MiddlePrev = MiddleDown;
+        }
+    }
+
     class GameWindow : OpenTK.GameWindow
     {
         public Dictionary<string, GameObject> GameObjects = new Dictionary<string, GameObject>();
         Shader shader;
+        private GameCursor GameCursor = new GameCursor();
 
         public TextObject Readout_Position;
         public TextObject Readout_Rotation;
@@ -39,22 +78,11 @@ namespace PixelCraft
         private int TextureBufferObject;
         private int VerticesLength;
 
-        private float YRotation = 0;
-        private float XRotation = 0;
-        private float XPosition = -2;
-        private float YPosition = -24;
-        private float ZPosition = 15;
-        private float XCenter = 0;
-        private float YCenter = 0;
-        private float CursorX = 0;
-        private float CursorY = 0;
-        private float XSensitivity = 0.3f;
-        private float YSensitivity = 0.25f;
-        private float WSensitivity = 0.1f;
+        private float ViewX = 0;
+        private float ViewY = 0;
+        private float ViewZ = 25;
 
         private bool F3_Down = false;
-        private bool F4_Down = false;
-        private bool CursorLocked = true;
         private double GameTime = 0;
 
         Stopwatch sw = new Stopwatch();
@@ -66,122 +94,62 @@ namespace PixelCraft
             VertexArrayObject = GL.GenVertexArray();
             VertexBufferObject = GL.GenBuffer();
             TextureBufferObject = GL.GenTexture();
-
-            MouseMove += WaveSimWindow_MouseMove;
-        }
-
-        private void WaveSimWindow_MouseMove(object sender, MouseMoveEventArgs e)
-        {
-            CursorX = e.X - XCenter;
-            CursorY = e.Y - YCenter;
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            KeyboardState input = Keyboard.GetState();
+            KeyboardState keybd = Keyboard.GetState();
+            MouseState mouse = Mouse.GetCursorState();
+            GameCursor.Update(mouse, X, Y, Width, Height, ViewX, ViewY);
             GameTime += e.Time;
-
-            //if (CursorLocked)
-            //{
-            //    YRotation += CursorX * XSensitivity;
-            //    XRotation += CursorY * YSensitivity;
-            //    Mouse.SetPosition(Width / 2 + X, Height / 2 + Y);
-            //    XCenter = Width / 2 - 8;
-            //    YCenter = Height / 2 - 31;
-            //}
-
-            if (input.IsKeyDown(Key.Escape))
-            {
-                Exit();
-            }
-
-            float dsin = (float)Math.Sin(YRotation * 3.14f / 180) * WSensitivity;
-            float dcos = (float)Math.Cos(YRotation * 3.14f / 180) * WSensitivity;
-            float xMove = 0;
-            float yMove = 0;
-            float zMove = 0;
-
-            if (input.IsKeyDown(Key.W))
-            {
-                //yMove += WSensitivity;
-                yMove = 1;
-            }
-            if (input.IsKeyDown(Key.S))
-            {
-                //yMove -= WSensitivity;
-                yMove = -1;
-            }
-            if (input.IsKeyDown(Key.A))
-            {
-                //xMove -= WSensitivity;
-                xMove = -1;
-            }
-            if (input.IsKeyDown(Key.D))
-            {
-                //xMove += WSensitivity;
-                xMove = 1;
-            }
 
             float coreX_prev = GameObjects["Player_Core"].Position.X;
             float coreY_prev = GameObjects["Player_Core"].Position.Y;
 
-            ((SpaceObject)GameObjects["Player_Core"]).Thrust((int)xMove, (int)yMove);
+            foreach (var obj in GameObjects.Values)
+            {
+                obj.Update(GameObjects, keybd, GameCursor, GameTime);
+            }
 
             float coreX = GameObjects["Player_Core"].Position.X;
             float coreY = GameObjects["Player_Core"].Position.Y;
 
-            XPosition -= (((XPosition - coreX) * 0.05f) + ((XPosition - coreX_prev) * 0.05f)) / 2;
-            YPosition -= (((YPosition - coreY) * 0.05f) + ((YPosition - coreY_prev) * 0.05f)) / 2;
-            ZPosition += zMove;
-
-            float sin = (float)Math.Sin(GameTime / 4 + Math.PI * 2 / 3);
-            float cos = (float)Math.Cos(GameTime / 4 + Math.PI * 2 / 3);
-            GameObjects["Player_Turret"].Position = new Vector3(coreX + sin, coreY + cos, -10);
-            sin = (float)Math.Sin(GameTime / 4 + Math.PI * 4 / 3);
-            cos = (float)Math.Cos(GameTime / 4 + Math.PI * 4 / 3);
-            GameObjects["Player_Fab"].Position = new Vector3(coreX + sin, coreY + cos, -10);
-            sin = (float)Math.Sin(GameTime / 4 + Math.PI * 6 / 3);
-            cos = (float)Math.Cos(GameTime / 4 + Math.PI * 6 / 3);
-            GameObjects["Player_Exca"].Position = new Vector3(coreX + sin, coreY + cos, -10);
-            
-            GameObjects["Player_Core"].Rotate(0f, 0f, (float)(1.1 * (Math.Sin(GameTime) + Math.Cos(GameTime*2.5))));
-            GameObjects["Asteroid"].Rotate(0f, 0f, -0.002f);
-
-            if (input.IsKeyDown(Key.F1))
+            ShipCore core = (ShipCore)GameObjects["Player_Core"];
+            Vector3 astPos = GameObjects["Asteroid"].Position;
+            float soi = ((Asteroid)GameObjects["Asteroid"]).SOI;
+            float dist = Vector3.Distance(new Vector3(coreX, coreY, astPos.Z), astPos);
+            if (dist < soi + 3)
             {
-                XRotation = 0;
-                YRotation = 0;
+                core.Vx += (coreX - astPos.X) / dist * core.Ax * 2f;
+                core.Vy += (coreY - astPos.Y) / dist * core.Ay * 2f;
             }
-            if (input.IsKeyDown(Key.F2))
+
+            float porp = 0.05f;
+            ViewX -= (((ViewX - coreX) * porp) + ((ViewX - coreX_prev) * porp)) / 2;
+            ViewY -= (((ViewY - coreY) * porp) + ((ViewY - coreY_prev) * porp)) / 2;
+
+            if (keybd.IsKeyDown(Key.F1) && core.Orbiters.Count > 0)
             {
-                XPosition = -2;
-                YPosition = -24;
-                ZPosition = 15;
+                core.RemOrbiter(core.Orbiters[0]);
             }
-            if (input.IsKeyDown(Key.F3) && !F3_Down)
+            if (keybd.IsKeyDown(Key.F2))
+            {
+                ViewX = 0;
+                ViewY = 0;
+                //ViewZ = 15;
+            }
+            if (keybd.IsKeyDown(Key.F3) && !F3_Down)
             {
                 Readout_Position.Enabled = !Readout_Position.Enabled;
                 Readout_Rotation.Enabled = !Readout_Rotation.Enabled;
                 Readout_FPS.Enabled = !Readout_FPS.Enabled;
             }
-            F3_Down = input.IsKeyDown(Key.F3);
+            F3_Down = keybd.IsKeyDown(Key.F3);
 
-            //if (input.IsKeyDown(Key.F4) && !F4_Down)
-            //{
-            //    CursorGrabbed = !CursorGrabbed;
-            //    CursorVisible = !CursorVisible;
-            //    CursorLocked = !CursorLocked;
-            //}
-            //F4_Down = input.IsKeyDown(Key.F4);
-
-            //if (input.IsKeyDown(Key.F5))
-            //{
-            //    WSensitivity -= 0.1f;
-            //}
-            //if (input.IsKeyDown(Key.F6))
-            //{
-            //    WSensitivity += 0.1f;
-            //}
+            if (keybd.IsKeyDown(Key.Escape))
+            {
+                Exit();
+            }
 
             // Readouts
             avgFPS.Enqueue((int)RenderFrequency);
@@ -192,8 +160,8 @@ namespace PixelCraft
 
             if (Readout_Position.Enabled)
             {
-                Readout_Position.Text = "X= " + (int)XPosition + "  Y= " + (int)YPosition + "  Z= " + (int)ZPosition;
-                Readout_Rotation.Text = "X= " + (int)(XRotation % 360) + "  Y= " + (int)(YRotation % 360);
+                Readout_Position.Text = "X= " + (int)ViewX + "  Y= " + (int)ViewY + "  Z= " + (int)ViewZ;
+                Readout_Rotation.Text = "X= " + (int)(0 % 360) + "  Y= " + (int)(0 % 360);
                 Readout_FPS.Text = "FPS= " + (int)avgFPS.Average();
             }
 
@@ -272,9 +240,9 @@ namespace PixelCraft
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             Model = Matrix4.CreateTranslation(0, 0, 0);
-            View_Translate = Matrix4.CreateTranslation(-XPosition, -YPosition, -ZPosition);
-            View_Rotate = Matrix4.CreateRotationY(YRotation * 3.14f / 180) * Matrix4.CreateRotationX(XRotation * 3.14f / 180);
-            Vector3 playerPos = new Vector3(XPosition, YPosition, ZPosition);
+            View_Translate = Matrix4.CreateTranslation(-ViewX, -ViewY, -ViewZ);
+            View_Rotate = Matrix4.CreateRotationY(0 * 3.14f / 180) * Matrix4.CreateRotationX(0 * 3.14f / 180);
+            Vector3 playerPos = new Vector3(ViewX, ViewY, ViewZ);
 
             GL.BindVertexArray(VertexArrayObject);
 

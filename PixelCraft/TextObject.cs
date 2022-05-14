@@ -1,4 +1,6 @@
-﻿using System;
+﻿using OpenTK;
+using OpenTK.Input;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -100,6 +102,11 @@ namespace PixelCraft
                 metal = 0.5f,
                 rough = 0.5f
             });
+        }
+
+        public override void Update(Dictionary<string, GameObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
+        {
+            //throw new NotImplementedException();
         }
 
         public string Text

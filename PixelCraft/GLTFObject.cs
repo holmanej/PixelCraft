@@ -1,4 +1,6 @@
-﻿using System;
+﻿using OpenTK;
+using OpenTK.Input;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +15,11 @@ namespace PixelCraft
             RenderSections = gltf.GetBufferData();
             RenderSections.Sort((a, b) => b.VBOData[9].CompareTo(a.VBOData[9]));
             Shader = shader;
+        }
+
+        public override void Update(Dictionary<string, GameObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
+        {
+            //throw new NotImplementedException();
         }
     }
 }

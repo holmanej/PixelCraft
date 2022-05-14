@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.ES11;
+using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace PixelCraft
 {
-    class GameObject
+    abstract class GameObject
     {
         public class Section
         {
@@ -39,6 +40,8 @@ namespace PixelCraft
 
         public bool Enabled = true;
         public bool Collidable = false;
+
+        public abstract void Update(Dictionary<string, GameObject> objs, KeyboardState keybd, GameCursor cursor, double gametime);
 
         private void CalculateNormalData()
         {
