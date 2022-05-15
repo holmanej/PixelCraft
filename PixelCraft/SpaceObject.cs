@@ -80,7 +80,7 @@ namespace PixelCraft
             var roid = (Asteroid)objs["Asteroid"];
             Vector3 cpos = new Vector3(cursor.X, cursor.Y, 0);
             float dist = Vector3.Distance(Position, cpos);
-            Debug.WriteLine(dist + " : " + Position.X + " " + Position.Y + " : " + cursor.X + " " + cursor.Y);
+            //Debug.WriteLine(dist + " : " + Position.X + " " + Position.Y + " : " + cursor.X + " " + cursor.Y);
 
             if (cursor.RightPressed && dist < SOI)
             {

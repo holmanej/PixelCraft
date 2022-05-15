@@ -32,13 +32,8 @@ namespace PixelCraft
 
                 SetDir(@"/resources/models");
 
-                //var core_image = new GLTFObject(new GLTF_Converter("playerCore_v1.gltf"), Shaders["texture_shader"]);
-                //var turret_image = new GLTFObject(new GLTF_Converter("turret_v0.gltf"), Shaders["texture_shader"]);
-                //var fab_image = new GLTFObject(new GLTF_Converter("fabricator_v0.gltf"), Shaders["texture_shader"]);
-                //var exca_iamge = new GLTFObject(new GLTF_Converter("excavator_v0.gltf"), Shaders["texture_shader"]);
-                var roid_sections = new List<GameObject.Section>() { new GameObject.Section((Bitmap)Textures["asteroid"]) }; ;
-
-
+                var roid_sections = new List<GameObject.Section>() { new GameObject.Section((Bitmap)Textures["asteroid"]) };
+                Debug.WriteLine(roid_sections[0].ImageSize);
 
                 //gWin.GameObjects.Add("sec_Core", new ShipCore() { RenderSections = roid_sections, Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
                 gWin.GameObjects.Add("Asteroid", new Asteroid() { RenderSections = roid_sections, Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, -0.1f), Scale = new Vector3(50f, 50f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 24f });

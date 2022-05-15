@@ -43,8 +43,8 @@ namespace PixelCraft
                 Marshal.Copy(fileData.Scan0, imgData, 0, imgData.Length);
                 bmp.UnlockBits(fileData);
 
-                float w = 0.5f;// bmp.Width;
-                float h = 0.5f;// bmp.Height;
+                float w = 0.25f;// bmp.Width;
+                float h = 0.25f;// bmp.Height;
                 VBOData = new List<float>()
                 {
                     -w, -h, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1,
