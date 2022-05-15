@@ -80,7 +80,7 @@ namespace PixelCraft
 
         private float ViewX = 0;
         private float ViewY = 0;
-        private float ViewZ = 25;
+        private float ViewZ = 90f;
 
         private bool F3_Down = false;
         private double GameTime = 0;
@@ -101,6 +101,7 @@ namespace PixelCraft
             KeyboardState keybd = Keyboard.GetState();
             MouseState mouse = Mouse.GetCursorState();
             GameCursor.Update(mouse, X, Y, Width, Height, ViewX, ViewY);
+            //Debug.WriteLine(GameCursor.X + " " + GameCursor.Y);
             GameTime += e.Time;
 
             float coreX_prev = GameObjects["Player_Core"].Position.X;
@@ -160,7 +161,7 @@ namespace PixelCraft
 
             if (Readout_Position.Enabled)
             {
-                Readout_Position.Text = "X= " + (int)ViewX + "  Y= " + (int)ViewY + "  Z= " + (int)ViewZ;
+                Readout_Position.Text = "X= " + ViewX.ToString("F2") + "  Y= " + ViewY.ToString("F2") + "  Z= " + (int)ViewZ;
                 Readout_Rotation.Text = "X= " + (int)(0 % 360) + "  Y= " + (int)(0 % 360);
                 Readout_FPS.Text = "FPS= " + (int)avgFPS.Average();
             }
@@ -170,14 +171,14 @@ namespace PixelCraft
 
         protected override void OnLoad(EventArgs e)
         {
-            GL.ClearColor(0.02f, 0.01f, 0.03f, 1.0f);
+            GL.ClearColor(0.02f, 0.03f, 0.05f, 1.0f);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             CursorGrabbed = false;
             CursorVisible = true;
 
-            Projection = Matrix4.CreatePerspectiveFieldOfView(45f * 3.14f / 180f, Width / (float)Height, 0.01f, 100f);
+            Projection = Matrix4.CreatePerspectiveFieldOfView(15f * 3.14f / 180f, Width / (float)Height, 0.01f, 100f);
 
             int stride = 12;
             GL.BindVertexArray(VertexArrayObject);

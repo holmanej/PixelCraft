@@ -35,12 +35,13 @@ void main()
 	// RESULT
 	vec4 result = vec4(ambient + diffuse + specular, 1f);
 	vec4 texColor = texture(texture0, texCoord);
-	if (texColor == vec4(0, 0, 0, 1))
-	{
-		fragColor = result * objColor;
-	}
-	else
-	{
-		fragColor = result * objColor * texColor;
-	}
+	fragColor = texColor;
+	//if (texColor == vec4(0, 0, 0, 1))
+	//{
+	//	fragColor = result * objColor;
+	//}
+	//else
+	//{
+	//	fragColor = result * objColor * texColor;
+	//}
 }

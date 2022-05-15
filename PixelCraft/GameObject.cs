@@ -1,5 +1,4 @@
 ﻿using OpenTK;
-using OpenTK.Graphics.ES11;
 using OpenTK.Input;
 using System;
 using System.Collections.Generic;
@@ -9,6 +8,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,6 +24,44 @@ namespace PixelCraft
             public Size ImageSize;
             public float metal;
             public float rough;
+
+            public Section() { }
+
+            public Section(Image img)
+            {
+                Bitmap bmp;
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    img.Save(stream, ImageFormat.Bmp);
+                    bmp = (Bitmap)Image.FromStream(stream);
+                    img.Save("stream.bmp", ImageFormat.Bmp);
+                }
+
+                bmp.MakeTransparent(bmp.GetPixel(0, 0));
+                BitmapData fileData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppRgb);
+                byte[] imgData = new byte[bmp.Width * bmp.Height * 4];
+                Marshal.Copy(fileData.Scan0, imgData, 0, imgData.Length);
+                bmp.UnlockBits(fileData);
+
+                float w = 0.5f;// bmp.Width;
+                float h = 0.5f;// bmp.Height;
+                VBOData = new List<float>()
+                {
+                    -w, -h, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1,
+                    w, -h, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,
+                    -w, h, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+                    w, -h, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,
+                    -w, h, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+                    w, h, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0
+                };
+
+                ImageData = imgData;
+                ImageSize = bmp.Size;
+                metal = 0.5f;
+                rough = 0.5f;
+
+                //Debug.WriteLine("Dim: {2}, {3} Size: {0} Data: {1}", ImageSize, ImageData.Length, w, h);
+            }
         }
 
         public List<Section> RenderSections;

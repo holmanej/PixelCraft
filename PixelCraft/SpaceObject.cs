@@ -24,9 +24,9 @@ namespace PixelCraft
         public bool Selected = false;
 
         // Movement PID
-        float Kp = 0.1f;
-        float Ki = 0.04f;
-        float Kd = 0.01f;
+        float Kp = 0.5f;
+        float Ki = 2f;
+        float Kd = 0.2f;
         float Zx_1;
         float Zy_1;
         float Zx_2;
@@ -80,8 +80,19 @@ namespace PixelCraft
             var roid = (Asteroid)objs["Asteroid"];
             Vector3 cpos = new Vector3(cursor.X, cursor.Y, 0);
             float dist = Vector3.Distance(Position, cpos);
-            //Debug.WriteLine(dist + " : " + Position.X + " " + Position.Y + " : " + cursor.X + " " + cursor.Y);
-            
+            Debug.WriteLine(dist + " : " + Position.X + " " + Position.Y + " : " + cursor.X + " " + cursor.Y);
+
+            if (cursor.RightPressed && dist < SOI)
+            {
+                Anchored = false;
+            }
+
+            if (!Anchored)
+            {
+                Seek(pcore.Position.X, pcore.Position.Y); 
+                //Thrust(1, 1);
+            }
+
             if (cursor.LeftPressed)
             {
                 if (dist < SOI)
@@ -101,7 +112,7 @@ namespace PixelCraft
                         Rotation = new Vector3(Rotation.X, Rotation.Y, (float)(Math.Atan(y / x) * 180 / Math.PI) - 90);
                         x *= roid.SOI + 0.1f;
                         y *= roid.SOI + 0.1f;
-                        Position = new Vector3(x, y, -0.9f);
+                        Position = new Vector3(x, y, 0);
                     }
                     Selected = false;
                 }

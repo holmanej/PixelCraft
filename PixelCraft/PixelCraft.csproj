@@ -53,8 +53,6 @@
     <Compile Include="Asteroid.cs" />
     <Compile Include="GameObject.cs" />
     <Compile Include="GameWindow.cs" />
-    <Compile Include="GLTFObject.cs" />
-    <Compile Include="GLTF_Converter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Shader.cs" />

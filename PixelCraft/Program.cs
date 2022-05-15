@@ -18,6 +18,7 @@ namespace PixelCraft
     {
         static public Dictionary<string, Shader> Shaders;
         static public Dictionary<string, FontFamily> Fonts;
+        static public Dictionary<string, Image> Textures;
 
         static void Main(string[] args)
         {
@@ -27,20 +28,26 @@ namespace PixelCraft
                 sw.Start();
                 Shaders = LoadShaders();
                 Fonts = LoadFonts();
+                Textures = LoadTextures();
 
                 SetDir(@"/resources/models");
 
-                var core_image = new GLTFObject(new GLTF_Converter("playerCore_v1.gltf"), Shaders["texture_shader"]);
-                var turret_image = new GLTFObject(new GLTF_Converter("turret_v0.gltf"), Shaders["texture_shader"]);
-                var fab_image = new GLTFObject(new GLTF_Converter("fabricator_v0.gltf"), Shaders["texture_shader"]);
-                var exca_iamge = new GLTFObject(new GLTF_Converter("excavator_v0.gltf"), Shaders["texture_shader"]);
-                var asteroid_image = new GLTFObject(new GLTF_Converter("asteroid_v2.gltf"), Shaders["texture_shader"]);
+                //var core_image = new GLTFObject(new GLTF_Converter("playerCore_v1.gltf"), Shaders["texture_shader"]);
+                //var turret_image = new GLTFObject(new GLTF_Converter("turret_v0.gltf"), Shaders["texture_shader"]);
+                //var fab_image = new GLTFObject(new GLTF_Converter("fabricator_v0.gltf"), Shaders["texture_shader"]);
+                //var exca_iamge = new GLTFObject(new GLTF_Converter("excavator_v0.gltf"), Shaders["texture_shader"]);
+                var roid_sections = new List<GameObject.Section>() { new GameObject.Section((Bitmap)Textures["asteroid"]) }; ;
 
-                gWin.GameObjects.Add("Player_Core", new ShipCore() { RenderSections = core_image.RenderSections, Shader = core_image.Shader, Position = new Vector3(-35f, 0f, 0f), Scale = new Vector3(0.15f, 0.1f, 0.15f), Rotation = new Vector3(90, 0, 0), SOI = 2.5f, Collidable = true });
-                gWin.GameObjects.Add("Asteroid", new Asteroid() { RenderSections = asteroid_image.RenderSections, Shader = asteroid_image.Shader, Position = new Vector3(0f, 0f, -1f), Scale = new Vector3(29f, 0.1f, 29f), Rotation = new Vector3(90, 0, 0), SOI = 29 });
-                gWin.GameObjects.Add("Player_Turret", new SpaceObject() { RenderSections = turret_image.RenderSections, Shader = turret_image.Shader, Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.15f, 0.1f, 0.15f), Rotation = new Vector3(90, 0, 270), SOI = 0.5f });
-                gWin.GameObjects.Add("Player_Fab", new SpaceObject() { RenderSections = fab_image.RenderSections, Shader = fab_image.Shader, Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.15f, 0.1f, 0.15f), Rotation = new Vector3(90, 0, 0), SOI = 0.5f });
-                gWin.GameObjects.Add("Player_Exca", new SpaceObject() { RenderSections = exca_iamge.RenderSections, Shader = exca_iamge.Shader, Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.15f, 0.1f, 0.15f), Rotation = new Vector3(90, 0, 180), SOI = 0.5f });
+
+
+                //gWin.GameObjects.Add("sec_Core", new ShipCore() { RenderSections = roid_sections, Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
+                gWin.GameObjects.Add("Asteroid", new Asteroid() { RenderSections = roid_sections, Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, -0.1f), Scale = new Vector3(50f, 50f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 24f });
+                gWin.GameObjects.Add("Player_Turret", new SpaceObject() { RenderSections = roid_sections, Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
+                gWin.GameObjects.Add("Player_Fab", new SpaceObject() { RenderSections = roid_sections, Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
+                gWin.GameObjects.Add("Player_Exca", new SpaceObject() { RenderSections = roid_sections, Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
+                //gWin.GameObjects.Add("Player_Exca2", new SpaceObject() { RenderSections = roid_sections, Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
+                gWin.GameObjects.Add("Player_Core", new ShipCore() { RenderSections = roid_sections, Shader = Shaders["texture_shader"], Position = new Vector3(-35f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f, Collidable = true });
+                
 
                 ((ShipCore)gWin.GameObjects["Player_Core"]).AddOrbiter((SpaceObject)gWin.GameObjects["Player_Turret"]);
                 ((ShipCore)gWin.GameObjects["Player_Core"]).AddOrbiter((SpaceObject)gWin.GameObjects["Player_Fab"]);
@@ -103,25 +110,25 @@ namespace PixelCraft
             return fonts;
         }
 
-        //static Dictionary<string, Texture> LoadTextures()
-        //{
-        //    SetDir(@"/resources/textures");
+        static Dictionary<string, Image> LoadTextures()
+        {
+            SetDir(@"/resources/textures");
 
-        //    Debug.WriteLine("Loading Textures");
-        //    Dictionary<string, Texture> textures = new Dictionary<string, Texture>();
-        //    string[] files = Directory.GetFiles(Directory.GetCurrentDirectory());
-        //    foreach (string f in files)
-        //    {
-        //        Debug.WriteLine(f);
-        //        Texture texture = new Texture(f);
-        //        string label = f.Substring(f.LastIndexOf('\\') + 1).Split('.')[0];
-        //        Debug.WriteLine(label);
+            Debug.WriteLine("Loading Textures");
+            Dictionary<string, Image> textures = new Dictionary<string, Image>();
+            string[] files = Directory.GetFiles(Directory.GetCurrentDirectory());
+            foreach (string f in files)
+            {
+                Debug.WriteLine(f);
+                Image texture = Image.FromFile(f);
+                string label = f.Substring(f.LastIndexOf('\\') + 1).Split('.')[0];
+                Debug.WriteLine(label);
 
-        //        textures.Add(label, texture);
-        //    }
+                textures.Add(label, texture);
+            }
 
-        //    return textures;
-        //}
+            return textures;
+        }
 
         public static void SetDir(string name)
         {
