@@ -34,8 +34,8 @@ namespace PixelCraft
                 var orb = Orbiters[i];
                 if (orb.Anchored)
                 {
-                    //orb.Seek(Position.X + 2 * (float)Math.Sin(1 / 2 + Math.PI * 2 * Orbiters.IndexOf(orb) / Orbiters.Count), Position.Y + 2 * (float)Math.Cos(1 / 2 + Math.PI * 2 * Orbiters.IndexOf(orb) / Orbiters.Count));
-                    orb.Position = new Vector3(Position.X + 2 * (float)Math.Sin(gametime / 2 + Math.PI * 2 * Orbiters.IndexOf(orb) / Orbiters.Count), Position.Y + 2 * (float)Math.Cos(gametime / 2 + Math.PI * 2 * Orbiters.IndexOf(orb) / Orbiters.Count), Position.Z);
+                    orb.Seek(Position.X + 2.5f * (float)Math.Sin(gametime / 2 + Math.PI * 2 * Orbiters.IndexOf(orb) / Orbiters.Count), Position.Y + 2.5f * (float)Math.Cos(gametime / 2 + Math.PI * 2 * Orbiters.IndexOf(orb) / Orbiters.Count));
+                    //orb.Position = new Vector3(Position.X + 2.5f * (float)Math.Sin(gametime / 2 + Math.PI * 2 * Orbiters.IndexOf(orb) / Orbiters.Count), Position.Y + 2.5f * (float)Math.Cos(gametime / 2 + Math.PI * 2 * Orbiters.IndexOf(orb) / Orbiters.Count), Position.Z);
                 }
                 //else
                 //{

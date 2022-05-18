@@ -11,10 +11,13 @@ namespace PixelCraft
 {
     class SpaceObject : GameObject
     {
+        public float health = 1;
+
         public float Vx;
         public float Vy;
         public float Ax = 0.005f;
         public float Ay = 0.005f;
+        public float Vt = 2f;
         public float Friction = 0.3f;
         public float TopSpeed = 0.2f;
         public float Mass = 0.001f;
@@ -24,9 +27,9 @@ namespace PixelCraft
         public bool Selected = false;
 
         // Movement PID
-        float Kp = 0.5f;
-        float Ki = 2f;
-        float Kd = 0.2f;
+        public float Kp = 0.5f;
+        public float Ki = 3f;
+        public float Kd = -3f;
         float Zx_1;
         float Zy_1;
         float Zx_2;
@@ -49,7 +52,7 @@ namespace PixelCraft
             }
             else if (dt > TopSpeed)
             {
-                Vx = (Vx + dx) / dt * TopSpeed;                
+                Vx = (Vx + dx) / dt * TopSpeed;
                 Vy = (Vy + dy) / dt * TopSpeed;
             }
 
@@ -64,8 +67,9 @@ namespace PixelCraft
             float dx = (Zx_0 * Kp + Zx_1 * Ki + Zx_2 * Kd) / 3;
             float dy = (Zy_0 * Kp + Zy_1 * Ki + Zy_2 * Kd) / 3;
             float dist = (float)Math.Sqrt(Math.Pow(dx, 2) + Math.Pow(dy, 2));
-            if (dist > SOI) { Thrust(dx / dist, dy / dist); }
-            else { Thrust(0, 0); }
+            //if (dist > SOI) 
+            { Thrust(dx / dist, dy / dist); }
+            //else { Thrust(0, 0); }
             //Debug.WriteLine(dx / dist + " " + dy / dist);
 
             Zx_2 = Zx_1;
@@ -109,7 +113,7 @@ namespace PixelCraft
                         roid.Orbiters.Add(this);
                         float x = (cursor.X - roid.Position.X) / dist;
                         float y = (cursor.Y - roid.Position.Y) / dist;
-                        Rotation = new Vector3(Rotation.X, Rotation.Y, (float)(Math.Atan(y / x) * 180 / Math.PI) - 90);
+                        Rotation = new Vector3(Rotation.X, Rotation.Y, (float)(Math.Atan(y / x) * 180 / Math.PI) + 90);
                         x *= roid.SOI + 0.1f;
                         y *= roid.SOI + 0.1f;
                         Position = new Vector3(x, y, 0);

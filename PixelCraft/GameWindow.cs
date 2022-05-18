@@ -75,10 +75,10 @@ namespace PixelCraft
 
         private int VertexArrayObject;
         private int VertexBufferObject;
-        private int TextureBufferObject;
+        //private int TextureBufferObject;
         private int VerticesLength;
 
-        private float ViewX = 0;
+        private float ViewX = -35f;
         private float ViewY = 0;
         private float ViewZ = 90f;
 
@@ -93,7 +93,7 @@ namespace PixelCraft
         {
             VertexArrayObject = GL.GenVertexArray();
             VertexBufferObject = GL.GenBuffer();
-            TextureBufferObject = GL.GenTexture();
+            //TextureBufferObject = GL.GenTexture();
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -164,6 +164,7 @@ namespace PixelCraft
                 Readout_Position.Text = "X= " + ViewX.ToString("F2") + "  Y= " + ViewY.ToString("F2") + "  Z= " + (int)ViewZ;
                 Readout_Rotation.Text = "X= " + (int)(0 % 360) + "  Y= " + (int)(0 % 360);
                 Readout_FPS.Text = "FPS= " + (int)avgFPS.Average();
+                Debug.Print("FPS= {0}", (int)avgFPS.Average());
             }
 
             base.OnUpdateFrame(e);
@@ -204,6 +205,21 @@ namespace PixelCraft
             GameObjects.Add("rot_rdout", Readout_Rotation);
             GameObjects.Add("fps_rdout", Readout_FPS);
 
+            // IMAGE GEN
+            foreach (var obj in GameObjects.Values)
+            {
+                foreach (var sect in obj.RenderSections)
+                {
+                    sect.ImageHandle = GL.GenTexture();
+                    Debug.WriteLine(sect.ImageHandle);
+                    GL.BindTexture(TextureTarget.Texture2D, sect.ImageHandle);
+                    GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, sect.ImageSize.Width, sect.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, sect.ImageData);
+                    GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+                    GL.BindTexture(TextureTarget.Texture2D, 0);
+                    sect.ImageUpdate = false;
+                }
+            }
+
             base.OnLoad(e);
         }
 
@@ -211,7 +227,7 @@ namespace PixelCraft
         {
             GL.DeleteVertexArray(VertexArrayObject);
             GL.DeleteBuffer(VertexBufferObject);
-            GL.DeleteTexture(TextureBufferObject);
+            //GL.DeleteTexture(TextureBufferObject);
             foreach (var obj in GameObjects.Values)
             {
                 obj.Shader.Dispose();
@@ -220,7 +236,7 @@ namespace PixelCraft
             base.OnUnload(e);
         }
 
-        public void BufferObject(float[] vertices, byte[] pixels, Size texSize)
+        public void BufferObject(float[] vertices, int tex)
         {
             GL.BindVertexArray(VertexArrayObject);
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
@@ -231,9 +247,7 @@ namespace PixelCraft
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
-            GL.BindTexture(TextureTarget.Texture2D, TextureBufferObject);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, texSize.Width, texSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, pixels);
-            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+            GL.BindTexture(TextureTarget.Texture2D, tex);
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -247,12 +261,10 @@ namespace PixelCraft
 
             GL.BindVertexArray(VertexArrayObject);
 
-
             foreach (GameObject gameObject in GameObjects.Values)
             {
                 if (gameObject.Enabled)
                 {
-
                     shader = gameObject.Shader;
                     shader.Use();
 
@@ -267,14 +279,18 @@ namespace PixelCraft
                     shader.SetMatrix4("obj_scale", gameObject.matScale);
                     shader.SetMatrix4("obj_rotate", gameObject.matRot);
 
-                    shader.SetTexture("texture0", 0);
+                    //shader.SetTexture("texture0", 0);
 
                     foreach (GameObject.Section section in gameObject.RenderSections)
                     {
-                        BufferObject(section.VBOData.ToArray(), section.ImageData, section.ImageSize);
+                        if (section.ImageUpdate)
+                        {
+                            GL.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, section.ImageSize.Width, section.ImageSize.Height, PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
+                            section.ImageUpdate = false;
+                        }
+                        BufferObject(section.VBOData.ToArray(), section.ImageHandle);
                         GL.DrawArrays(PrimitiveType.Triangles, 0, VerticesLength);
                     }
-
                 }
             }
             GL.BindVertexArray(0);

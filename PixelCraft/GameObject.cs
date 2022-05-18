@@ -22,6 +22,8 @@ namespace PixelCraft
             public List<float> NormalData;
             public byte[] ImageData;
             public Size ImageSize;
+            public int ImageHandle;
+            public bool ImageUpdate;
             public float metal;
             public float rough;
 
@@ -43,16 +45,16 @@ namespace PixelCraft
                 Marshal.Copy(fileData.Scan0, imgData, 0, imgData.Length);
                 bmp.UnlockBits(fileData);
 
-                float w = 0.25f;// bmp.Width;
-                float h = 0.25f;// bmp.Height;
+                float w = 1f;// bmp.Width;
+                float h = 1f;// bmp.Height;
                 VBOData = new List<float>()
                 {
-                    -w, -h, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1,
-                    w, -h, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,
-                    -w, h, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-                    w, -h, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,
-                    -w, h, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-                    w, h, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0
+                    -w, -h, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                    w, -h, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+                    -w, h, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    w, -h, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+                    -w, h, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    w, h, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0
                 };
 
                 ImageData = imgData;

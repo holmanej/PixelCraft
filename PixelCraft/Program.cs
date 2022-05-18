@@ -32,17 +32,15 @@ namespace PixelCraft
 
                 SetDir(@"/resources/models");
 
-                var roid_sections = new List<GameObject.Section>() { new GameObject.Section((Bitmap)Textures["asteroid"]) };
-                Debug.WriteLine(roid_sections[0].ImageSize);
-
-                //gWin.GameObjects.Add("sec_Core", new ShipCore() { RenderSections = roid_sections, Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
-                gWin.GameObjects.Add("Asteroid", new Asteroid() { RenderSections = roid_sections, Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, -0.1f), Scale = new Vector3(50f, 50f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 24f });
-                gWin.GameObjects.Add("Player_Turret", new SpaceObject() { RenderSections = roid_sections, Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
-                gWin.GameObjects.Add("Player_Fab", new SpaceObject() { RenderSections = roid_sections, Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
-                gWin.GameObjects.Add("Player_Exca", new SpaceObject() { RenderSections = roid_sections, Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
-                //gWin.GameObjects.Add("Player_Exca2", new SpaceObject() { RenderSections = roid_sections, Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
-                gWin.GameObjects.Add("Player_Core", new ShipCore() { RenderSections = roid_sections, Shader = Shaders["texture_shader"], Position = new Vector3(-35f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f, Collidable = true });
-                
+                var bullet = new SpaceObject() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"] };
+                gWin.GameObjects.Add("Asteroid", new Asteroid() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, -0.1f), Scale = new Vector3(25f, 25f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 25f });
+                gWin.GameObjects.Add("Player_Turret", new SpaceObject() { RenderSections = Img2Sect(Textures["Turret"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(1.1f, 1.1f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
+                gWin.GameObjects.Add("Player_Fab", new SpaceObject() { RenderSections = Img2Sect(Textures["Fabricator"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.7f, 0.7f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
+                gWin.GameObjects.Add("Player_Exca", new SpaceObject() { RenderSections = Img2Sect(Textures["Excavator"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(1.3f, 1.3f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
+                gWin.GameObjects.Add("Player_Core", new ShipCore() { RenderSections = Img2Sect(Textures["ShipCore"]), Shader = Shaders["texture_shader"], Position = new Vector3(-35f, 0f, 0.1f), Scale = new Vector3(0.6f, 0.6f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f, Collidable = true });
+                gWin.GameObjects.Add("starfield", new SpaceObject() { RenderSections = Img2Sect(Textures["StarField"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, -0.2f), Scale = new Vector3(50f, 50f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f, Collidable = true });
+                gWin.GameObjects.Add("enemy", new Enemy() { RenderSections = Img2Sect(Textures["Enemy"]), Shader = Shaders["texture_shader"], Position = new Vector3(-40f, 0f, 0.2f), Scale = new Vector3(1f, 1f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f, Collidable = true });
+                ((Enemy)gWin.GameObjects["enemy"]).LoadBullets(bullet);
 
                 ((ShipCore)gWin.GameObjects["Player_Core"]).AddOrbiter((SpaceObject)gWin.GameObjects["Player_Turret"]);
                 ((ShipCore)gWin.GameObjects["Player_Core"]).AddOrbiter((SpaceObject)gWin.GameObjects["Player_Fab"]);
@@ -54,7 +52,7 @@ namespace PixelCraft
                 //    int x = rand.Next(-50, 50);
                 //    int y = rand.Next(-50, 50);
                 //    float s = (float)rand.NextDouble() / 10;
-                //    gWin.GameObjects.Add("Asteroid" + i.ToString(), new GLTFObject(new GLTF_Converter("asteroid_v1.gltf"), Shaders["texture_shader"]) { Position = new Vector3(x, y, -11f), Scale = new Vector3(s, 0.01f, s), Rotation = new Vector3(90, 0, 0), Collidable = true });
+                //    gWin.GameObjects.Add("Asteroid" + i.ToString(), new Asteroid() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"], Position = new Vector3(x, y, -0.1f), Scale = new Vector3(s, s, 1f), Rotation = new Vector3(0, 0, 0), Collidable = true });
                 //}
 
                 sw.Stop();
@@ -62,6 +60,11 @@ namespace PixelCraft
                 gWin.VSync = VSyncMode.Off;
                 gWin.Run(60, 0);
             }
+        }
+
+        static List<GameObject.Section> Img2Sect(Image img)
+        {
+            return new List<GameObject.Section>() { new GameObject.Section((Bitmap)img) };
         }
 
         static Dictionary<string, Shader> LoadShaders()
@@ -114,7 +117,7 @@ namespace PixelCraft
             string[] files = Directory.GetFiles(Directory.GetCurrentDirectory());
             foreach (string f in files)
             {
-                Debug.WriteLine(f);
+                //Debug.WriteLine(f);
                 Image texture = Image.FromFile(f);
                 string label = f.Substring(f.LastIndexOf('\\') + 1).Split('.')[0];
                 Debug.WriteLine(label);

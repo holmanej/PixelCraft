@@ -57,12 +57,18 @@ namespace PixelCraft
 
         private void WriteString()
         {
+            int handle = 0;
+            if (RenderSections.Count > 0) { handle = RenderSections[0].ImageHandle; }
             RenderSections.Clear();
 
             List<Bitmap> stringBmps = new List<Bitmap>();
             for (int i = 0; i < _Text.Length; i++)
             {
                 stringBmps.Add(Characters[_Text[i] - ' ']);
+            }
+            for (int i = _Text.Length; i < 32; i++)
+            {
+                stringBmps.Add(Characters[' ']);
             }
             int stringWidth = stringBmps.Sum(b => b.Width);
             int stringHeight = stringBmps[0].Height;
@@ -98,6 +104,8 @@ namespace PixelCraft
 
                 ImageData = imgData,
                 ImageSize = template.Size,
+                ImageHandle = handle,
+                ImageUpdate = true,
 
                 metal = 0.5f,
                 rough = 0.5f
