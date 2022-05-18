@@ -12,6 +12,7 @@ uniform mat4 obj_rotate;
 
 uniform mat4 model;
 uniform mat4 view_translate;
+uniform mat4 view_scale;
 uniform mat4 view_rotate;
 uniform mat4 projection;
 
@@ -30,7 +31,7 @@ out vec3 viewPos;
 void main()
 {
 	vec4 obj = vec4(vPosition, 1f) * obj_scale * obj_rotate * obj_translate;
-	gl_Position = obj * model * view_translate * view_rotate * projection;
+	gl_Position = obj * model * view_translate * view_rotate * view_scale;// * projection;
 
 	
 	fragPos = vec3(vec4(vPosition, 1f) * model);

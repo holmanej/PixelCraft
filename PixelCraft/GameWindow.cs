@@ -34,8 +34,8 @@ namespace PixelCraft
 
         public void Update(MouseState m, int x, int y, int w, int h, float vX, float vY)
         {
-            X = ((m.X - x) / (float)w - 0.5f) * 20 + vX;
-            Y = ((y - m.Y) / (float)h + 0.535f) * 20 + vY;
+            X = (((m.X - x - 7 - w / 2) / (float)w * 2) * 10 + vX);
+            Y = ((-(m.Y - y - 31 - h / 2) / (float)h * 2) * 10 + vY);
             LeftDown = m.LeftButton == ButtonState.Pressed;
             RightDown = m.RightButton == ButtonState.Pressed;
             MiddleDown = m.MiddleButton == ButtonState.Pressed;
@@ -70,6 +70,7 @@ namespace PixelCraft
 
         public Matrix4 Model;
         public Matrix4 View_Translate;
+        public Matrix4 View_Scale;
         public Matrix4 View_Rotate;
         public Matrix4 Projection;
 
@@ -80,7 +81,7 @@ namespace PixelCraft
 
         private float ViewX = -35f;
         private float ViewY = 0;
-        private float ViewZ = 90f;
+        private float ViewZ = 0f;
 
         private bool F3_Down = false;
         private double GameTime = 0;
@@ -98,11 +99,16 @@ namespace PixelCraft
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+            float coreX = GameObjects["Player_Core"].Position.X;
+            float coreY = GameObjects["Player_Core"].Position.Y;
+
             KeyboardState keybd = Keyboard.GetState();
             MouseState mouse = Mouse.GetCursorState();
-            GameCursor.Update(mouse, X, Y, Width, Height, ViewX, ViewY);
-            //Debug.WriteLine(GameCursor.X + " " + GameCursor.Y);
+            GameCursor.Update(mouse, X, Y, Width, Height, coreX, coreY);
+            Debug.WriteLine(GameCursor.X + " " + GameCursor.Y);
             GameTime += e.Time;
+
+            GameObjects["ClickSpot"].Position = new Vector3(GameCursor.X, GameCursor.Y, 0f);
 
             float coreX_prev = GameObjects["Player_Core"].Position.X;
             float coreY_prev = GameObjects["Player_Core"].Position.Y;
@@ -112,8 +118,7 @@ namespace PixelCraft
                 obj.Update(GameObjects, keybd, GameCursor, GameTime);
             }
 
-            float coreX = GameObjects["Player_Core"].Position.X;
-            float coreY = GameObjects["Player_Core"].Position.Y;
+
 
             ShipCore core = (ShipCore)GameObjects["Player_Core"];
             Vector3 astPos = GameObjects["Asteroid"].Position;
@@ -128,6 +133,8 @@ namespace PixelCraft
             float porp = 0.05f;
             ViewX -= (((ViewX - coreX) * porp) + ((ViewX - coreX_prev) * porp)) / 2;
             ViewY -= (((ViewY - coreY) * porp) + ((ViewY - coreY_prev) * porp)) / 2;
+            ViewX = coreX;
+            ViewY = coreY;
 
             if (keybd.IsKeyDown(Key.F1) && core.Orbiters.Count > 0)
             {
@@ -164,7 +171,7 @@ namespace PixelCraft
                 Readout_Position.Text = "X= " + ViewX.ToString("F2") + "  Y= " + ViewY.ToString("F2") + "  Z= " + (int)ViewZ;
                 Readout_Rotation.Text = "X= " + (int)(0 % 360) + "  Y= " + (int)(0 % 360);
                 Readout_FPS.Text = "FPS= " + (int)avgFPS.Average();
-                Debug.Print("FPS= {0}", (int)avgFPS.Average());
+                //Debug.Print("FPS= {0}", (int)avgFPS.Average());
             }
 
             base.OnUpdateFrame(e);
@@ -179,7 +186,7 @@ namespace PixelCraft
             CursorGrabbed = false;
             CursorVisible = true;
 
-            Projection = Matrix4.CreatePerspectiveFieldOfView(15f * 3.14f / 180f, Width / (float)Height, 0.01f, 100f);
+            Projection = Matrix4.CreatePerspectiveFieldOfView(15f * 3.14f / 180f, Width / (float)Height, 0.1f, 100f);
 
             int stride = 12;
             GL.BindVertexArray(VertexArrayObject);
@@ -256,6 +263,7 @@ namespace PixelCraft
 
             Model = Matrix4.CreateTranslation(0, 0, 0);
             View_Translate = Matrix4.CreateTranslation(-ViewX, -ViewY, -ViewZ);
+            View_Scale = Matrix4.CreateScale(0.1f, 0.1f, 0);
             View_Rotate = Matrix4.CreateRotationY(0 * 3.14f / 180) * Matrix4.CreateRotationX(0 * 3.14f / 180);
             Vector3 playerPos = new Vector3(ViewX, ViewY, ViewZ);
 
@@ -272,6 +280,7 @@ namespace PixelCraft
 
                     shader.SetMatrix4("model", Model);
                     shader.SetMatrix4("view_translate", View_Translate);
+                    shader.SetMatrix4("view_scale", View_Scale);
                     shader.SetMatrix4("view_rotate", View_Rotate);
                     shader.SetMatrix4("projection", Projection);
 
