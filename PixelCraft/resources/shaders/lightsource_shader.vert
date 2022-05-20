@@ -43,16 +43,16 @@ void main()
 		0, 0, 0, 1
 	);
 
-	vec4 obj = vec4(vPosition, 1f) * scale * move;	
+	vec4 obj = vec4(vPosition, 1) * scale * move;	
 	gl_Position = obj * model * view_translate * view_rotate * projection;
 
 	texPos = vec3(0, 0, 0);
 	
-	fragPos = vec3(vec4(vPosition, 1f) * model);
+	fragPos = vec3(vec4(vPosition, 1) * model);
 	fragNormal = vNormal * mat3(transpose(inverse(model)));	
 	
 	objColor = iColor;
-	lightColor = vec3(1f, 1f, 1f);
-	lightPos = vec3(-50f, 10f, -50f);
+	lightColor = vec3(1, 1, 1);
+	lightPos = vec3(-50, 10, -50);
 	viewPos = pPosition;
 }

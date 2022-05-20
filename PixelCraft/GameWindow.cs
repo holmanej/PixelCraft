@@ -34,8 +34,8 @@ namespace PixelCraft
 
         public void Update(MouseState m, int x, int y, int w, int h, float vX, float vY)
         {
-            X = (((m.X - x - 7 - w / 2) / (float)w * 2) * 10 + vX);
-            Y = ((-(m.Y - y - 31 - h / 2) / (float)h * 2) * 10 + vY);
+            X = (((x - w / 2) / (float)w * 2) * 10 + vX);
+            Y = ((-(y - h / 2) / (float)h * 2) * 10 + vY);
             LeftDown = m.LeftButton == ButtonState.Pressed;
             RightDown = m.RightButton == ButtonState.Pressed;
             MiddleDown = m.MiddleButton == ButtonState.Pressed;
@@ -76,8 +76,10 @@ namespace PixelCraft
 
         private int VertexArrayObject;
         private int VertexBufferObject;
-        //private int TextureBufferObject;
         private int VerticesLength;
+
+        private int MouseX;
+        private int MouseY;
 
         private float ViewX = -35f;
         private float ViewY = 0;
@@ -94,7 +96,13 @@ namespace PixelCraft
         {
             VertexArrayObject = GL.GenVertexArray();
             VertexBufferObject = GL.GenBuffer();
-            //TextureBufferObject = GL.GenTexture();
+        }
+
+        protected override void OnMouseMove(MouseMoveEventArgs e)
+        {
+            MouseX = e.X;
+            MouseY = e.Y;
+            base.OnMouseMove(e);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -104,8 +112,9 @@ namespace PixelCraft
 
             KeyboardState keybd = Keyboard.GetState();
             MouseState mouse = Mouse.GetCursorState();
-            GameCursor.Update(mouse, X, Y, Width, Height, coreX, coreY);
-            Debug.WriteLine(GameCursor.X + " " + GameCursor.Y);
+            GameCursor.Update(mouse, MouseX, MouseY, Width, Height, coreX, coreY);
+            //Debug.Print("Mx: {0} My: {1}", MouseX, MouseY);
+            //Debug.WriteLine(GameCursor.X + " " + GameCursor.Y);
             GameTime += e.Time;
 
             GameObjects["ClickSpot"].Position = new Vector3(GameCursor.X, GameCursor.Y, 0f);
@@ -169,11 +178,12 @@ namespace PixelCraft
             if (Readout_Position.Enabled)
             {
                 Readout_Position.Text = "X= " + ViewX.ToString("F2") + "  Y= " + ViewY.ToString("F2") + "  Z= " + (int)ViewZ;
-                Readout_Rotation.Text = "X= " + (int)(0 % 360) + "  Y= " + (int)(0 % 360);
+                //Readout_Rotation.Text = "X= " + (int)(0 % 360) + "  Y= " + (int)(0 % 360);
+                Readout_Rotation.Text = "Gametime=" + GameTime;
                 Readout_FPS.Text = "FPS= " + (int)avgFPS.Average();
                 //Debug.Print("FPS= {0}", (int)avgFPS.Average());
             }
-
+            
             base.OnUpdateFrame(e);
         }
 
@@ -205,9 +215,9 @@ namespace PixelCraft
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
             // Readouts
-            Readout_Position = new TextObject("Hello, World!", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-1, 0.95f, 0), Color = Color.White, BGColor = Color.Black, Size = 8 };
-            Readout_Rotation = new TextObject("*", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-1, 0.9f, 0), Color = Color.White, BGColor = Color.Black, Size = 8 };
-            Readout_FPS = new TextObject("*", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-1, 0.85f, 0), Color = Color.White, BGColor = Color.Black, Size = 8 };
+            Readout_Position = new TextObject("Hello, World!", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-1, 0.9f, 0), Scale = new Vector3(1.2f, 0.07f, 1f), Color = Color.White, BGColor = Color.Black, Size = 12 };
+            Readout_Rotation = new TextObject("*", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-1, 0.8f, 0), Scale = new Vector3(1.2f, 0.07f, 1f), Color = Color.White, BGColor = Color.Black, Size = 12 };
+            Readout_FPS = new TextObject("*", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-1, 0.7f, 0), Scale = new Vector3(1.2f, 0.07f, 1f), Color = Color.White, BGColor = Color.Black, Size = 12 };
             GameObjects.Add("pos_rdout", Readout_Position);
             GameObjects.Add("rot_rdout", Readout_Rotation);
             GameObjects.Add("fps_rdout", Readout_FPS);
@@ -226,6 +236,7 @@ namespace PixelCraft
                     sect.ImageUpdate = false;
                 }
             }
+            Readout_Position.RenderSections[0].ImageHandle = 8;
 
             base.OnLoad(e);
         }
@@ -234,7 +245,6 @@ namespace PixelCraft
         {
             GL.DeleteVertexArray(VertexArrayObject);
             GL.DeleteBuffer(VertexBufferObject);
-            //GL.DeleteTexture(TextureBufferObject);
             foreach (var obj in GameObjects.Values)
             {
                 obj.Shader.Dispose();
@@ -252,8 +262,6 @@ namespace PixelCraft
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
             GL.BindTexture(TextureTarget.Texture2D, tex);
         }
 
@@ -288,12 +296,14 @@ namespace PixelCraft
                     shader.SetMatrix4("obj_scale", gameObject.matScale);
                     shader.SetMatrix4("obj_rotate", gameObject.matRot);
 
-                    //shader.SetTexture("texture0", 0);
+                    shader.SetTexture("texture0", 0);
 
                     foreach (GameObject.Section section in gameObject.RenderSections)
                     {
                         if (section.ImageUpdate)
                         {
+                            GL.ActiveTexture(TextureUnit.Texture0);
+                            GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
                             GL.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, section.ImageSize.Width, section.ImageSize.Height, PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
                             section.ImageUpdate = false;
                         }

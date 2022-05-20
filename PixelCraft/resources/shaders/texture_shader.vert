@@ -30,17 +30,17 @@ out vec3 viewPos;
 
 void main()
 {
-	vec4 obj = vec4(vPosition, 1f) * obj_scale * obj_rotate * obj_translate;
+	vec4 obj = vec4(vPosition, 1) * obj_scale * obj_rotate * obj_translate;
 	gl_Position = obj * model * view_translate * view_rotate * view_scale;// * projection;
 
 	
-	fragPos = vec3(vec4(vPosition, 1f) * model);
+	fragPos = vec3(vec4(vPosition, 1) * model);
 	fragNormal = vNormal * mat3(transpose(inverse(model)));
 	
 	texCoord = tCoord;
 	
 	objColor = vColor;
-	lightColor = vec3(1f, 1f, 1f);
-	lightPos = vec3(-6f, 6f, 8f);
+	lightColor = vec3(1, 1, 1);
+	lightPos = vec3(-6, 6, 8);
 	viewPos = player_position;
 }

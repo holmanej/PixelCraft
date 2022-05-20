@@ -34,12 +34,13 @@ namespace PixelCraft
             FontFamily = fontfamily;
 
             CreateBitmaps();
-            RenderSections = new List<Section>();
+            RenderSections = new List<Section>() { new Section() };
             WriteString();
         }
 
         private void CreateBitmaps()
         {
+            Characters.Clear();
             Font font = new Font(FontFamily, _Size, GraphicsUnit.Pixel);
             for (int i = 32; i < 127; i++)
             {
@@ -57,18 +58,14 @@ namespace PixelCraft
 
         private void WriteString()
         {
-            int handle = 0;
-            if (RenderSections.Count > 0) { handle = RenderSections[0].ImageHandle; }
-            RenderSections.Clear();
-
             List<Bitmap> stringBmps = new List<Bitmap>();
             for (int i = 0; i < _Text.Length; i++)
             {
                 stringBmps.Add(Characters[_Text[i] - ' ']);
             }
-            for (int i = _Text.Length; i < 32; i++)
+            for (int i =  _Text.Length; i < 32; i++)
             {
-                stringBmps.Add(Characters[' ']);
+                stringBmps.Add(Characters['_' - ' ']);
             }
             int stringWidth = stringBmps.Sum(b => b.Width);
             int stringHeight = stringBmps[0].Height;
@@ -88,11 +85,9 @@ namespace PixelCraft
             Marshal.Copy(charData.Scan0, imgData, 0, imgData.Length);
             template.UnlockBits(charData);
 
-            float w = stringWidth / 400f;
-            float h = stringHeight / 300f;
-            RenderSections.Add(new Section
-            {
-                VBOData = new List<float>()
+            float w = 1f;
+            float h = 1f;
+            RenderSections[0].VBOData = new List<float>()
                 {
                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
                     w, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
@@ -100,16 +95,12 @@ namespace PixelCraft
                     w, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
                     0, h, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                     w, h, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0
-                },
-
-                ImageData = imgData,
-                ImageSize = template.Size,
-                ImageHandle = handle,
-                ImageUpdate = true,
-
-                metal = 0.5f,
-                rough = 0.5f
-            });
+                };
+            RenderSections[0].ImageData = imgData;
+            RenderSections[0].ImageSize = template.Size;
+            RenderSections[0].ImageUpdate = true;
+            RenderSections[0].metal = 0.5f;
+            RenderSections[0].rough = 0.5f;
         }
 
         public override void Update(Dictionary<string, GameObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)

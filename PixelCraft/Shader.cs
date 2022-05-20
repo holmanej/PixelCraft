@@ -43,7 +43,7 @@ namespace PixelCraft
             string infoLogVert = GL.GetShaderInfoLog(VertexShader);
             if (infoLogVert != string.Empty)
             {
-                Debug.WriteLine(infoLogVert);
+                Debug.WriteLine("vert" + infoLogVert);
             }
 
             GL.CompileShader(FragmentShader);
@@ -51,7 +51,7 @@ namespace PixelCraft
             string infoLogFrag = GL.GetShaderInfoLog(FragmentShader);
             if (infoLogFrag != string.Empty)
             {
-                Debug.WriteLine(infoLogFrag);
+                Debug.WriteLine("frag" + infoLogFrag);
             }
 
             Handle = GL.CreateProgram();

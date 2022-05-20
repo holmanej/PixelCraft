@@ -22,7 +22,7 @@ namespace PixelCraft
 
         static void Main(string[] args)
         {
-            using (GameWindow gWin = new GameWindow(1200, 900, "OpenTK Template"))
+            using (GameWindow gWin = new GameWindow(1000, 750, "OpenTK Template"))
             {
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
@@ -33,12 +33,12 @@ namespace PixelCraft
                 SetDir(@"/resources/models");
 
                 var bullet = new SpaceObject() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"] };
-                gWin.GameObjects.Add("Asteroid", new Asteroid() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(25f, 25f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 25f });
-                gWin.GameObjects.Add("Player_Turret", new SpaceObject() { RenderSections = Img2Sect(Textures["Turret"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
-                gWin.GameObjects.Add("Player_Fab", new SpaceObject() { RenderSections = Img2Sect(Textures["Fabricator"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
-                gWin.GameObjects.Add("Player_Exca", new SpaceObject() { RenderSections = Img2Sect(Textures["Excavator"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
-                gWin.GameObjects.Add("Player_Core", new ShipCore() { RenderSections = Img2Sect(Textures["ShipCore"]), Shader = Shaders["texture_shader"], Position = new Vector3(-35f, 0f, 0f), Scale = new Vector3(0.6f, 0.6f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f, Collidable = true });
-                gWin.GameObjects.Add("starfield", new SpaceObject() { RenderSections = Img2Sect(Textures["StarField"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(50f, 50f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f, Collidable = true });
+                gWin.GameObjects.Add("Asteroid", new Asteroid() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, -0.2f), Scale = new Vector3(25f, 25f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 25f });
+                gWin.GameObjects.Add("Player_Turret", new SpaceObject() { RenderSections = Img2Sect(Textures["Turret"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, -0.1f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
+                gWin.GameObjects.Add("Player_Fab", new SpaceObject() { RenderSections = Img2Sect(Textures["Fabricator"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, -0.1f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
+                gWin.GameObjects.Add("Player_Exca", new SpaceObject() { RenderSections = Img2Sect(Textures["Excavator"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, -0.1f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
+                gWin.GameObjects.Add("Player_Core", new ShipCore() { RenderSections = Img2Sect(Textures["ShipCore"]), Shader = Shaders["texture_shader"], Position = new Vector3(-35f, 0f, -0.1f), Scale = new Vector3(0.6f, 0.6f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f, Collidable = true });
+                //gWin.GameObjects.Add("starfield", new SpaceObject() { RenderSections = Img2Sect(Textures["StarField"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, -0.3f), Scale = new Vector3(50f, 50f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f, Collidable = true });
                 gWin.GameObjects.Add("enemy", new Enemy() { RenderSections = Img2Sect(Textures["Enemy"]), Shader = Shaders["texture_shader"], Position = new Vector3(-40f, 0f, 0f), Scale = new Vector3(0.6f, 0.6f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f, Collidable = true });
                 gWin.GameObjects.Add("ClickSpot", new Asteroid() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.1f, 0.1f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
 
