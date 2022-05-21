@@ -17,7 +17,7 @@ namespace PixelCraft
             Orbiters = new List<SpaceObject>();
         }
 
-        public override void Update(Dictionary<string, GameObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
+        public override void Update(Dictionary<string, RenderObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
         {
             float xMove = 0;
             float yMove = 0;

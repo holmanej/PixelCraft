@@ -37,7 +37,7 @@ namespace PixelCraft
                 b.Position = Position;
                 b.Translate(0, 0, 0.1f);
                 b.Scale = new Vector3(0.1f, 0.1f, 1);
-                b.Enabled = false;
+                b.Visible = false;
                 TopSpeed = 20f;
                 Bullets.Add(b);
             }
@@ -63,10 +63,10 @@ namespace PixelCraft
             //}
         }
 
-        public override void Update(Dictionary<string, GameObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
+        public override void Update(Dictionary<string, SpaceObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
         {
             var player = (SpaceObject)objs["Player_Core"];
-            Seek(player.Position.X + 10f * (float)Math.Sin(gametime * 2), player.Position.Y + 10f * (float)Math.Cos(gametime * 2));
+            //Seek(player.Position.X + 10f * (float)Math.Sin(gametime * 2), player.Position.Y + 10f * (float)Math.Cos(gametime * 2));
             float dx = player.Position.X - Position.X;
             float dy = player.Position.Y - Position.Y;
             float theta = (float)(Math.Atan(dy / dx) * 180 / Math.PI);

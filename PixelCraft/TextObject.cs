@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace PixelCraft
 {
-    class TextObject : GameObject
+    public class TextObject : RenderObject
     {
         private FontFamily FontFamily;
         private List<Bitmap> Characters = new List<Bitmap>();
@@ -80,6 +80,8 @@ namespace PixelCraft
                     totalWidth += stringBmps[i].Width;
                 }
             }
+
+            template.MakeTransparent(_BGColor);
             BitmapData charData = template.LockBits(new Rectangle(0, 0, template.Width, template.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppRgb);
             byte[] imgData = new byte[template.Width * template.Height * 4];
             Marshal.Copy(charData.Scan0, imgData, 0, imgData.Length);
@@ -87,23 +89,30 @@ namespace PixelCraft
 
             float w = 1f;
             float h = 1f;
-            RenderSections[0].VBOData = new List<float>()
-                {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-                    w, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-                    0, h, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    w, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-                    0, h, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    w, h, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0
-                };
-            RenderSections[0].ImageData = imgData;
-            RenderSections[0].ImageSize = template.Size;
-            RenderSections[0].ImageUpdate = true;
-            RenderSections[0].metal = 0.5f;
-            RenderSections[0].rough = 0.5f;
+
+            int handle = RenderSections[0].ImageHandle;
+            RenderSections[0] = new Section()
+            {
+                VBOData = new List<float>()
+                    {
+                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                        w, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+                        0, h, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                        w, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+                        0, h, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                        w, h, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0
+                    },
+                ImageData = imgData,
+                ImageSize = template.Size,
+                ImageHandle = handle,
+                ImageUpdate = true,
+                metal = 0.5f,
+                rough = 0.5f
+            };
         }
 
-        public override void Update(Dictionary<string, GameObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
+
+        public override void Update(Dictionary<string, SpaceObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
         {
             //throw new NotImplementedException();
         }

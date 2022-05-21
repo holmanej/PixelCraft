@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace PixelCraft
 {
-    abstract class GameObject
+    public abstract class RenderObject
     {
         public class Section
         {
@@ -78,10 +78,19 @@ namespace PixelCraft
         public Matrix4 matRot = Matrix4.Identity;
         public Matrix4 colRot = Matrix4.Identity;
 
-        public bool Enabled = true;
-        public bool Collidable = false;
+        public bool Visible = true;
 
-        public abstract void Update(Dictionary<string, GameObject> objs, KeyboardState keybd, GameCursor cursor, double gametime);
+        public abstract void Update(Dictionary<string, SpaceObject> objs, KeyboardState keybd, GameCursor cursor, double gametime);
+
+        public float Distance(Vector3 target)
+        {
+            return Vector3.Distance(Position, target);
+        }
+
+        public static float Mag(float a, float b)
+        {
+            return (float)Math.Sqrt(Math.Pow(a, 2) + Math.Pow(b, 2));
+        }
 
         private void CalculateNormalData()
         {

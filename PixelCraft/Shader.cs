@@ -12,7 +12,7 @@ using OpenTK.Input;
 
 namespace PixelCraft
 {
-    class Shader
+    public class Shader
     {
         private int Handle;
 

@@ -9,124 +9,162 @@ using System.Threading.Tasks;
 
 namespace PixelCraft
 {
-    class SpaceObject : GameObject
+    public class SpaceObject : RenderObject
     {
-        public float health = 1;
+        // PHYSICAL
+        public float Health = 1;
+        public float HealthRegen = 0;
+        public float HealthMax = 1;
 
-        public float Vx;
-        public float Vy;
-        public float Ax = 0.005f;
-        public float Ay = 0.005f;
-        public float Vt = 2f;
+        public float Armor = 1;
+        public float ArmorRegen = 0;
+        public float ArmorMax = 1;
+
+        public float Shields = 1;
+        public float ShieldRegen = 0.01f;
+        public float ShieldMax = 1;
+
+        public float Mass = 1f;
+        public float CargoMax = 0.5f;
+
+        // BEHAVIOR
+        public bool NPC = true;
+        public bool Selected = false;
+        public bool Collidable = true;
+        public float Aggression = 1;
+        public float Morale = 1;
+        public float Radius = 1;
+        public float SOI = 2;
+
+        // MOVEMENT
+        public float Velocity_X;
+        public float Velocity_Y;
+        public float Acceleration = 0.005f;
         public float Friction = 0.3f;
         public float TopSpeed = 0.2f;
-        public float Mass = 0.001f;
-        public float SOI = 1;
-        public bool Anchored = true;
+        public float OrbitRange = 2;
+        public float Agility = 1;
 
-        public bool Selected = false;
+        // WEAPON
+        public float FireRate = 1;
+        public float Burst = 1;
+        public float Accuracy = 1;
 
-        // Movement PID
-        public float Kp = 0.5f;
-        public float Ki = 3f;
-        public float Kd = -3f;
-        float Zx_1;
-        float Zy_1;
-        float Zx_2;
-        float Zy_2;
+        // PROJECTILE
+        public float Damage = 0;
+        public float ArmorPen = 0;
 
-        public void Thrust(float x, float y)
+        // FABRICATION
+        public float BuildRate = 1;
+
+        // MINING
+        public float MiningRate = 0;
+
+        // STATE
+        public enum SpaceObjectState { FLYING, LANDED, ANCHORED, AIRBORNE, DEAD };
+        public SpaceObjectState NowState = SpaceObjectState.DEAD;
+        public SpaceObjectState MvmtState = SpaceObjectState.FLYING;
+
+        // RELATIONSHIPS
+        public SpaceObject Target;
+        public SpaceObject Host;
+        public List<SpaceObject> Modules = new List<SpaceObject>();
+        public List<SpaceObject> Materials = new List<SpaceObject>();
+        public List<SpaceObject> Attached = new List<SpaceObject>();
+        public List<SpaceObject> Ammo = new List<SpaceObject>();
+        public Dictionary<object, TextObject> UI = new Dictionary<object, TextObject>();
+
+        public void Detach()
         {
-            float dx;
-            float dy;
-            if (x == 0) { dx = Math.Abs(Vx) < Ax ? -Vx / 5 : Friction * Ax * -Math.Sign(Vx); }
-            else { dx = Ax * x; }
-            if (y == 0) { dy = Math.Abs(Vy) < Ay ? -Vy / 5 : Friction * Ay * -Math.Sign(Vy); }
-            else { dy = Ay * y; }
-
-            float dt = (float)Math.Sqrt(Math.Pow(Vx + dx, 2) + Math.Pow(Vy + dy, 2));
-            if (dt < TopSpeed)
-            {
-                Vx += dx;
-                Vy += dy;
-            }
-            else if (dt > TopSpeed)
-            {
-                Vx = (Vx + dx) / dt * TopSpeed;
-                Vy = (Vy + dy) / dt * TopSpeed;
-            }
-
-            Translate(Vx, Vy, 0);
+            NowState = MvmtState;
         }
 
-        public void Seek(float x, float y)
+        public void Attach(SpaceObject host)
         {
-            //float dist = Vector3.Distance(Position, new Vector3(x, y, Position.Z));
-            float Zx_0 = x - Position.X;
-            float Zy_0 = y - Position.Y;
-            float dx = (Zx_0 * Kp + Zx_1 * Ki + Zx_2 * Kd) / 3;
-            float dy = (Zy_0 * Kp + Zy_1 * Ki + Zy_2 * Kd) / 3;
-            float dist = (float)Math.Sqrt(Math.Pow(dx, 2) + Math.Pow(dy, 2));
-            //if (dist > SOI) 
-            { Thrust(dx / dist, dy / dist); }
-            //else { Thrust(0, 0); }
-            //Debug.WriteLine(dx / dist + " " + dy / dist);
-
-            Zx_2 = Zx_1;
-            Zy_2 = Zy_1;
-            Zx_1 = Zx_0;
-            Zy_1 = Zy_0;
+            Host = host;
+            MvmtState = NowState;
+            NowState = SpaceObjectState.ANCHORED;
         }
 
-        public override void Update(Dictionary<string, GameObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
+        public override void Update(Dictionary<string, SpaceObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
         {
-            var pcore = (ShipCore)objs["Player_Core"];
-            var roid = (Asteroid)objs["Asteroid"];
-            Vector3 cpos = new Vector3(cursor.X, cursor.Y, 0);
-            float dist = Vector3.Distance(Position, cpos);
-            //Debug.WriteLine(dist + " : " + Position.X + " " + Position.Y + " : " + cursor.X + " " + cursor.Y);
-
-            if (cursor.RightPressed && dist < SOI)
+            SpaceObject InSOI = this;
+            SpaceObject InRad = this;
+            foreach (var obj in objs.Values)
             {
-                Anchored = false;
-            }
-
-            if (!Anchored)
-            {
-                Seek(pcore.Position.X, pcore.Position.Y); 
-                //Thrust(1, 1);
-            }
-
-            if (cursor.LeftPressed)
-            {
-                if (dist < SOI)
+                if (obj.Collidable && obj.Mass > InSOI.Mass * 10 && Distance(obj.Position) < obj.SOI)
                 {
-                    Selected = true;
+                    InSOI = obj;
                 }
-                else
+                if (Distance(obj.Position) < obj.Radius)
                 {
-                    dist = Vector3.Distance(cpos, roid.Position);
-                    if (Selected && dist < roid.SOI)
+                    InRad = obj;
+
+                    if (obj.Damage > 0)
                     {
-                        Anchored = true;
-                        pcore.RemOrbiter(this);
-                        roid.Orbiters.Add(this);
-                        float x = (cursor.X - roid.Position.X) / dist;
-                        float y = (cursor.Y - roid.Position.Y) / dist;
-                        Rotation = new Vector3(Rotation.X, Rotation.Y, (float)(Math.Atan(y / x) * 180 / Math.PI) + 90);
-                        x *= roid.SOI + 0.1f;
-                        y *= roid.SOI + 0.1f;
-                        Position = new Vector3(x, y, 0);
+                        float dmg = obj.Damage;
+                        dmg *= 100 / (100 + Shields);
+                        Shields = Math.Max(Shields - Mag(obj.Velocity_X, obj.Velocity_Y), 0);
+
+                        dmg -= Armor;
+                        Armor -= obj.ArmorPen;
+
+                        Health -= dmg;
                     }
-                    Selected = false;
                 }
             }
-            //Debug.WriteLine(Selected);
 
-            dist = Vector3.Distance(pcore.Position, Position);
-            if (dist < pcore.SOI && !Anchored)
+            if (Health <= 0) { NowState = SpaceObjectState.DEAD; }
+
+            switch (NowState)
             {
-                pcore.AddOrbiter(this);
+                case SpaceObjectState.FLYING:
+                    MvmtState = SpaceObjectState.FLYING;
+                    if (InSOI != this)
+                    {
+                        this.Flee(InSOI); 
+                    }
+                    else if (NPC)
+                    { 
+                        this.Approach(Target);
+                        this.Point(Target);
+                    }
+                    else
+                    { 
+                        this.WASDFly(keybd); 
+                    }
+                    break;
+
+                case SpaceObjectState.LANDED:
+                    MvmtState = SpaceObjectState.LANDED;
+                    // ObjMvmt.Walk(NPC, Target, insoi)
+                    break;
+
+                case SpaceObjectState.AIRBORNE:
+                    // ObjMvmt.Fall(Host, insoi)
+                    break;
+
+                case SpaceObjectState.ANCHORED:
+                    if (Host.NowState == SpaceObjectState.LANDED)
+                    {
+                        
+                    }
+                    else if (Host.NowState == SpaceObjectState.FLYING)
+                    {
+                        this.Approach(Host);
+                    }
+                    break;
+
+                case SpaceObjectState.DEAD:
+                    break;
+
+                default:
+                    break;
+            }
+
+            foreach (var obj in UI)
+            {
+                obj.Value.Text = obj.Key.ToString();
             }
         }
     }

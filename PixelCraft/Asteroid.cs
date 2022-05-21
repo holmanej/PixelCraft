@@ -13,7 +13,7 @@ namespace PixelCraft
         public List<SpaceObject> Orbiters = new List<SpaceObject>();
         float Spin = -0.002f;
 
-        public override void Update(Dictionary<string, GameObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
+        public override void Update(Dictionary<string, SpaceObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
         {
             //Rotate(0f, 0f, Spin);
             //foreach (var orb in Orbiters)

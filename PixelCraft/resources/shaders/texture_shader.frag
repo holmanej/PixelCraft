@@ -36,7 +36,7 @@ void main()
 	vec4 result = vec4(ambient + diffuse + specular, 1);
 	vec4 texColor = texture(texture0, texCoord);
 	fragColor = texColor;
-	//if (texColor == vec4(0, 0, 0, 1))
+	//if (texColor == vec4(0, 0, 0, 0))
 	//{
 	//	fragColor = result * objColor;
 	//}
