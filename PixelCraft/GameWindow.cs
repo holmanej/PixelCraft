@@ -55,10 +55,12 @@ namespace PixelCraft
 
     class GameWindow : OpenTK.GameWindow
     {
-        public Dictionary<string, SpaceObject> SpaceObjects = new Dictionary<string, SpaceObject>();
+        public List<SpaceObject> SpaceObjects = new List<SpaceObject>();
         public Dictionary<string, TextObject> UIElements = new Dictionary<string, TextObject>();
+        public SpaceObject PlayerObject;
         Shader shader;
         private GameCursor GameCursor = new GameCursor();
+        public SpaceObject CursorImage;
 
         public TextObject Readout_Position;
         public TextObject Readout_Gametime;
@@ -108,8 +110,8 @@ namespace PixelCraft
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            float playerX = SpaceObjects["Player"].Position.X;
-            float playerY = SpaceObjects["Player"].Position.Y;
+            float playerX = PlayerObject.Position.X;
+            float playerY = PlayerObject.Position.Y;
             float porp = 0.05f;
             ViewX -= (ViewX - playerX) * porp;
             ViewY -= (ViewY - playerY) * porp;
@@ -121,9 +123,9 @@ namespace PixelCraft
             //Debug.WriteLine(GameCursor.X + " " + GameCursor.Y);
             GameTime += e.Time;
 
-            SpaceObjects["ClickSpot"].Position = new Vector3(GameCursor.X, GameCursor.Y, 0f);
+            CursorImage.Position = new Vector3(GameCursor.X, GameCursor.Y, 0f);
 
-            foreach (var obj in SpaceObjects.Values)
+            foreach (var obj in SpaceObjects)
             {
                 obj.Update(SpaceObjects, keybd, GameCursor, GameTime);
             }
@@ -205,7 +207,7 @@ namespace PixelCraft
             UIElements.Add("fps_rdout", Readout_FPS);
 
             // IMAGE GEN
-            foreach (var obj in SpaceObjects.Values)
+            foreach (var obj in SpaceObjects)
             {
                 foreach (var sect in obj.RenderSections)
                 {
@@ -254,7 +256,7 @@ namespace PixelCraft
         {
             GL.DeleteVertexArray(VertexArrayObject);
             GL.DeleteBuffer(VertexBufferObject);
-            foreach (var obj in SpaceObjects.Values)
+            foreach (var obj in SpaceObjects)
             {
                 obj.Shader.Dispose();
             }
@@ -286,7 +288,7 @@ namespace PixelCraft
 
             GL.BindVertexArray(VertexArrayObject);
 
-            foreach (SpaceObject obj in SpaceObjects.Values)
+            foreach (SpaceObject obj in SpaceObjects)
             {
                 if (obj.Visible)
                 {
@@ -295,11 +297,9 @@ namespace PixelCraft
 
                     shader.SetVector3("player_position", playerPos);
 
-                    shader.SetMatrix4("model", Model);
                     shader.SetMatrix4("view_translate", View_Translate);
                     shader.SetMatrix4("view_scale", View_Scale);
                     shader.SetMatrix4("view_rotate", View_Rotate);
-                    shader.SetMatrix4("projection", Projection);
 
                     shader.SetMatrix4("obj_translate", obj.matPos);
                     shader.SetMatrix4("obj_scale", obj.matScale);

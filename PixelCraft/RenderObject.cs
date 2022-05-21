@@ -80,7 +80,7 @@ namespace PixelCraft
 
         public bool Visible = true;
 
-        public abstract void Update(Dictionary<string, SpaceObject> objs, KeyboardState keybd, GameCursor cursor, double gametime);
+        public abstract void Update(List<SpaceObject> objs, KeyboardState keybd, GameCursor cursor, double gametime);
 
         public float Distance(Vector3 target)
         {

@@ -32,8 +32,9 @@ namespace PixelCraft
 
                 SetDir(@"/resources/models");
 
-                gWin.SpaceObjects.Add("ClickSpot", new SpaceObject() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.1f, 0.1f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
-                gWin.SpaceObjects.Add("Player", new SpaceObject()
+                gWin.SpaceObjects.Add(new SpaceObject() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.1f, 0.1f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
+                gWin.CursorImage = gWin.SpaceObjects.Last();
+                gWin.SpaceObjects.Add(new SpaceObject()
                 {
                     RenderSections = Img2Sect(Textures["ShipCore"]),
                     Shader = Shaders["texture_shader"],
@@ -45,17 +46,18 @@ namespace PixelCraft
                     NowState = SpaceObject.SpaceObjectState.FLYING,
                     Health = 100
                 });
-                gWin.SpaceObjects.Add("Asteroid", new SpaceObject() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, -1f), Scale = new Vector3(25f, 25f, 1f), Rotation = new Vector3(0, 0, 0), Radius = 25f, SOI = 28, Mass = 10 });
+                gWin.PlayerObject = gWin.SpaceObjects.Last();
+                gWin.SpaceObjects.Add(new SpaceObject() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0.1f), Scale = new Vector3(25f, 25f, 1f), Rotation = new Vector3(0, 0, 0), Radius = 25f, SOI = 28, Mass = 10 });
                 //gWin.SpaceObjects.Add("Player_Turret", new SpaceObject() { RenderSections = Img2Sect(Textures["Turret"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
                 //gWin.SpaceObjects.Add("Player_Fab", new SpaceObject() { RenderSections = Img2Sect(Textures["Fabricator"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 4f, -0.1f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
                 //gWin.SpaceObjects.Add("Player_Exca", new SpaceObject() { RenderSections = Img2Sect(Textures["Excavator"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 6f, -0.1f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
                 //gWin.SpaceObjects["Player_Turret"].Attach(gWin.SpaceObjects["Player"]);
                 //gWin.SpaceObjects["Player_Fab"].Attach(gWin.SpaceObjects["Player"]);
                 //gWin.SpaceObjects["Player_Exca"].Attach(gWin.SpaceObjects["Player"]);
-                gWin.SpaceObjects["Player"].UI.Add(gWin.SpaceObjects["Player"].Health, new TextObject("HEALTH 9999", Fonts["times"], Shaders["debugText_shader"]) { Position = new Vector3(-0.5f, -0.92f, 0), Scale = new Vector3(0.8f, 0.06f, 1f), Color = Color.White, BGColor = Color.Black, Size = 24 });
+                gWin.PlayerObject.UI.Add(gWin.PlayerObject.Health, new TextObject("HEALTH 9999", Fonts["times"], Shaders["debugText_shader"]) { Position = new Vector3(-0.5f, -0.92f, 0), Scale = new Vector3(0.8f, 0.06f, 1f), Color = Color.White, BGColor = Color.Black, Size = 24 });
 
                 //gWin.SpaceObjects.Add("starfield", new SpaceObject() { RenderSections = Img2Sect(Textures["StarField"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, -1.0f), Scale = new Vector3(50f, 50f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
-                gWin.SpaceObjects.Add("enemy", new SpaceObject()
+                gWin.SpaceObjects.Add(new SpaceObject()
                 {
                     RenderSections = Img2Sect(Textures["Enemy"]),
                     Shader = Shaders["texture_shader"],
@@ -64,8 +66,10 @@ namespace PixelCraft
                     SOI = 1f,
                     Collidable = true,
                     NowState = SpaceObject.SpaceObjectState.FLYING,
-                    Target = gWin.SpaceObjects["Player"]
+                    Target = gWin.PlayerObject
                 });
+                gWin.SpaceObjects = gWin.SpaceObjects.OrderBy(o => o.Position.Z).ToList();
+                for (int i = 0; i < gWin.SpaceObjects.Count; i++) { Debug.WriteLine(gWin.SpaceObjects[i].Position.Z); }
 
                 sw.Stop();
                 Debug.WriteLine("Load Time: " + sw.Elapsed);

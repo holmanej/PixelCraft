@@ -24,7 +24,7 @@ namespace PixelCraft
         public float ShieldRegen = 0.01f;
         public float ShieldMax = 1;
 
-        public float Mass = 1f;
+        public float Mass = 0.01f;
         public float CargoMax = 0.5f;
 
         // BEHAVIOR
@@ -86,11 +86,11 @@ namespace PixelCraft
             NowState = SpaceObjectState.ANCHORED;
         }
 
-        public override void Update(Dictionary<string, SpaceObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
+        public override void Update(List<SpaceObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
         {
             SpaceObject InSOI = this;
             SpaceObject InRad = this;
-            foreach (var obj in objs.Values)
+            foreach (var obj in objs)
             {
                 if (obj.Collidable && obj.Mass > InSOI.Mass * 10 && Distance(obj.Position) < obj.SOI)
                 {

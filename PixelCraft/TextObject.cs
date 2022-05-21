@@ -112,7 +112,7 @@ namespace PixelCraft
         }
 
 
-        public override void Update(Dictionary<string, SpaceObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
+        public override void Update(List<SpaceObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
         {
             //throw new NotImplementedException();
         }
