@@ -40,7 +40,7 @@ namespace PixelCraft
                 }
 
                 bmp.MakeTransparent(bmp.GetPixel(0, 0));
-                BitmapData fileData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppRgb);
+                BitmapData fileData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
                 byte[] imgData = new byte[bmp.Width * bmp.Height * 4];
                 Marshal.Copy(fileData.Scan0, imgData, 0, imgData.Length);
                 bmp.UnlockBits(fileData);
@@ -62,7 +62,7 @@ namespace PixelCraft
                 metal = 0.5f;
                 rough = 0.5f;
 
-                //Debug.WriteLine("Dim: {2}, {3} Size: {0} Data: {1}", ImageSize, ImageData.Length, w, h);
+                Debug.WriteLine("Dim: {2}, {3} Size: {0} Data: {1}", ImageSize, ImageData.Length, w, h);
             }
         }
 

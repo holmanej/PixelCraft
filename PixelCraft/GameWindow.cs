@@ -175,8 +175,8 @@ namespace PixelCraft
         {
             GL.ClearColor(0.02f, 0.03f, 0.05f, 1.0f);
             GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            GL.AlphaFunc(AlphaFunction.Greater, 0.5f);
+            GL.Enable(EnableCap.AlphaTest);
             CursorGrabbed = false;
             CursorVisible = true;
 
@@ -264,16 +264,13 @@ namespace PixelCraft
             base.OnUnload(e);
         }
 
-        public void BufferObject(float[] vertices, int tex)
+        public void BufferObject(float[] vertices)
         {
             GL.BindVertexArray(VertexArrayObject);
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
             VerticesLength = vertices.Length;
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, tex);
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -307,7 +304,9 @@ namespace PixelCraft
 
                     foreach (RenderObject.Section section in obj.RenderSections)
                     {
-                        BufferObject(section.VBOData.ToArray(), section.ImageHandle);
+                        GL.ActiveTexture(TextureUnit.Texture0);
+                        GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
+                        BufferObject(section.VBOData.ToArray());
                         GL.DrawArrays(PrimitiveType.Triangles, 0, VerticesLength);
                     }
 
@@ -321,15 +320,15 @@ namespace PixelCraft
 
                         foreach (RenderObject.Section section in uiText.RenderSections)
                         {
-                            //if (section.ImageUpdate)
+                            GL.ActiveTexture(TextureUnit.Texture0);
+                            GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
+                            if (section.ImageUpdate)
                             {
-                                GL.ActiveTexture(TextureUnit.Texture0);
-                                GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
                                 GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
                                 GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
                                 section.ImageUpdate = false;
                             }
-                            BufferObject(section.VBOData.ToArray(), section.ImageHandle);
+                            BufferObject(section.VBOData.ToArray());
                             GL.DrawArrays(PrimitiveType.Triangles, 0, VerticesLength);
                         }
                     }
@@ -348,15 +347,15 @@ namespace PixelCraft
 
                     foreach (RenderObject.Section section in obj.RenderSections)
                     {
+                        GL.ActiveTexture(TextureUnit.Texture0);
+                        GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
                         if (section.ImageUpdate)
                         {
-                            GL.ActiveTexture(TextureUnit.Texture0);
-                            GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
                             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
                             GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
                             section.ImageUpdate = false;
                         }
-                        BufferObject(section.VBOData.ToArray(), section.ImageHandle);
+                        BufferObject(section.VBOData.ToArray());
                         GL.DrawArrays(PrimitiveType.Triangles, 0, VerticesLength);                        
                     }
                 }
