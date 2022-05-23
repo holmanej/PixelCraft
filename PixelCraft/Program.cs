@@ -30,45 +30,41 @@ namespace PixelCraft
                 Fonts = LoadFonts();
                 Textures = LoadTextures();
 
+                AllyAI.Shaders = Shaders;
+                AllyAI.Fonts = Fonts;
+                AllyAI.Textures = Textures;
+                EnemyAI.Shaders = Shaders;
+                EnemyAI.Fonts = Fonts;
+                EnemyAI.Textures = Textures;
+
                 SetDir(@"/resources/models");
 
-                //gWin.SpaceObjects.Add(new SpaceObject() { RenderSections = Img2Sect(Textures["StarField"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0.2f), Scale = new Vector3(50f, 50f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
-                gWin.SpaceObjects.Add(new SpaceObject() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.1f, 0.1f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
-                gWin.CursorImage = gWin.SpaceObjects.Last();
-                gWin.SpaceObjects.Add(new SpaceObject()
+                gWin.SpaceObjects.Add(new SpaceObject() { RenderSections = Img2Sect(Textures["StarField"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0.2f), Scale = new Vector3(50f, 50f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f, Collidable = false });
+                gWin.CursorImage = new SpaceObject() { RenderSections = Img2Sect(Textures["Cursor"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.4f, 0.4f, 1f), Rotation = new Vector3(0, 0, 45f), SOI = 1f, Collidable = false };
+                gWin.SpaceObjects.Add(gWin.CursorImage);
+
+                Random rand = new Random();
+                List<SpaceObject> asteroids = new List<SpaceObject>();
+                for (int i = 0; i < 15; i++)
                 {
-                    RenderSections = Img2Sect(Textures["ShipCore"]),
-                    Shader = Shaders["texture_shader"],
-                    Position = new Vector3(-35f, 0f, 0f),
-                    Scale = new Vector3(0.6f, 0.6f, 1f),
-                    NPC = false,
-                    SOI = 3f,
-                    Collidable = true,
-                    NowState = SpaceObject.SpaceObjectState.FLYING,
-                    Health = 100
-                });
-                gWin.PlayerObject = gWin.SpaceObjects.Last();
-                gWin.SpaceObjects.Add(new SpaceObject() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0.1f), Scale = new Vector3(25f, 25f, 1f), Rotation = new Vector3(0, 0, 0), Radius = 25f, SOI = 28, Mass = 10 });
-                gWin.SpaceObjects.Add(new SpaceObject() { RenderSections = Img2Sect(Textures["Turret"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
-                gWin.SpaceObjects.Last().Attach(gWin.PlayerObject);
-                gWin.SpaceObjects.Add(new SpaceObject() { RenderSections = Img2Sect(Textures["Fabricator"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 4f, -0.1f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
-                gWin.SpaceObjects.Last().Attach(gWin.PlayerObject);
-                gWin.SpaceObjects.Add(new SpaceObject() { RenderSections = Img2Sect(Textures["Excavator"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 6f, -0.1f), Scale = new Vector3(0.5f, 0.5f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f });
-                gWin.SpaceObjects.Last().Attach(gWin.PlayerObject);
-                gWin.PlayerObject.UI.Add(gWin.PlayerObject.Health, new TextObject("HEALTH 9999", Fonts["times"], Shaders["debugText_shader"]) { Position = new Vector3(-0.5f, -0.92f, 0), Scale = new Vector3(0.8f, 0.06f, 1f), Color = Color.White, BGColor = Color.Black, Size = 24 });
-                gWin.SpaceObjects.Add(new SpaceObject()
-                {
-                    RenderSections = Img2Sect(Textures["Enemy"]),
-                    Shader = Shaders["texture_shader"],
-                    Position = new Vector3(-40f, 0f, 0f),
-                    Scale = new Vector3(0.6f, 0.6f, 1f),
-                    SOI = 1f,
-                    Collidable = true,
-                    NowState = SpaceObject.SpaceObjectState.FLYING,
-                    Target = gWin.PlayerObject
-                });
+                    int x = rand.Next(-50, 50);
+                    int y = rand.Next(-50, 50);
+                    int size = rand.Next(1, 6) / 2;
+                    //foreach (var ast in asteroids)
+                    //{
+                    //    while (ast.Distance(new Vector3(x, y, 0.1f)) > ast.SOI)
+                    //    {
+                    //        x = rand.Next(-50, 50);
+                    //        y = rand.Next(-50, 50);
+                    //    }
+                    //}
+                    asteroids.Add(new SpaceObject() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"], Position = new Vector3(x, y, 0.1f), Scale = new Vector3(size, size, 1f), Rotation = new Vector3(0, 0, 0), Radius = size, SOI = size * 1.2f, Team = 0 });
+                }
+                gWin.SpaceObjects.AddRange(asteroids);
+                gWin.PlayerObject = AllyAI.BuildCore();
+                gWin.SpaceObjects.Add(gWin.PlayerObject);
+
                 gWin.SpaceObjects = gWin.SpaceObjects.OrderBy(o => o.Position.Z).ToList();
-                for (int i = 0; i < gWin.SpaceObjects.Count; i++) { Debug.WriteLine(gWin.SpaceObjects[i].Position.Z); }
 
                 sw.Stop();
                 Debug.WriteLine("Load Time: " + sw.Elapsed);
@@ -77,9 +73,24 @@ namespace PixelCraft
             }
         }
 
-        static List<RenderObject.Section> Img2Sect(Image img)
+        public static List<RenderObject.Section> Img2Sect(Image img)
         {
             return new List<RenderObject.Section>() { new RenderObject.Section((Bitmap)img) };
+        }
+
+        public static List<RenderObject.Section> Img2Sect(Image alive, Image dead)
+        {
+            var sects = new List<RenderObject.Section>();
+            sects.Add(new RenderObject.Section((Bitmap)alive));
+            sects.Add(new RenderObject.Section((Bitmap)dead) { Visible = false });
+            return sects;
+        }
+
+        public static List<RenderObject.Section> Img2Sect(List<Image> imgs)
+        {
+            var sects = new List<RenderObject.Section>();
+            foreach (var i in imgs) { sects.Add(new RenderObject.Section((Bitmap)i)); }
+            return sects;
         }
 
         static Dictionary<string, Shader> LoadShaders()

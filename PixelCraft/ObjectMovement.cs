@@ -24,15 +24,16 @@ namespace PixelCraft
         {
             float Vx = obj.Velocity_X;
             float Vy = obj.Velocity_Y;
-            float Acc = obj.Acceleration;
+            float Ax = obj.Acceleration_X;
+            float Ay = obj.Acceleration_Y;
             float TopSpeed = obj.TopSpeed;
             float mu = obj.Friction;
             float dx;
             float dy;
-            if (x == 0) { dx = Math.Abs(Vx) < Acc ? -Vx / 5 : mu * Acc * -Math.Sign(Vx); }
-            else { dx = Acc * x; }
-            if (y == 0) { dy = Math.Abs(Vy) < Acc ? -Vy / 5 : mu * Acc * -Math.Sign(Vy); }
-            else { dy = Acc * y; }
+            if (x == 0) { dx = Math.Abs(Vx) < Ax ? -Vx / 5 : mu * Ax * -Math.Sign(Vx); }
+            else { dx = Ax * x; }
+            if (y == 0) { dy = Math.Abs(Vy) < Ay ? -Vy / 5 : mu * Ay * -Math.Sign(Vy); }
+            else { dy = Ay * y; }
 
             float dt = Mag(Vx + dx, Vy + dy);
             if (dt < TopSpeed)
@@ -55,7 +56,7 @@ namespace PixelCraft
         {
             float theta = (float)(Math.Atan(dy / dx) * 180 / Math.PI);
             if (dx < 0) { theta += 180; }
-            obj.Rotation = new Vector3(obj.Rotation.X, obj.Rotation.Y, theta - 90);
+            obj.SetRotation(obj.Rotation.X, obj.Rotation.Y, theta - 90);
         }
 
         public static void Point(this SpaceObject obj, SpaceObject target)
@@ -64,7 +65,7 @@ namespace PixelCraft
             float dy = target.Position.Y - obj.Position.Y;
             float theta = (float)(Math.Atan(dy / dx) * 180 / Math.PI);
             if (dx < 0) { theta += 180; }
-            obj.Rotation = new Vector3(obj.Rotation.X, obj.Rotation.Y, theta - 90);
+            obj.SetRotation(obj.Rotation.X, obj.Rotation.Y, theta - 90);
         }
 
         public static void Approach(this SpaceObject obj, SpaceObject target)
@@ -72,7 +73,7 @@ namespace PixelCraft
             float dx = target.Position.X - obj.Position.X;
             float dy = target.Position.Y - obj.Position.Y;
             float mag = Mag(dx, dy);
-            if (mag > target.SOI) { obj.Thrust(dx / mag, dy / mag); }
+            if (mag > obj.OrbitRange) { obj.Thrust(dx / mag, dy / mag); }
             else { obj.Thrust(0, 0); }
         }
 

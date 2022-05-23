@@ -63,10 +63,6 @@ namespace PixelCraft
             {
                 stringBmps.Add(Characters[_Text[i] - ' ']);
             }
-            for (int i =  _Text.Length; i < 32; i++)
-            {
-                stringBmps.Add(Characters['_' - ' ']);
-            }
             int stringWidth = stringBmps.Sum(b => b.Width);
             int stringHeight = stringBmps[0].Height;
 
@@ -87,8 +83,8 @@ namespace PixelCraft
             Marshal.Copy(charData.Scan0, imgData, 0, imgData.Length);
             template.UnlockBits(charData);
 
-            float w = 1f;
-            float h = 1f;
+            float w = stringWidth / 400f;
+            float h = stringHeight / 300f;
 
             int handle = RenderSections[0].ImageHandle;
             RenderSections[0] = new Section()
@@ -106,15 +102,9 @@ namespace PixelCraft
                 ImageSize = template.Size,
                 ImageHandle = handle,
                 ImageUpdate = true,
-                metal = 0.5f,
-                rough = 0.5f
+                Metal = 0.5f,
+                Rough = 0.5f
             };
-        }
-
-
-        public override void Update(List<SpaceObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
-        {
-            //throw new NotImplementedException();
         }
 
         public string Text

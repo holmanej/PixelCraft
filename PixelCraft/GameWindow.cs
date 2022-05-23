@@ -32,10 +32,10 @@ namespace PixelCraft
         public bool MiddleReleased;
         public bool MiddleDown;
 
-        public void Update(MouseState m, int x, int y, int w, int h, float vX, float vY)
+        public void Update(MouseState m, int x, int y, int w, int h, float vX, float vY, float vZ)
         {
-            X = (((x - w / 2) / (float)w * 2) * 10 + vX);
-            Y = ((-(y - h / 2) / (float)h * 2) * 10 + vY);
+            X = (((x - w / 2) / (float)w * 2) / vZ + vX);
+            Y = ((-(y - h / 2) / (float)h * 2) / vZ + vY);
             LeftDown = m.LeftButton == ButtonState.Pressed;
             RightDown = m.RightButton == ButtonState.Pressed;
             MiddleDown = m.MiddleButton == ButtonState.Pressed;
@@ -56,7 +56,7 @@ namespace PixelCraft
     class GameWindow : OpenTK.GameWindow
     {
         public List<SpaceObject> SpaceObjects = new List<SpaceObject>();
-        public Dictionary<string, TextObject> UIElements = new Dictionary<string, TextObject>();
+        public List<TextObject> UIElements = new List<TextObject>();
         public SpaceObject PlayerObject;
         Shader shader;
         private GameCursor GameCursor = new GameCursor();
@@ -65,6 +65,7 @@ namespace PixelCraft
         public TextObject Readout_Position;
         public TextObject Readout_Gametime;
         public TextObject Readout_FPS;
+        public TextObject Readout_SW;
 
         private const int VPosition_loc = 0;
         private const int VNormal_loc = 1;
@@ -84,14 +85,15 @@ namespace PixelCraft
         private int MouseX;
         private int MouseY;
 
-        private float ViewX = -35f;
+        private float ViewX = 0f;
         private float ViewY = 0;
-        private float ViewZ = 0f;
+        private float ViewZ = 0.1f;
 
         private bool F3_Down = false;
         private double GameTime = 0;
 
-        Stopwatch sw = new Stopwatch();
+        Stopwatch logic_sw = new Stopwatch();
+        Stopwatch render_sw = new Stopwatch();
         Queue<int> avgFPS = new Queue<int>();
 
 
@@ -103,9 +105,17 @@ namespace PixelCraft
 
         protected override void OnMouseMove(MouseMoveEventArgs e)
         {
-            MouseX = e.X;
-            MouseY = e.Y;
+            //MouseX = e.X;
+            //MouseY = e.Y;
+            MouseX += e.XDelta;
+            MouseY += e.YDelta;
             base.OnMouseMove(e);
+        }
+
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            ViewZ += ViewZ * 0.1f * Math.Sign(e.Delta);
+            base.OnMouseWheel(e);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -118,17 +128,22 @@ namespace PixelCraft
 
             KeyboardState keybd = Keyboard.GetState();
             MouseState mouse = Mouse.GetCursorState();
-            GameCursor.Update(mouse, MouseX, MouseY, Width, Height, ViewX, ViewY);
+            GameCursor.Update(mouse, MouseX, MouseY, Width, Height, ViewX, ViewY, ViewZ);
             //Debug.Print("Mx: {0} My: {1}", MouseX, MouseY);
             //Debug.WriteLine(GameCursor.X + " " + GameCursor.Y);
             GameTime += e.Time;
+            //Debug.WriteLine(PlayerObject.Health);
 
-            CursorImage.Position = new Vector3(GameCursor.X, GameCursor.Y, 0f);
+            CursorImage.SetPosition(GameCursor.X, GameCursor.Y, 0f);
 
+            logic_sw.Restart();            
             foreach (var obj in SpaceObjects)
             {
                 obj.Update(SpaceObjects, keybd, GameCursor, GameTime);
             }
+            EnemyAI.Update(SpaceObjects, PlayerObject);
+            AllyAI.Update(SpaceObjects, PlayerObject);
+            logic_sw.Stop();
 
             if (keybd.IsKeyDown(Key.F1))
             {
@@ -137,7 +152,7 @@ namespace PixelCraft
             {
                 ViewX = 0;
                 ViewY = 0;
-                //ViewZ = 15;
+                ViewZ = 0.1f;
             }
             if (keybd.IsKeyDown(Key.F3) && !F3_Down)
             {
@@ -154,18 +169,17 @@ namespace PixelCraft
 
             // Readouts
             avgFPS.Enqueue((int)RenderFrequency);
-            if (avgFPS.Count > 256)
+            if (avgFPS.Count > 32)
             {
                 avgFPS.Dequeue();
             }
 
             if (Readout_Position.Visible)
             {
-                Readout_Position.Text = "X= " + ViewX.ToString("F2") + "  Y= " + ViewY.ToString("F2") + "  Z= " + (int)ViewZ;
-                //Readout_Rotation.Text = "X= " + (int)(0 % 360) + "  Y= " + (int)(0 % 360);
+                Readout_Position.Text = "X=" + ViewX.ToString("F2") + "  Y=" + ViewY.ToString("F2") + "  Z=" + (int)ViewZ;
                 Readout_Gametime.Text = "Gametime=" + GameTime.ToString("F1");
                 Readout_FPS.Text = "FPS=" + (int)avgFPS.Average();
-                //Debug.Print("FPS= {0}", (int)avgFPS.Average());
+                Readout_SW.Text = "LGC=" + (logic_sw.ElapsedTicks / 10000f).ToString("F2") + "  PJT=" + (render_sw.ElapsedTicks / 10000f).ToString("F2");
             }
             
             base.OnUpdateFrame(e);
@@ -177,8 +191,7 @@ namespace PixelCraft
             GL.Enable(EnableCap.DepthTest);
             GL.AlphaFunc(AlphaFunction.Greater, 0.5f);
             GL.Enable(EnableCap.AlphaTest);
-            CursorGrabbed = false;
-            CursorVisible = true;
+            CursorVisible = false;
 
             Projection = Matrix4.CreatePerspectiveFieldOfView(90f * 3.14f / 180f, Width / (float)Height, 0.01f, 10f);
 
@@ -199,55 +212,14 @@ namespace PixelCraft
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
             // Readouts
-            Readout_Position = new TextObject("POS XYZ", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.92f, 0), Scale = new Vector3(0.8f, 0.07f, 1f), Color = Color.White, BGColor = Color.Black, Size = 24 };
-            Readout_Gametime = new TextObject("GAMETIME X.X", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.84f, 0), Scale = new Vector3(0.8f, 0.07f, 1f), Color = Color.White, BGColor = Color.Black, Size = 24 };
-            Readout_FPS = new TextObject("FPS X", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.76f, 0), Scale = new Vector3(0.8f, 0.07f, 1f), Color = Color.White, BGColor = Color.Black, Size = 24 };
-            UIElements.Add("pos_rdout", Readout_Position);
-            UIElements.Add("rot_rdout", Readout_Gametime);
-            UIElements.Add("fps_rdout", Readout_FPS);
-
-            // IMAGE GEN
-            foreach (var obj in SpaceObjects)
-            {
-                foreach (var sect in obj.RenderSections)
-                {
-                    sect.ImageHandle = GL.GenTexture();
-                    Debug.WriteLine("SO - " + sect.ImageHandle);
-                    GL.BindTexture(TextureTarget.Texture2D, sect.ImageHandle);
-                    GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, sect.ImageSize.Width, sect.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, sect.ImageData);
-                    GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-                    GL.BindTexture(TextureTarget.Texture2D, 0);
-                    sect.ImageUpdate = false;
-                }
-
-                foreach (TextObject uiText in obj.UI.Values)
-                {
-                    foreach (var sect in uiText.RenderSections)
-                    {
-                        sect.ImageHandle = GL.GenTexture();
-                        Debug.WriteLine("UI - " + sect.ImageHandle);
-                        GL.BindTexture(TextureTarget.Texture2D, sect.ImageHandle);
-                        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, sect.ImageSize.Width, sect.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, sect.ImageData);
-                        GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-                        GL.BindTexture(TextureTarget.Texture2D, 0);
-                        sect.ImageUpdate = false;
-                    }
-                }
-            }
-
-            foreach (var obj in UIElements.Values)
-            {
-                foreach (var sect in obj.RenderSections)
-                {
-                    sect.ImageHandle = GL.GenTexture();
-                    Debug.WriteLine("DB - " + sect.ImageHandle);
-                    GL.BindTexture(TextureTarget.Texture2D, sect.ImageHandle);
-                    GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, sect.ImageSize.Width, sect.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, sect.ImageData);
-                    GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-                    GL.BindTexture(TextureTarget.Texture2D, 0);
-                    sect.ImageUpdate = false;
-                }
-            }
+            Readout_Position = new TextObject("POS XYZ", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.92f, 0), Scale = new Vector3(1f, 1f, 1f), Color = Color.White, BGColor = Color.Black, Size = 24 };
+            Readout_Gametime = new TextObject("GAMETIME X.X", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.84f, 0), Scale = new Vector3(1f, 1f, 1f), Color = Color.White, BGColor = Color.Black, Size = 24 };
+            Readout_FPS = new TextObject("FPS X", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.76f, 0), Scale = new Vector3(1f, 1f, 1f), Color = Color.White, BGColor = Color.Black, Size = 24 };
+            Readout_SW = new TextObject("SW X", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.68f, 0), Scale = new Vector3(1f, 1f, 1f), Color = Color.White, BGColor = Color.Black, Size = 24 };
+            UIElements.Add(Readout_Position);
+            UIElements.Add(Readout_Gametime);
+            UIElements.Add(Readout_FPS);
+            UIElements.Add(Readout_SW);
 
             base.OnLoad(e);
         }
@@ -273,19 +245,9 @@ namespace PixelCraft
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
 
-        protected override void OnRenderFrame(FrameEventArgs e)
+        void RenderSpaceObjects(List<SpaceObject> objs, Vector3 playerPos)
         {
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-            Model = Matrix4.CreateTranslation(0, 0, 0);
-            View_Translate = Matrix4.CreateTranslation(-ViewX, -ViewY, -ViewZ);
-            View_Scale = Matrix4.CreateScale(0.1f, 0.1f, 1f);
-            View_Rotate = Matrix4.CreateRotationY(0 * 3.14f / 180) * Matrix4.CreateRotationX(0 * 3.14f / 180);
-            Vector3 playerPos = new Vector3(ViewX, ViewY, ViewZ);
-
-            GL.BindVertexArray(VertexArrayObject);
-
-            foreach (SpaceObject obj in SpaceObjects)
+            foreach (var obj in objs)
             {
                 if (obj.Visible)
                 {
@@ -304,63 +266,91 @@ namespace PixelCraft
 
                     foreach (RenderObject.Section section in obj.RenderSections)
                     {
-                        GL.ActiveTexture(TextureUnit.Texture0);
-                        GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
-                        BufferObject(section.VBOData.ToArray());
-                        GL.DrawArrays(PrimitiveType.Triangles, 0, VerticesLength);
-                    }
-
-                    foreach (TextObject uiText in obj.UI.Values)
-                    {
-                        shader = uiText.Shader;
-                        shader.Use();
-
-                        shader.SetMatrix4("obj_translate", uiText.matPos);
-                        shader.SetMatrix4("obj_scale", uiText.matScale);
-
-                        foreach (RenderObject.Section section in uiText.RenderSections)
+                        if (section.Visible)
                         {
-                            GL.ActiveTexture(TextureUnit.Texture0);
-                            GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
-                            if (section.ImageUpdate)
+                            if (section.ImageHandle == 0)
                             {
+                                section.ImageHandle = GL.GenTexture();
+                                GL.ActiveTexture(TextureUnit.Texture0);
+                                GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
                                 GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
                                 GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-                                section.ImageUpdate = false;
                             }
+                            GL.ActiveTexture(TextureUnit.Texture0);
+                            GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
                             BufferObject(section.VBOData.ToArray());
                             GL.DrawArrays(PrimitiveType.Triangles, 0, VerticesLength);
                         }
                     }
                 }
             }
+        }
 
-            foreach (TextObject obj in UIElements.Values)
+        void RenderUIElements(List<TextObject> objs, Vector3 playerPos)
+        {
+            foreach (var obj in objs)
             {
                 if (obj.Visible)
                 {
                     shader = obj.Shader;
                     shader.Use();
 
+                    shader.SetVector3("player_position", playerPos);
+
+                    shader.SetMatrix4("view_translate", View_Translate);
+                    shader.SetMatrix4("view_scale", View_Scale);
+                    shader.SetMatrix4("view_rotate", View_Rotate);
+
                     shader.SetMatrix4("obj_translate", obj.matPos);
                     shader.SetMatrix4("obj_scale", obj.matScale);
+                    shader.SetMatrix4("obj_rotate", obj.matRot);
 
                     foreach (RenderObject.Section section in obj.RenderSections)
                     {
-                        GL.ActiveTexture(TextureUnit.Texture0);
-                        GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
-                        if (section.ImageUpdate)
+                        if (section.Visible)
                         {
-                            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
-                            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-                            section.ImageUpdate = false;
+                            if (section.ImageHandle == 0 || section.ImageUpdate)
+                            {
+                                section.ImageHandle = GL.GenTexture();
+                                GL.ActiveTexture(TextureUnit.Texture0);
+                                GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
+                                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
+                                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+                            }
+                            GL.ActiveTexture(TextureUnit.Texture0);
+                            GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
+                            BufferObject(section.VBOData.ToArray());
+                            GL.DrawArrays(PrimitiveType.Triangles, 0, VerticesLength);
                         }
-                        BufferObject(section.VBOData.ToArray());
-                        GL.DrawArrays(PrimitiveType.Triangles, 0, VerticesLength);                        
                     }
                 }
             }
-            
+        }
+
+        protected override void OnRenderFrame(FrameEventArgs e)
+        {
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            Model = Matrix4.CreateTranslation(0, 0, 0);
+            View_Translate = Matrix4.CreateTranslation(-ViewX, -ViewY, 0);
+            View_Scale = Matrix4.CreateScale(ViewZ, ViewZ, 1f);
+            View_Rotate = Matrix4.CreateRotationY(0 * 3.14f / 180) * Matrix4.CreateRotationX(0 * 3.14f / 180);
+            Vector3 playerPos = new Vector3(ViewX, ViewY, 0);
+
+            GL.BindVertexArray(VertexArrayObject);
+
+            RenderSpaceObjects(SpaceObjects, playerPos);
+            RenderUIElements(UIElements, playerPos);
+            render_sw.Restart();
+            foreach (var list in SpaceObjects)
+            {
+                render_sw.Start();
+                RenderSpaceObjects(list.Projectiles, playerPos);
+                render_sw.Stop();
+                RenderUIElements(list.UI, playerPos);
+            }
+            render_sw.Stop();
+
             GL.BindVertexArray(0);
 
             Context.SwapBuffers();

@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace PixelCraft
 {
-    public abstract class RenderObject
+    public class RenderObject
     {
         public class Section
         {
@@ -24,8 +24,9 @@ namespace PixelCraft
             public Size ImageSize;
             public int ImageHandle;
             public bool ImageUpdate;
-            public float metal;
-            public float rough;
+            public float Metal;
+            public float Rough;
+            public bool Visible = true;
 
             public Section() { }
 
@@ -59,10 +60,10 @@ namespace PixelCraft
 
                 ImageData = imgData;
                 ImageSize = bmp.Size;
-                metal = 0.5f;
-                rough = 0.5f;
+                Metal = 0.5f;
+                Rough = 0.5f;
 
-                Debug.WriteLine("Dim: {2}, {3} Size: {0} Data: {1}", ImageSize, ImageData.Length, w, h);
+                //Debug.WriteLine("Dim: {2}, {3} Size: {0} Data: {1}", ImageSize, ImageData.Length, w, h);
             }
         }
 
@@ -79,8 +80,6 @@ namespace PixelCraft
         public Matrix4 colRot = Matrix4.Identity;
 
         public bool Visible = true;
-
-        public abstract void Update(List<SpaceObject> objs, KeyboardState keybd, GameCursor cursor, double gametime);
 
         public float Distance(Vector3 target)
         {
@@ -125,18 +124,50 @@ namespace PixelCraft
 
         public void Translate(float x, float y, float z)
         {
-            Vector3 newPos = new Vector3(Position.X + x, Position.Y + y, Position.Z + z);
-            Position = newPos;
+            _Position.X = Position.X + x;
+            _Position.Y = Position.Y + y;
+            _Position.Z = Position.Z + z;
+            matPos = Matrix4.CreateTranslation(_Position);
         }
 
         public void ReSize(float x, float y, float z)
         {
-            Scale = new Vector3(Scale.X + x, Scale.Y + y, Scale.Z + z);
+            _Scale.X = Scale.X + x;
+            _Scale.Y = Scale.Y + y;
+            _Scale.Z = Scale.Z + z;
+            matScale = Matrix4.CreateScale(_Scale);
         }
 
         public void Rotate(float x, float y, float z)
         {
-            Rotation = new Vector3(Rotation.X + x, Rotation.Y + y, Rotation.Z + z);
+            _Rotation.X = Rotation.X + x;
+            _Rotation.Y = Rotation.Y + y;
+            _Rotation.Z = Rotation.Z + z;
+            matRot = Matrix4.CreateRotationX(_Rotation.X * 3.14f / 180) * Matrix4.CreateRotationY(_Rotation.Y * 3.14f / 180) * Matrix4.CreateRotationZ(_Rotation.Z * 3.14f / 180);
+        }
+
+        public void SetPosition(float x, float y, float z)
+        {
+            _Position.X = x;
+            _Position.Y = y;
+            _Position.Z = z;
+            matPos = Matrix4.CreateTranslation(_Position);
+        }
+
+        public void SetScale(float x, float y, float z)
+        {
+            _Scale.X = x;
+            _Scale.Y = y;
+            _Scale.Z = z;
+            matScale = Matrix4.CreateScale(_Scale);
+        }
+
+        public void SetRotation(float x, float y, float z)
+        {
+            _Rotation.X = x;
+            _Rotation.Y = y;
+            _Rotation.Z = z;
+            matRot = Matrix4.CreateRotationX(_Rotation.X * 3.14f / 180) * Matrix4.CreateRotationY(_Rotation.Y * 3.14f / 180) * Matrix4.CreateRotationZ(_Rotation.Z * 3.14f / 180);
         }
 
         public Vector3 Position
