@@ -63,6 +63,7 @@ namespace PixelCraft
                 Metal = 0.5f;
                 Rough = 0.5f;
 
+                bmp.Dispose();
                 //Debug.WriteLine("Dim: {2}, {3} Size: {0} Data: {1}", ImageSize, ImageData.Length, w, h);
             }
         }

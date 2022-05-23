@@ -94,6 +94,7 @@ namespace PixelCraft
 
         Stopwatch logic_sw = new Stopwatch();
         Stopwatch render_sw = new Stopwatch();
+        int bulletCnt = 0;
         Queue<int> avgFPS = new Queue<int>();
 
 
@@ -309,7 +310,7 @@ namespace PixelCraft
                     {
                         if (section.Visible)
                         {
-                            if (section.ImageHandle == 0 || section.ImageUpdate)
+                            if (section.ImageHandle == 0)
                             {
                                 section.ImageHandle = GL.GenTexture();
                                 GL.ActiveTexture(TextureUnit.Texture0);
@@ -317,6 +318,14 @@ namespace PixelCraft
                                 GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
                                 GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
                             }
+                            if (section.ImageUpdate)
+                            {
+                                GL.ActiveTexture(TextureUnit.Texture0);
+                                GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
+                                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
+                                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+                            }
+
                             GL.ActiveTexture(TextureUnit.Texture0);
                             GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
                             BufferObject(section.VBOData.ToArray());
@@ -342,8 +351,10 @@ namespace PixelCraft
             RenderSpaceObjects(SpaceObjects, playerPos);
             RenderUIElements(UIElements, playerPos);
             render_sw.Restart();
+            bulletCnt = 0;
             foreach (var list in SpaceObjects)
             {
+                bulletCnt += list.Projectiles.Count;
                 render_sw.Start();
                 RenderSpaceObjects(list.Projectiles, playerPos);
                 render_sw.Stop();

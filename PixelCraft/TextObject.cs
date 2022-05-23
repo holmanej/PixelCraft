@@ -105,6 +105,8 @@ namespace PixelCraft
                 Metal = 0.5f,
                 Rough = 0.5f
             };
+
+            template.Dispose();
         }
 
         public string Text

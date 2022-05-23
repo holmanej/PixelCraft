@@ -50,14 +50,6 @@ namespace PixelCraft
                     int x = rand.Next(-50, 50);
                     int y = rand.Next(-50, 50);
                     int size = rand.Next(1, 6) / 2;
-                    //foreach (var ast in asteroids)
-                    //{
-                    //    while (ast.Distance(new Vector3(x, y, 0.1f)) > ast.SOI)
-                    //    {
-                    //        x = rand.Next(-50, 50);
-                    //        y = rand.Next(-50, 50);
-                    //    }
-                    //}
                     asteroids.Add(new SpaceObject() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"], Position = new Vector3(x, y, 0.1f), Scale = new Vector3(size, size, 1f), Rotation = new Vector3(0, 0, 0), Radius = size, SOI = size * 1.2f, Team = 0 });
                 }
                 gWin.SpaceObjects.AddRange(asteroids);
