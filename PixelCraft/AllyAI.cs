@@ -22,7 +22,7 @@ namespace PixelCraft
         {
             SpawnTimer.Start();
             Ships.RemoveAll(i => i.NowState == SpaceObject.SpaceObjectState.DEAD);
-            foreach (var ship in Ships) { if (EnemyAI.Ships.Count > 0) { ship.Target = EnemyAI.Ships.Last(); } }
+            foreach (var ship in Ships) { if (EnemyAI.Ships.Count > 0) { ship.Target = EnemyAI.Ships.First(); } }
             if (SpawnTimer.ElapsedMilliseconds > 10000 || Ships.Count < EnemyAI.Ships.Count)
             {
                 objs.Add(BuildFighter(EnemyAI.Ships.First()));
@@ -61,7 +61,7 @@ namespace PixelCraft
             core.Modules[0].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["GreenBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.1f, 0.1f, 1f), TopSpeed = 0.4f, Damage = 0 };
             core.Modules[1].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["GreenBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.1f, 0.1f, 1f), TopSpeed = 0.4f, Damage = 0 };
             core.Modules[2].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["GreenBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.2f, 0.9f, 1f), TopSpeed = 0.8f, Damage = 0 };
-            core.UI.Add(new TextObject("HEALTH 9999", Fonts["times"], Shaders["texture_shader"]) { Position = new Vector3(0f, 0f, 0), Scale = new Vector3(5f, 5f, 0f), Color = Color.White, BGColor = Color.Black, Size = 24 });
+            core.UI.Add(new TextObject("HEALTH 9999", Program.FontSets["DebugFont"], Shaders["texture_shader"]) { Position = new Vector3(0f, -0.1f, 0), Scale = new Vector3(0.02f, 0.02f, 1f) });
             Ships.Add(core);
 
             return core;
@@ -73,12 +73,13 @@ namespace PixelCraft
             section.Add(new RenderObject.Section(RenderSections["Ally"], true));
             section.Add(new RenderObject.Section(RenderSections["Ally_Dead"], false));
 
+            
             Random rand = new Random();
             var ally = new SpaceObject()
             {
                 RenderSections = section,
                 Shader = Shaders["texture_shader"],
-                Position = new Vector3(rand.Next(-10, 10), rand.Next(-10, 10), 0f),
+                Position = new Vector3(rand.Next(-20, 20), rand.Next(-20, 20), 0f),
                 Scale = new Vector3(0.6f, 0.6f, 1f),
                 Health = 25,
                 HealthMax = 25,
@@ -92,10 +93,11 @@ namespace PixelCraft
                 Target = target,
                 Team = Team
             };
-            ally.UI.Add(new TextObject("HEALTH 9999", Fonts["times"], Shaders["texture_shader"]) { Position = new Vector3(0f, 0f, 0), Scale = new Vector3(5f, 5f, 0f), Color = Color.White, BGColor = Color.Black, Size = 24 });
+
+            ally.UI.Add(new TextObject("HEALTH 9999", Program.FontSets["DebugFont"], Shaders["texture_shader"]) { Position = new Vector3(0f, -0.1f, 0), Scale = new Vector3(0.02f, 0.02f, 1f) });
             ally.Modules.Add(new SpaceObject() { Armed = true, Accuracy = 1, FireRate = 100, Burst = 1, Target = target });
             ally.Modules[0].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["BlueBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.08f, 0.08f, 1f), TopSpeed = 0.5f, Damage = 1 };
-
+            
             Ships.Add(ally);
             return ally;
         }

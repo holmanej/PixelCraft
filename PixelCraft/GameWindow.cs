@@ -175,7 +175,7 @@ namespace PixelCraft
                 avgFPS.Dequeue();
             }
 
-            if (Readout_Position.Visible)
+            //if (Readout_Position.Visible)
             {
                 Readout_Position.Text = "X=" + ViewX.ToString("F2") + "  Y=" + ViewY.ToString("F2") + "  Z=" + (int)ViewZ;
                 Readout_Gametime.Text = "Gametime=" + GameTime.ToString("F1");
@@ -191,9 +191,6 @@ namespace PixelCraft
             GL.ClearColor(0.02f, 0.03f, 0.05f, 1.0f);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             GL.Enable(EnableCap.Blend);
-            //GL.Enable(EnableCap.DepthTest);
-            //GL.AlphaFunc(AlphaFunction.Greater, 0.5f);
-            //GL.Enable(EnableCap.AlphaTest);
             CursorVisible = false;
 
             Projection = Matrix4.CreatePerspectiveFieldOfView(90f * 3.14f / 180f, Width / (float)Height, 0.01f, 10f);
@@ -215,10 +212,10 @@ namespace PixelCraft
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
             // Readouts
-            Readout_Position = new TextObject("POS XYZ", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.92f, 0), Scale = new Vector3(1f, 1f, 1f), Color = Color.White, BGColor = Color.Black, Size = 24 };
-            Readout_Gametime = new TextObject("GAMETIME X.X", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.84f, 0), Scale = new Vector3(1f, 1f, 1f), Color = Color.White, BGColor = Color.Black, Size = 24 };
-            Readout_FPS = new TextObject("FPS X", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.76f, 0), Scale = new Vector3(1f, 1f, 1f), Color = Color.White, BGColor = Color.Black, Size = 24 };
-            Readout_SW = new TextObject("SW X", Program.Fonts["times"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.68f, 0), Scale = new Vector3(1f, 1f, 1f), Color = Color.White, BGColor = Color.Black, Size = 24 };
+            Readout_Position = new TextObject("POS XYZ", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.92f, 0), Scale = new Vector3(0.002f, 0.002f, 1f) };
+            Readout_Gametime = new TextObject("GAMETIME X.X", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.84f, 0), Scale = new Vector3(0.002f, 0.002f, 1f) };
+            Readout_FPS = new TextObject("FPS X", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.76f, 0), Scale = new Vector3(0.002f, 0.002f, 1f) };
+            Readout_SW = new TextObject("SW X", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.68f, 0), Scale = new Vector3(0.002f, 0.002f, 1f) };
             UIElements.Add(Readout_Position);
             UIElements.Add(Readout_Gametime);
             UIElements.Add(Readout_FPS);
@@ -349,11 +346,10 @@ namespace PixelCraft
             Vector3 playerPos = new Vector3(ViewX, ViewY, 0);
 
             GL.BindVertexArray(VertexArrayObject);
-
             RenderSpaceObjects(SpaceObjects, playerPos);
             RenderUIElements(UIElements, playerPos);
-            render_sw.Restart();
             bulletCnt = 0;
+            render_sw.Restart();
             foreach (var list in SpaceObjects)
             {
                 bulletCnt += list.Projectiles.Count;

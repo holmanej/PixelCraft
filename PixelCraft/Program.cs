@@ -1,4 +1,6 @@
 ﻿using OpenTK;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,6 +20,7 @@ namespace PixelCraft
     {
         static public Dictionary<string, Shader> Shaders;
         static public Dictionary<string, FontFamily> Fonts;
+        static public Dictionary<string, RenderObject> FontSets;
         static public Dictionary<string, Image> Textures;
         static public Dictionary<string, RenderObject.Section> RenderSections;
 
@@ -27,9 +30,13 @@ namespace PixelCraft
             {
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
+
                 Shaders = LoadShaders();
                 Fonts = LoadFonts();
                 Textures = LoadTextures();
+
+                FontSets = new Dictionary<string, RenderObject>();
+                FontSets.Add("DebugFont", CreateFontsetRender(Fonts["times"], Color.White, Color.Black, 24, Shaders["debugText_shader"]));
 
                 AllyAI.Shaders = Shaders;
                 AllyAI.Fonts = Fonts;
@@ -51,7 +58,7 @@ namespace PixelCraft
                     int x = rand.Next(-50, 50);
                     int y = rand.Next(-50, 50);
                     int size = rand.Next(1, 6) / 2;
-                    asteroids.Add(new SpaceObject() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"], Position = new Vector3(x, y, 0.1f), Scale = new Vector3(size, size, 1f), Rotation = new Vector3(0, 0, 0), Radius = size, SOI = size * 1.2f, Team = 0 });
+                    asteroids.Add(new SpaceObject() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"], Position = new Vector3(x, y, 0.1f), Scale = new Vector3(size, size, 1f), Rotation = new Vector3(0, 0, 0), Radius = size, SOI = size * 1.5f, Team = 0, Collidable = true });
                 }
                 gWin.SpaceObjects.AddRange(asteroids);
                 gWin.PlayerObject = AllyAI.BuildCore();
@@ -69,21 +76,6 @@ namespace PixelCraft
         public static List<RenderObject.Section> Img2Sect(Image img)
         {
             return new List<RenderObject.Section>() { new RenderObject.Section((Bitmap)img) };
-        }
-
-        public static List<RenderObject.Section> Img2Sect(Image alive, Image dead)
-        {
-            var sects = new List<RenderObject.Section>();
-            sects.Add(new RenderObject.Section((Bitmap)alive));
-            sects.Add(new RenderObject.Section((Bitmap)dead) { Visible = false });
-            return sects;
-        }
-
-        public static List<RenderObject.Section> Img2Sect(List<Image> imgs)
-        {
-            var sects = new List<RenderObject.Section>();
-            foreach (var i in imgs) { sects.Add(new RenderObject.Section((Bitmap)i)); }
-            return sects;
         }
 
         static Dictionary<string, Shader> LoadShaders()
@@ -125,6 +117,29 @@ namespace PixelCraft
             }
 
             return fonts;
+        }
+
+        private static RenderObject CreateFontsetRender(FontFamily fontfamily, Color fgColor, Color bgColor, int size, Shader shader)
+        {
+            var fontset = new RenderObject() { Shader = shader };
+            fontset.RenderSections = new List<RenderObject.Section>();
+            Font font = new Font(fontfamily, size, GraphicsUnit.Pixel);
+            for (int i = 32; i < 127; i++)
+            {
+                Bitmap bmp = new Bitmap(1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                Graphics g = Graphics.FromImage(bmp);
+                SizeF charSize = g.MeasureString(Convert.ToChar(i).ToString(), font);
+                Bitmap charBmp = new Bitmap((int)charSize.Width, font.Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                g = Graphics.FromImage(charBmp);
+                g.TextRenderingHint = TextRenderingHint.AntiAlias;
+                g.Clear(bgColor);
+                g.DrawString(Convert.ToChar(i).ToString(), font, new SolidBrush(fgColor), 0, 0, StringFormat.GenericTypographic);
+                fontset.RenderSections.Add(new RenderObject.Section(charBmp) { ImageHandle = GL.GenTexture() });
+                bmp.Dispose();
+                charBmp.Dispose();
+            }
+
+            return fontset;
         }
 
         static Dictionary<string, Image> LoadTextures()

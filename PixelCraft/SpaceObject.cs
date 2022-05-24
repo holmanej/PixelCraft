@@ -68,7 +68,7 @@ namespace PixelCraft
         public float MiningRate = 0;
 
         // STATE
-        public enum SpaceObjectState { FLYING, LANDED, ANCHORED, AIRBORNE, DEAD };
+        public enum SpaceObjectState { NEW, FLYING, LANDED, ANCHORED, AIRBORNE, DEAD };
         public SpaceObjectState NowState = SpaceObjectState.DEAD;
         public SpaceObjectState MvmtState = SpaceObjectState.FLYING;
 
@@ -116,7 +116,7 @@ namespace PixelCraft
             SpaceObject clickTarget = this;
             foreach (var obj in objs)
             {
-                if (obj.Collidable && Distance(obj.Position) < obj.SOI)
+                if (obj.Collidable && Distance(obj.Position) < obj.SOI && obj != this)
                 {
                     inSOI = obj;
                 }
