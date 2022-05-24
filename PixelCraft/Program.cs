@@ -19,6 +19,7 @@ namespace PixelCraft
         static public Dictionary<string, Shader> Shaders;
         static public Dictionary<string, FontFamily> Fonts;
         static public Dictionary<string, Image> Textures;
+        static public Dictionary<string, RenderObject.Section> RenderSections;
 
         static void Main(string[] args)
         {
@@ -32,10 +33,10 @@ namespace PixelCraft
 
                 AllyAI.Shaders = Shaders;
                 AllyAI.Fonts = Fonts;
-                AllyAI.Textures = Textures;
+                AllyAI.RenderSections = RenderSections;
                 EnemyAI.Shaders = Shaders;
                 EnemyAI.Fonts = Fonts;
-                EnemyAI.Textures = Textures;
+                EnemyAI.RenderSections = RenderSections;
 
                 SetDir(@"/resources/models");
 
@@ -56,7 +57,7 @@ namespace PixelCraft
                 gWin.PlayerObject = AllyAI.BuildCore();
                 gWin.SpaceObjects.Add(gWin.PlayerObject);
 
-                gWin.SpaceObjects = gWin.SpaceObjects.OrderBy(o => o.Position.Z).ToList();
+                gWin.SpaceObjects = gWin.SpaceObjects.OrderByDescending(o => o.Position.Z).ToList();
 
                 sw.Stop();
                 Debug.WriteLine("Load Time: " + sw.Elapsed);
@@ -132,6 +133,7 @@ namespace PixelCraft
 
             Debug.WriteLine("Loading Textures");
             Dictionary<string, Image> textures = new Dictionary<string, Image>();
+            RenderSections = new Dictionary<string, RenderObject.Section>();
             string[] files = Directory.GetFiles(Directory.GetCurrentDirectory());
             foreach (string f in files)
             {
@@ -139,8 +141,8 @@ namespace PixelCraft
                 Image texture = Image.FromFile(f);
                 string label = f.Substring(f.LastIndexOf('\\') + 1).Split('.')[0];
                 Debug.WriteLine(label);
-
                 textures.Add(label, texture);
+                RenderSections.Add(label, new RenderObject.Section((Bitmap)texture));
             }
 
             return textures;

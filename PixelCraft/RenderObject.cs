@@ -30,6 +30,19 @@ namespace PixelCraft
 
             public Section() { }
 
+            public Section(Section section, bool visible)
+            {
+                VBOData = section.VBOData;
+                NormalData = section.NormalData;
+                ImageData = section.ImageData;
+                ImageSize = section.ImageSize;
+                ImageHandle = 0;
+                ImageUpdate = true;
+                Metal = section.Metal;
+                Rough = section.Rough;
+                Visible = visible;
+            }
+
             public Section(Image img)
             {
                 Bitmap bmp;
@@ -37,7 +50,7 @@ namespace PixelCraft
                 {
                     img.Save(stream, ImageFormat.Bmp);
                     bmp = (Bitmap)Image.FromStream(stream);
-                    img.Save("stream.bmp", ImageFormat.Bmp);
+                    //img.Save("stream.bmp", ImageFormat.Bmp);
                 }
 
                 bmp.MakeTransparent(bmp.GetPixel(0, 0));

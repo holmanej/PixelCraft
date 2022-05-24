@@ -189,9 +189,11 @@ namespace PixelCraft
         protected override void OnLoad(EventArgs e)
         {
             GL.ClearColor(0.02f, 0.03f, 0.05f, 1.0f);
-            GL.Enable(EnableCap.DepthTest);
-            GL.AlphaFunc(AlphaFunction.Greater, 0.5f);
-            GL.Enable(EnableCap.AlphaTest);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            GL.Enable(EnableCap.Blend);
+            //GL.Enable(EnableCap.DepthTest);
+            //GL.AlphaFunc(AlphaFunction.Greater, 0.5f);
+            //GL.Enable(EnableCap.AlphaTest);
             CursorVisible = false;
 
             Projection = Matrix4.CreatePerspectiveFieldOfView(90f * 3.14f / 180f, Width / (float)Height, 0.01f, 10f);

@@ -14,7 +14,7 @@ namespace PixelCraft
         static int Team = 1;
         public static Dictionary<string, Shader> Shaders;
         public static Dictionary<string, FontFamily> Fonts;
-        public static Dictionary<string, Image> Textures;
+        public static Dictionary<string, RenderObject.Section> RenderSections;
         static Stopwatch SpawnTimer = new Stopwatch();
         public static List<SpaceObject> Ships = new List<SpaceObject>();
 
@@ -32,9 +32,13 @@ namespace PixelCraft
 
         public static SpaceObject BuildCore()
         {
+            var section = new List<RenderObject.Section>();
+            section.Add(new RenderObject.Section(RenderSections["ShipCore"], true));
+            section.Add(new RenderObject.Section(RenderSections["ShipCore_Dead"], false));
+
             var core = new SpaceObject()
             {
-                RenderSections = Program.Img2Sect(Textures["ShipCore"]),
+                RenderSections = section,
                 Shader = Shaders["texture_shader"],
                 Position = new Vector3(0f, 0f, 0f),
                 Scale = new Vector3(0.6f, 0.6f, 1f),
@@ -51,13 +55,12 @@ namespace PixelCraft
                 HealthRegen = 0.8f
             };
 
-            core.RenderSections.Add(new RenderObject.Section(Textures["ShipCore_Dead"]) { Visible = false });
             core.Modules.Add(new SpaceObject() { Armed = true, Accuracy = 4, FireRate = 200, Burst = 2, Target = core });
             core.Modules.Add(new SpaceObject() { Armed = true, Accuracy = 4, FireRate = 200, Burst = 2, Target = core });
             core.Modules.Add(new SpaceObject() { Armed = true, Accuracy = 1, FireRate = 1000, Burst = 1, Target = core });
-            core.Modules[0].Ammo = new SpaceObject() { RenderSections = Program.Img2Sect(Textures["GreenBullet"], Textures["BulletHit"]), Shader = Shaders["texture_shader"], Scale = new Vector3(0.1f, 0.1f, 1f), TopSpeed = 0.4f, Damage = 0 };
-            core.Modules[1].Ammo = new SpaceObject() { RenderSections = Program.Img2Sect(Textures["GreenBullet"], Textures["BulletHit"]), Shader = Shaders["texture_shader"], Scale = new Vector3(0.1f, 0.1f, 1f), TopSpeed = 0.4f, Damage = 0 };
-            core.Modules[2].Ammo = new SpaceObject() { RenderSections = Program.Img2Sect(Textures["GreenBullet"], Textures["BulletHit"]), Shader = Shaders["texture_shader"], Scale = new Vector3(0.2f, 0.9f, 1f), TopSpeed = 0.8f, Damage = 0 };
+            core.Modules[0].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["GreenBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.1f, 0.1f, 1f), TopSpeed = 0.4f, Damage = 0 };
+            core.Modules[1].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["GreenBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.1f, 0.1f, 1f), TopSpeed = 0.4f, Damage = 0 };
+            core.Modules[2].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["GreenBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.2f, 0.9f, 1f), TopSpeed = 0.8f, Damage = 0 };
             core.UI.Add(new TextObject("HEALTH 9999", Fonts["times"], Shaders["texture_shader"]) { Position = new Vector3(0f, 0f, 0), Scale = new Vector3(5f, 5f, 0f), Color = Color.White, BGColor = Color.Black, Size = 24 });
             Ships.Add(core);
 
@@ -66,15 +69,19 @@ namespace PixelCraft
 
         public static SpaceObject BuildFighter(SpaceObject target)
         {
+            var section = new List<RenderObject.Section>();
+            section.Add(new RenderObject.Section(RenderSections["Ally"], true));
+            section.Add(new RenderObject.Section(RenderSections["Ally_Dead"], false));
+
             Random rand = new Random();
             var ally = new SpaceObject()
             {
-                RenderSections = Program.Img2Sect(Textures["Ally"]),
+                RenderSections = section,
                 Shader = Shaders["texture_shader"],
                 Position = new Vector3(rand.Next(-10, 10), rand.Next(-10, 10), 0f),
                 Scale = new Vector3(0.6f, 0.6f, 1f),
-                Health = 250,
-                HealthMax = 250,
+                Health = 25,
+                HealthMax = 25,
                 TopSpeed = 0.2f,
                 Acceleration_X = 0.01f,
                 Acceleration_Y = 0.01f,
@@ -86,9 +93,8 @@ namespace PixelCraft
                 Team = Team
             };
             ally.UI.Add(new TextObject("HEALTH 9999", Fonts["times"], Shaders["texture_shader"]) { Position = new Vector3(0f, 0f, 0), Scale = new Vector3(5f, 5f, 0f), Color = Color.White, BGColor = Color.Black, Size = 24 });
-            ally.RenderSections.Add(new RenderObject.Section(Textures["Ally_Dead"]) { Visible = false });
             ally.Modules.Add(new SpaceObject() { Armed = true, Accuracy = 1, FireRate = 100, Burst = 1, Target = target });
-            ally.Modules[0].Ammo = new SpaceObject() { RenderSections = Program.Img2Sect(Textures["BlueBullet"], Textures["BulletHit"]), Shader = Shaders["texture_shader"], Scale = new Vector3(0.08f, 0.08f, 1f), TopSpeed = 0.5f, Damage = 1 };
+            ally.Modules[0].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["BlueBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.08f, 0.08f, 1f), TopSpeed = 0.5f, Damage = 1 };
 
             Ships.Add(ally);
             return ally;
