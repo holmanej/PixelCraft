@@ -27,11 +27,11 @@ namespace PixelCraft
             SpaceObject target = AllyAI.Ships.Count > 0 ? AllyAI.Ships.Last() : player;
             if (shipCount < 3)
             {
-                objs.Add(BuildFighter(target));
+                //objs.Add(BuildFighter(target));
             }
             if (SpawnTimer.ElapsedMilliseconds > 10000)
             {
-                objs.Add(BuildGunship(target));
+                //objs.Add(BuildGunship(target));
                 SpawnTimer.Restart();
             }
         }

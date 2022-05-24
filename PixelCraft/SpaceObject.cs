@@ -190,7 +190,7 @@ namespace PixelCraft
                             //{
                             //    m.Target = EnemyAI.Ships.First();
                             //}
-                            m.Target = cursorTarget;
+                            m.Target = cursor.Cursor;
                         }
                     }
                     break;
@@ -214,7 +214,8 @@ namespace PixelCraft
             foreach (var mod in Modules)
             {
                 mod.FireSW.Start();
-                if (mod.Armed && mod.Target.ObjectState == SpaceObjectState.ALIVE && Distance(mod.Target.Position) < mod.Range && mod.Ammo != null)
+                if (mod.Armed && Distance(mod.Target.Position) < mod.Range && mod.Ammo != null)
+                //if (mod.Armed && mod.Target.ObjectState == SpaceObjectState.ALIVE && Distance(mod.Target.Position) < mod.Range && mod.Ammo != null)
                 {
                     if (mod.FireSW.ElapsedMilliseconds > mod.FireRate)
                     {
@@ -226,10 +227,11 @@ namespace PixelCraft
                             float vy = Velocity_Y;
                             float dx = mod.Target.Position.X - Position.X;
                             float dy = mod.Target.Position.Y - Position.Y;
-                            float theta = (float)(Math.Atan(dy / dx) * 180 / Math.PI);
-                            if (dx < 0) { theta += 180; }
-                            float ax = (dx + dacc) / Distance(mod.Target.Position) * mod.Ammo.TopSpeed;
-                            float ay = (dy + dacc) / Distance(mod.Target.Position) * mod.Ammo.TopSpeed;
+                            float theta = (float)(Math.Atan(dy / dx));
+                            if (dx < 0) { theta += 3.14f; }
+                            theta += dacc * 3.14f / 180;
+                            float ax = (float)Math.Cos(theta) * mod.Ammo.TopSpeed;
+                            float ay = (float)Math.Sin(theta) * mod.Ammo.TopSpeed;
 
                             Vector3 pos = Position;
                             Projectiles.Add(new SpaceObject()
@@ -241,9 +243,9 @@ namespace PixelCraft
                                 Damage = mod.Ammo.Damage,
                                 ArmorPen = mod.Ammo.ArmorPen,
                                 Position = pos,
-                                Rotation = new Vector3(0, 0, theta - 90),
-                                Velocity_X = vx,
-                                Velocity_Y = vy,
+                                Rotation = new Vector3(0, 0, theta * 180f / 3.14f + 90),
+                                Velocity_X = vx + ax,
+                                Velocity_Y = vy + ay,
                                 Acceleration_X = ax,
                                 Acceleration_Y = ay,
                                 TopSpeed = mod.Ammo.TopSpeed
