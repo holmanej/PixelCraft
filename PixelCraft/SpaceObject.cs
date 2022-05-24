@@ -18,11 +18,11 @@ namespace PixelCraft
 
         public float Armor = 0;
         public float ArmorRegen = 0;
-        public float ArmorMax = 1;
+        public float ArmorMax = 0;
 
         public float Shields = 0;
-        public float ShieldRegen = 0.01f;
-        public float ShieldMax = 1;
+        public float ShieldRegen = 0;
+        public float ShieldMax = 0;
 
         public float Mass = 0.01f;
         public float CargoMax = 0.5f;
@@ -44,7 +44,8 @@ namespace PixelCraft
         public float Acceleration_Y = 0;
         public float Friction = 0;
         public float TopSpeed = 0;
-        public float OrbitRange = 2;
+        public float MaxOrbit = 5;
+        public float MinOrbit = 2;
         public float Agility = 1;
 
         // WEAPON
@@ -52,7 +53,7 @@ namespace PixelCraft
         public float FireRate = 1;
         public float Burst = 1;
         public float Accuracy = 1;
-        public float Range = 15;
+        public float Range = 10;
         public Stopwatch FireSW = new Stopwatch();
         public Random WeaponAcc = new Random();
 
@@ -68,9 +69,10 @@ namespace PixelCraft
         public float MiningRate = 0;
 
         // STATE
-        public enum SpaceObjectState { NEW, FLYING, LANDED, ANCHORED, AIRBORNE, DEAD };
-        public SpaceObjectState NowState = SpaceObjectState.DEAD;
-        public SpaceObjectState MvmtState = SpaceObjectState.FLYING;
+        public enum SpaceObjectState { ALIVE, DEAD, INERT };
+        public SpaceObjectState ObjectState = SpaceObjectState.INERT;
+        public enum SpaceObjectMvmt { FLYING, LANDED, ANCHORED };
+        public SpaceObjectMvmt MvmtState = SpaceObjectMvmt.FLYING;
 
         // RELATIONSHIPS
         public SpaceObject Target;
@@ -82,26 +84,33 @@ namespace PixelCraft
         public SpaceObject Ammo;
         public List<TextObject> UI = new List<TextObject>();
 
-        public void Detach()
+        public SpaceObject()
         {
-            NowState = MvmtState;
+            Target = this;
         }
 
-        public void Attach(SpaceObject host)
-        {
-            Host = host;
-            MvmtState = NowState;
-            NowState = SpaceObjectState.ANCHORED;
-        }
+        //public void Detach()
+        //{
+        //    ObjectState = MvmtState;
+        //}
+
+        //public void Attach(SpaceObject host)
+        //{
+        //    Host = host;
+        //    MvmtState = ObjectState;
+        //    ObjectState = SpaceObjectState.ANCHORED;
+        //}
 
         public void Update(List<SpaceObject> objs, KeyboardState keybd, GameCursor cursor, double gametime)
         {
+            if (Target == null) { Target = this; }
             Health = Math.Min(Health + HealthRegen, HealthMax);
+            Shields = Math.Min(Shields + ShieldRegen, ShieldMax);
 
             for (int i = 0; i < Projectiles.Count; i++)
             {
                 var p = Projectiles[i];
-                if (Distance(p.Position) > 200)
+                if (p.Distance(new Vector3(0, 0, 0)) > 100)
                 {
                     Projectiles.Remove(p);
                 }
@@ -113,6 +122,7 @@ namespace PixelCraft
 
             SpaceObject inSOI = this;
             SpaceObject inRad = this;
+            SpaceObject cursorTarget = this;
             SpaceObject clickTarget = this;
             foreach (var obj in objs)
             {
@@ -120,9 +130,13 @@ namespace PixelCraft
                 {
                     inSOI = obj;
                 }
-                if (Distance(obj.Position) < Radius && NowState == SpaceObjectState.DEAD)
+                if (Distance(obj.Position) < Radius)
                 {
                     inRad = obj;
+                }
+                if (cursor.Cursor.Distance(obj.Position) < obj.SOI && obj.ObjectState == SpaceObjectState.ALIVE)
+                {
+                    cursorTarget = obj;
                 }
 
                 if (cursor.LeftReleased && Mag(obj.Position.X - cursor.X, obj.Position.Y - cursor.Y) < obj.Radius)
@@ -138,8 +152,8 @@ namespace PixelCraft
                         if (p.Damage > 0)
                         {
                             float dmg = p.Damage;
-                            //dmg *= 100 / (100 + obj.Shields);
-                            //obj.Shields = Math.Max(obj.Shields - Mag(p.Velocity_X, p.Velocity_Y), 0);
+                            dmg *= 10 / (10 + obj.Shields);
+                            obj.Shields = Math.Max(obj.Shields - Mag(p.Velocity_X, p.Velocity_Y) * 10, 0);
                             //dmg -= obj.Armor;
                             //obj.Armor -= p.ArmorPen;
                             obj.Health -= dmg;
@@ -149,18 +163,17 @@ namespace PixelCraft
                 }
             }
 
-            if (Health <= 0) { NowState = SpaceObjectState.DEAD; }
-
-            switch (NowState)
+            switch (ObjectState)
             {
-                case SpaceObjectState.FLYING:
-                    MvmtState = SpaceObjectState.FLYING;
+                case SpaceObjectState.ALIVE:
+                    if (Health <= 0) { ObjectState = SpaceObjectState.DEAD; }
                     if (inSOI != this)
                     {
                         this.Flee(inSOI);
                     }
                     else if (NPC)
                     {
+                        if (Distance(Target.Position) < MinOrbit) { this.Orbit(Target); }
                         this.Approach(Target);
                         this.Point(Target);
                         foreach (var m in Modules)
@@ -173,41 +186,18 @@ namespace PixelCraft
                         this.WASDFly(keybd);
                         foreach (var m in Modules)
                         {
-                            if ((m.Target.NowState == SpaceObjectState.DEAD || m.Target == this) && EnemyAI.Ships.Count > 0)
-                            {
-                                m.Target = EnemyAI.Ships.First();
-                            }
+                            //if ((m.Target.NowState == SpaceObjectState.DEAD || m.Target == this) && EnemyAI.Ships.Count > 0)
+                            //{
+                            //    m.Target = EnemyAI.Ships.First();
+                            //}
+                            m.Target = cursorTarget;
                         }
-                    }
-
-                    if (clickTarget != this && clickTarget.NowState != SpaceObjectState.DEAD)
-                    {
-                        foreach (var m in Modules) { m.Target = clickTarget; }
-                    }
-                    break;
-
-                case SpaceObjectState.LANDED:
-                    MvmtState = SpaceObjectState.LANDED;
-                    // ObjMvmt.Walk(NPC, Target, insoi)
-                    break;
-
-                case SpaceObjectState.AIRBORNE:
-                    // ObjMvmt.Fall(Host, insoi)
-                    break;
-
-                case SpaceObjectState.ANCHORED:
-                    if (Host.NowState == SpaceObjectState.LANDED)
-                    {
-
-                    }
-                    else if (Host.NowState == SpaceObjectState.FLYING)
-                    {
-                        this.Approach(Host);
-                        this.Point(Velocity_X, Velocity_Y);
                     }
                     break;
 
                 case SpaceObjectState.DEAD:
+                    Collidable = false;
+                    SOI = 0;
                     foreach (var mod in Modules) { mod.Armed = false; }
                     foreach (var ui in UI) { ui.Visible = false; }
                     if (RenderSections.Count > 1)
@@ -223,9 +213,9 @@ namespace PixelCraft
 
             foreach (var mod in Modules)
             {
-                if (mod.Armed && mod.Target.NowState != SpaceObjectState.DEAD && Distance(mod.Target.Position) < mod.Range && mod.Ammo != null)
+                mod.FireSW.Start();
+                if (mod.Armed && mod.Target.ObjectState == SpaceObjectState.ALIVE && Distance(mod.Target.Position) < mod.Range && mod.Ammo != null)
                 {
-                    mod.FireSW.Start();
                     if (mod.FireSW.ElapsedMilliseconds > mod.FireRate)
                     {
                         mod.FireSW.Restart();
@@ -261,10 +251,6 @@ namespace PixelCraft
                             mod.FireSW.Restart();
                         }
                     }
-                }
-                else
-                {
-                    mod.FireSW.Reset();
                 }
             }
 

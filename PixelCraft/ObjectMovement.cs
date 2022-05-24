@@ -73,13 +73,17 @@ namespace PixelCraft
             float dx = target.Position.X - obj.Position.X;
             float dy = target.Position.Y - obj.Position.Y;
             float mag = Mag(dx, dy);
-            if (mag > obj.OrbitRange) { obj.Thrust(dx / mag, dy / mag); }
+            if (mag > obj.MaxOrbit) { obj.Thrust(dx / mag, dy / mag); }
             else { obj.Thrust(0, 0); }
         }
 
         public static void Orbit(this SpaceObject obj, SpaceObject target)
         {
-
+            float dx = obj.Position.X - target.Position.X;
+            float dy = obj.Position.Y - target.Position.Y;
+            float mag = Mag(dx, dy);
+            obj.Thrust(dx / mag, dy / mag);
+            obj.Point(dx, dy);
         }
 
         public static void Flee(this SpaceObject obj, SpaceObject target)

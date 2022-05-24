@@ -31,6 +31,7 @@ namespace PixelCraft
         public bool MiddlePrev;
         public bool MiddleReleased;
         public bool MiddleDown;
+        public SpaceObject Cursor;
 
         public void Update(MouseState m, int x, int y, int w, int h, float vX, float vY, float vZ)
         {
@@ -57,10 +58,8 @@ namespace PixelCraft
     {
         public List<SpaceObject> SpaceObjects = new List<SpaceObject>();
         public List<TextObject> UIElements = new List<TextObject>();
-        public SpaceObject PlayerObject;
         Shader shader;
-        private GameCursor GameCursor = new GameCursor();
-        public SpaceObject CursorImage;
+        private GameCursor GameCursor;
 
         public TextObject Readout_Position;
         public TextObject Readout_Gametime;
@@ -87,7 +86,7 @@ namespace PixelCraft
 
         private float ViewX = 0f;
         private float ViewY = 0;
-        private float ViewZ = 0.1f;
+        private float ViewZ = 0.06f;
 
         private bool F3_Down = false;
         private double GameTime = 0;
@@ -121,8 +120,8 @@ namespace PixelCraft
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            float playerX = PlayerObject.Position.X;
-            float playerY = PlayerObject.Position.Y;
+            float playerX = AllyAI.PlayerShip.Position.X;
+            float playerY = AllyAI.PlayerShip.Position.Y;
             float porp = 0.05f;
             ViewX -= (ViewX - playerX) * porp;
             ViewY -= (ViewY - playerY) * porp;
@@ -135,15 +134,19 @@ namespace PixelCraft
             GameTime += e.Time;
             //Debug.WriteLine(PlayerObject.Health);
 
-            CursorImage.SetPosition(GameCursor.X, GameCursor.Y, 0f);
+            GameCursor.Cursor.SetPosition(GameCursor.X, GameCursor.Y, 0f);
 
-            logic_sw.Restart();            
+            logic_sw.Restart();
+            if (SpaceObjects.FindAll(o => o.ObjectState == SpaceObject.SpaceObjectState.DEAD).Count > 20)
+            {
+                SpaceObjects.Remove(SpaceObjects.Find(o => o.ObjectState == SpaceObject.SpaceObjectState.DEAD));
+            }
             foreach (var obj in SpaceObjects)
             {
                 obj.Update(SpaceObjects, keybd, GameCursor, GameTime);
             }
-            EnemyAI.Update(SpaceObjects, PlayerObject);
-            AllyAI.Update(SpaceObjects, PlayerObject);
+            EnemyAI.Update(SpaceObjects, AllyAI.PlayerShip);
+            AllyAI.Update(SpaceObjects);
             logic_sw.Stop();
 
             if (keybd.IsKeyDown(Key.F1))
@@ -177,7 +180,7 @@ namespace PixelCraft
 
             //if (Readout_Position.Visible)
             {
-                Readout_Position.Text = "X=" + ViewX.ToString("F2") + "  Y=" + ViewY.ToString("F2") + "  Z=" + (int)ViewZ;
+                Readout_Position.Text = "X=" + ViewX.ToString("F2") + "  Y=" + ViewY.ToString("F2") + "  Z=" + ViewZ.ToString("F3");
                 Readout_Gametime.Text = "Gametime=" + GameTime.ToString("F1");
                 Readout_FPS.Text = "FPS=" + (int)avgFPS.Average();
                 Readout_SW.Text = "LGC=" + (logic_sw.ElapsedTicks / 10000f).ToString("F2") + "  PJT=" + (render_sw.ElapsedTicks / 10000f).ToString("F2");
@@ -220,6 +223,11 @@ namespace PixelCraft
             UIElements.Add(Readout_Gametime);
             UIElements.Add(Readout_FPS);
             UIElements.Add(Readout_SW);
+
+            // Objects
+            GameCursor = new GameCursor();
+            GameCursor.Cursor = new SpaceObject() { RenderSections = Program.Img2Sect(Program.Textures["Cursor"]), Shader = Program.Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.4f, 0.4f, 1f), Rotation = new Vector3(0, 0, 30f), SOI = 1f, Collidable = false };
+            SpaceObjects.Add(GameCursor.Cursor);
 
             base.OnLoad(e);
         }

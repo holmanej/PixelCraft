@@ -47,9 +47,7 @@ namespace PixelCraft
 
                 SetDir(@"/resources/models");
 
-                gWin.SpaceObjects.Add(new SpaceObject() { RenderSections = Img2Sect(Textures["StarField"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0.2f), Scale = new Vector3(50f, 50f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f, Collidable = false });
-                gWin.CursorImage = new SpaceObject() { RenderSections = Img2Sect(Textures["Cursor"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.4f, 0.4f, 1f), Rotation = new Vector3(0, 0, 45f), SOI = 1f, Collidable = false };
-                gWin.SpaceObjects.Add(gWin.CursorImage);
+                gWin.SpaceObjects.Add(new SpaceObject() { RenderSections = Img2Sect(Textures["StarField"]), Shader = Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0.2f), Scale = new Vector3(50f, 50f, 1f), Rotation = new Vector3(0, 0, 0), SOI = 1f, Collidable = false, ObjectState = SpaceObject.SpaceObjectState.INERT });
 
                 Random rand = new Random();
                 List<SpaceObject> asteroids = new List<SpaceObject>();
@@ -58,13 +56,14 @@ namespace PixelCraft
                     int x = rand.Next(-50, 50);
                     int y = rand.Next(-50, 50);
                     int size = rand.Next(1, 6) / 2;
-                    asteroids.Add(new SpaceObject() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"], Position = new Vector3(x, y, 0.1f), Scale = new Vector3(size, size, 1f), Rotation = new Vector3(0, 0, 0), Radius = size, SOI = size * 1.5f, Team = 0, Collidable = true });
+                    asteroids.Add(new SpaceObject() { RenderSections = Img2Sect(Textures["asteroid"]), Shader = Shaders["texture_shader"], Position = new Vector3(x, y, 0.1f), Scale = new Vector3(size, size, 1f), Rotation = new Vector3(0, 0, 0), Radius = size, SOI = size * 1.5f, Team = 0, Collidable = true, ObjectState = SpaceObject.SpaceObjectState.INERT });
                 }
                 gWin.SpaceObjects.AddRange(asteroids);
-                gWin.PlayerObject = AllyAI.BuildCore();
-                gWin.SpaceObjects.Add(gWin.PlayerObject);
 
                 gWin.SpaceObjects = gWin.SpaceObjects.OrderByDescending(o => o.Position.Z).ToList();
+
+                AllyAI.PlayerShip = AllyAI.BuildCore();
+                gWin.SpaceObjects.Add(AllyAI.PlayerShip);
 
                 sw.Stop();
                 Debug.WriteLine("Load Time: " + sw.Elapsed);
