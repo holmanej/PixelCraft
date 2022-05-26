@@ -17,6 +17,8 @@ namespace PixelCraft
         public static Dictionary<string, RenderObject.Section> RenderSections;
         static Stopwatch SpawnTimer = new Stopwatch();
         public static List<SpaceObject> Ships = new List<SpaceObject>();
+        static int FighterSpawnTimer = 2000;
+        static int GunshipSpawnTimer = 15000;
 
         public static void Update(List<SpaceObject> objs, SpaceObject player)
         {
@@ -25,14 +27,15 @@ namespace PixelCraft
             foreach (var ship in Ships) { if (AllyAI.Ships.Count > 0 && ship.Target.ObjectState == SpaceObject.SpaceObjectState.DEAD) { ship.Target = AllyAI.Ships.Last(); } }
             int shipCount = Ships.Count;
             SpaceObject target = AllyAI.Ships.Count > 0 ? AllyAI.Ships.Last() : player;
-            if (shipCount < 3)
+            if (shipCount < 3 || SpawnTimer.ElapsedMilliseconds > FighterSpawnTimer)
             {
-                //objs.Add(BuildFighter(target));
+                objs.Add(BuildFighter(target));
+                FighterSpawnTimer += 2000;
             }
-            if (SpawnTimer.ElapsedMilliseconds > 10000)
+            if (SpawnTimer.ElapsedMilliseconds > GunshipSpawnTimer)
             {
-                //objs.Add(BuildGunship(target));
-                SpawnTimer.Restart();
+                objs.Add(BuildGunship(target));
+                GunshipSpawnTimer += 15000;
             }
         }
 
@@ -61,8 +64,7 @@ namespace PixelCraft
             };
             section.Add(new RenderObject.Section(RenderSections["Enemy"], true));
             section.Add(new RenderObject.Section(RenderSections["Dednemy"], false));
-            enemy.UI.Add(new TextObject("HEALTH 9999", Program.FontSets["DebugFont"], Shaders["texture_shader"]) { Position = new Vector3(0f, -0.1f, 0), Scale = new Vector3(0.02f, 0.02f, 1f) });
-            enemy.Modules.Add(new SpaceObject() { Armed = true, Accuracy = 4, FireRate = 200, Burst = 3, Target = target });
+            enemy.Modules.Add(new SpaceObject() { Armed = true, Accuracy = 10, FireRate = 200, Burst = 3, Target = target });
             enemy.Modules[0].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["RedBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.09f, 0.09f, 1f), TopSpeed = 0.3f, Damage = 1 };
 
             Ships.Add(enemy);
@@ -81,6 +83,8 @@ namespace PixelCraft
                 Scale = new Vector3(2.6f, 2.6f, 1f),
                 Health = 250,
                 HealthMax = 250,
+                Armor = 3,
+                ArmorMax = 3,
                 TopSpeed = 0.1f,
                 Acceleration_X = 0.01f,
                 Acceleration_Y = 0.01f,
@@ -94,9 +98,8 @@ namespace PixelCraft
             };
             section.Add(new RenderObject.Section(RenderSections["Enemy"], true));
             section.Add(new RenderObject.Section(RenderSections["Dednemy"], false));
-            enemy.UI.Add(new TextObject("HEALTH 9999", Program.FontSets["DebugFont"], Shaders["texture_shader"]) { Position = new Vector3(0f, -0.1f, 0), Scale = new Vector3(0.02f, 0.02f, 1f) });
-            enemy.Modules.Add(new SpaceObject() { Armed = true, Range = 20, Accuracy = 8, FireRate = 50, Burst = 1, Target = target });
-            enemy.Modules.Add(new SpaceObject() { Armed = true, Range = 20, Accuracy = 50, FireRate = 2500, Burst = 10, Target = target });
+            enemy.Modules.Add(new SpaceObject() { Armed = true, Range = 20, Accuracy = 30, FireRate = 20, Burst = 1, Target = target });
+            enemy.Modules.Add(new SpaceObject() { Armed = true, Range = 20, FireRate = 2500, Burst = 45, Spread = 360, Target = target });
             enemy.Modules[0].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["RedBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.2f, 0.2f, 1f), TopSpeed = 0.7f, Damage = 1 };
             enemy.Modules[1].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["RedBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(1.0f, 0.5f, 1f), TopSpeed = 0.4f, Damage = 10 };
 

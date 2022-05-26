@@ -124,5 +124,11 @@ namespace PixelCraft
             GL.UseProgram(Handle);
             GL.Uniform1(GL.GetUniformLocation(Handle, name), unit);
         }
+
+        public void SetFloat(string name, float data)
+        {
+            GL.UseProgram(Handle);
+            GL.Uniform1(GL.GetUniformLocation(Handle, name), 1, ref data);
+        }
     }
 }

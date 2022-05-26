@@ -26,6 +26,7 @@ namespace PixelCraft
             public bool ImageUpdate;
             public float Metal;
             public float Rough;
+            public float Alpha = 1f;
             public bool Visible = true;
 
             public Section() { }
@@ -40,6 +41,7 @@ namespace PixelCraft
                 ImageUpdate = true;
                 Metal = section.Metal;
                 Rough = section.Rough;
+                Alpha = 1f;
                 Visible = visible;
             }
 

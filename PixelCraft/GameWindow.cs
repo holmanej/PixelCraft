@@ -95,6 +95,7 @@ namespace PixelCraft
         Stopwatch render_sw = new Stopwatch();
         int bulletCnt = 0;
         Queue<int> avgFPS = new Queue<int>();
+        Queue<float> avgLGC = new Queue<float>();
 
 
         public GameWindow(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
@@ -120,6 +121,7 @@ namespace PixelCraft
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+            logic_sw.Restart();
             float playerX = AllyAI.PlayerShip.Position.X;
             float playerY = AllyAI.PlayerShip.Position.Y;
             float porp = 0.05f;
@@ -136,7 +138,7 @@ namespace PixelCraft
 
             GameCursor.Cursor.SetPosition(GameCursor.X, GameCursor.Y, 0f);
 
-            logic_sw.Restart();
+            
             if (SpaceObjects.FindAll(o => o.ObjectState == SpaceObject.SpaceObjectState.DEAD).Count > 20)
             {
                 SpaceObjects.Remove(SpaceObjects.Find(o => o.ObjectState == SpaceObject.SpaceObjectState.DEAD));
@@ -147,7 +149,7 @@ namespace PixelCraft
             }
             EnemyAI.Update(SpaceObjects, AllyAI.PlayerShip);
             AllyAI.Update(SpaceObjects);
-            logic_sw.Stop();
+            
 
             if (keybd.IsKeyDown(Key.F1))
             {
@@ -178,14 +180,21 @@ namespace PixelCraft
                 avgFPS.Dequeue();
             }
 
+            
+
             //if (Readout_Position.Visible)
             {
                 Readout_Position.Text = "X=" + ViewX.ToString("F2") + "  Y=" + ViewY.ToString("F2") + "  Z=" + ViewZ.ToString("F3");
                 Readout_Gametime.Text = "Gametime=" + GameTime.ToString("F1");
                 Readout_FPS.Text = "FPS=" + (int)avgFPS.Average();
-                Readout_SW.Text = "LGC=" + (logic_sw.ElapsedTicks / 10000f).ToString("F2") + "  PJT=" + (render_sw.ElapsedTicks / 10000f).ToString("F2");
+                Readout_SW.Text = "LGC=" + (avgLGC.Average() / 10000f / 60 * 100).ToString("F1") + "%  GUI=" + (render_sw.ElapsedTicks / 10000f).ToString("F2");
             }
-            
+            logic_sw.Stop();
+            avgLGC.Enqueue(logic_sw.ElapsedTicks);
+            if (avgLGC.Count > 32)
+            {
+                avgLGC.Dequeue();
+            }
             base.OnUpdateFrame(e);
         }
 
@@ -228,6 +237,7 @@ namespace PixelCraft
             GameCursor = new GameCursor();
             GameCursor.Cursor = new SpaceObject() { RenderSections = Program.Img2Sect(Program.Textures["Cursor"]), Shader = Program.Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.4f, 0.4f, 1f), Rotation = new Vector3(0, 0, 30f), SOI = 1f, Collidable = false };
             SpaceObjects.Add(GameCursor.Cursor);
+            avgLGC.Enqueue(0);
 
             base.OnLoad(e);
         }
@@ -257,7 +267,7 @@ namespace PixelCraft
         {
             foreach (var obj in objs)
             {
-                if (obj.Visible)
+                if (obj.Visible && obj.Shader != null)
                 {
                     shader = obj.Shader;
                     shader.Use();
@@ -276,6 +286,8 @@ namespace PixelCraft
                     {
                         if (section.Visible)
                         {
+                            shader.SetFloat("tex_alpha", section.Alpha);
+
                             if (section.ImageHandle == 0)
                             {
                                 section.ImageHandle = GL.GenTexture();
@@ -317,6 +329,8 @@ namespace PixelCraft
                     {
                         if (section.Visible)
                         {
+                            shader.SetFloat("tex_alpha", section.Alpha);
+
                             if (section.ImageHandle == 0)
                             {
                                 section.ImageHandle = GL.GenTexture();
@@ -360,11 +374,12 @@ namespace PixelCraft
             render_sw.Restart();
             foreach (var list in SpaceObjects)
             {
-                bulletCnt += list.Projectiles.Count;
-                render_sw.Start();
+                bulletCnt += list.Projectiles.Count;                
                 RenderSpaceObjects(list.Projectiles, playerPos);
-                render_sw.Stop();
+                RenderSpaceObjects(list.Modules, playerPos);
+                render_sw.Start();
                 RenderUIElements(list.UI, playerPos);
+                render_sw.Stop();
             }
             render_sw.Stop();
 

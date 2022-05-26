@@ -1,6 +1,7 @@
 ﻿using OpenTK;
 using OpenTK.Input;
 using System;
+using System.Diagnostics;
 
 namespace PixelCraft
 {
@@ -63,9 +64,12 @@ namespace PixelCraft
         {
             float dx = target.Position.X - obj.Position.X;
             float dy = target.Position.Y - obj.Position.Y;
-            float theta = (float)(Math.Atan(dy / dx) * 180 / Math.PI);
-            if (dx < 0) { theta += 180; }
-            obj.SetRotation(obj.Rotation.X, obj.Rotation.Y, theta - 90);
+            float theta = (float)Math.Atan(dy / dx);
+            if (dx < 0) { theta += 3.14f; }
+            float dt = theta * 180f / 3.14f - obj.Rotation.Z - 90;
+            if (Math.Abs(dt) > 180) { dt = dt - Math.Sign(dt) * 360; }
+            theta = Math.Abs(dt) < obj.Agility ? dt : Math.Sign(dt) * obj.Agility;
+            obj.Rotate(0, 0, theta);
         }
 
         public static void Approach(this SpaceObject obj, SpaceObject target)
@@ -92,7 +96,7 @@ namespace PixelCraft
             float dy = obj.Position.Y - target.Position.Y;
             float mag = Mag(dx, dy);
             obj.Thrust(dx / mag, dy / mag);
-            obj.Point(dx, dy);
+            //obj.Point(dx, dy);
         }
 
         public static void Walk(this SpaceObject obj)

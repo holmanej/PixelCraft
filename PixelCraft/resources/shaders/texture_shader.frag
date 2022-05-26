@@ -3,6 +3,7 @@
 in vec3 fragPos;
 in vec3 fragNormal;
 in vec2 texCoord;
+in float texAlpha;
 
 in vec4 objColor;
 in vec3 lightColor;
@@ -34,7 +35,7 @@ void main()
 	//
 	//// RESULT
 	//vec4 result = vec4(ambient + diffuse + specular, 1);
-	vec4 texColor = texture(texture0, texCoord);
+	vec4 texColor = texture(texture0, texCoord) * vec4(1.0, 1.0, 1.0, texAlpha);
 	fragColor = texColor;
 	//if (texColor == vec4(0, 0, 0, 0))
 	//{
