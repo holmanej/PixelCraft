@@ -36,6 +36,8 @@ namespace PixelCraft
         public float Morale = 1;
         public float Radius = 1;
         public float SOI = 2;
+        public int ScoreValue = 1;
+        public int Score = 0;
 
         // MOVEMENT
         public float Velocity_X = 0;
@@ -141,9 +143,10 @@ namespace PixelCraft
                                 }
                             }
 
+                            bool alive = obj.Health > 0;
                             obj.Health = Math.Max(obj.Health - dmg, 0);
+                            //if (alive && obj.Health == 0) { Score += obj.ScoreValue; }
                         }
-                        //obj.Translate(0.001f, 0, 0);
                         Projectiles.Remove(p);
                     }
                 }
@@ -159,7 +162,6 @@ namespace PixelCraft
                     {
                         if (Distance(Target.Position) < MinOrbit) { this.Orbit(Target); }
                         this.Approach(Target);
-                        Translate(0.0001f, 0, 0);
                         this.Point(Target);
                         foreach (var m in Modules) { m.Target = Target; }
                     }
@@ -186,6 +188,7 @@ namespace PixelCraft
                 default: break;
             }
 
+            Armor = 0;
             Shields = 0;
             foreach (var mod in Modules)
             {
@@ -232,11 +235,16 @@ namespace PixelCraft
                         mod.FireSW.Restart();
                     }
                 }
+                if (mod.ArmorMax > 0)
+                {
+                    Armor += mod.Armor;
+                }
                 if (mod.ShieldMax > 0)
                 {
                     mod.Shields = Math.Min(mod.Shields + mod.ShieldRegen, mod.ShieldMax);
                     Shields += mod.Shields;
                     mod.Position = Position;
+                    mod.Translate(0, 0, 0.1f);
                     mod.RenderSections[0].Alpha = mod.Shields / mod.ShieldMax;
                 }
             }

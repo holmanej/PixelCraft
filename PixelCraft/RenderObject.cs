@@ -11,6 +11,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 
 namespace PixelCraft
 {
@@ -56,7 +58,7 @@ namespace PixelCraft
                 }
 
                 bmp.MakeTransparent(bmp.GetPixel(0, 0));
-                BitmapData fileData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+                BitmapData fileData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 byte[] imgData = new byte[bmp.Width * bmp.Height * 4];
                 Marshal.Copy(fileData.Scan0, imgData, 0, imgData.Length);
                 bmp.UnlockBits(fileData);
@@ -116,6 +118,48 @@ namespace PixelCraft
         public static float Mag(float a, float b)
         {
             return (float)Math.Sqrt(Math.Pow(a, 2) + Math.Pow(b, 2));
+        }
+
+        public void Render(int vArrayObj)
+        {
+            if (Visible && Shader != null)
+            {
+                Shader.Use();
+                Shader.SetMatrix4("obj_translate", matPos);
+                Shader.SetMatrix4("obj_scale", matScale);
+                Shader.SetMatrix4("obj_rotate", matRot);
+                foreach (Section section in RenderSections)
+                {
+                    if (section.Visible)
+                    {
+                        Shader.SetFloat("tex_alpha", section.Alpha);
+
+                        if (section.ImageHandle == 0)
+                        {
+                            section.ImageHandle = GL.GenTexture();
+                            GL.ActiveTexture(TextureUnit.Texture0);
+                            GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
+                            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
+                            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+                        }
+                        if (section.ImageUpdate)
+                        {
+                            GL.ActiveTexture(TextureUnit.Texture0);
+                            GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
+                            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
+                            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+                        }
+
+                        GL.ActiveTexture(TextureUnit.Texture0);
+                        GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
+                        GL.BindVertexArray(vArrayObj);
+                        GL.BindBuffer(BufferTarget.ArrayBuffer, vArrayObj);
+                        GL.BufferData(BufferTarget.ArrayBuffer, section.VBOData.Count * sizeof(float), section.VBOData.ToArray(), BufferUsageHint.DynamicDraw);
+                        GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+                        GL.DrawArrays(PrimitiveType.Triangles, 0, section.VBOData.Count);
+                    }
+                }
+            }
         }
 
         private void CalculateNormalData()

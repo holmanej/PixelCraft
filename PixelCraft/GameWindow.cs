@@ -58,6 +58,7 @@ namespace PixelCraft
     {
         public List<SpaceObject> SpaceObjects = new List<SpaceObject>();
         public List<TextObject> UIElements = new List<TextObject>();
+        public UIElement UIPanel;
         Shader shader;
         private GameCursor GameCursor;
 
@@ -138,7 +139,7 @@ namespace PixelCraft
 
             GameCursor.Cursor.SetPosition(GameCursor.X, GameCursor.Y, 0f);
 
-            
+
             if (SpaceObjects.FindAll(o => o.ObjectState == SpaceObject.SpaceObjectState.DEAD).Count > 20)
             {
                 SpaceObjects.Remove(SpaceObjects.Find(o => o.ObjectState == SpaceObject.SpaceObjectState.DEAD));
@@ -149,7 +150,8 @@ namespace PixelCraft
             }
             EnemyAI.Update(SpaceObjects, AllyAI.PlayerShip);
             AllyAI.Update(SpaceObjects);
-            
+            UIPanel.Update(GameCursor);
+
 
             if (keybd.IsKeyDown(Key.F1))
             {
@@ -180,7 +182,7 @@ namespace PixelCraft
                 avgFPS.Dequeue();
             }
 
-            
+
 
             //if (Readout_Position.Visible)
             {
@@ -263,7 +265,7 @@ namespace PixelCraft
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
 
-        void RenderSpaceObjects(List<SpaceObject> objs, Vector3 playerPos)
+        void RenderSpaceObjects(List<SpaceObject> objs)
         {
             foreach (var obj in objs)
             {
@@ -271,12 +273,6 @@ namespace PixelCraft
                 {
                     shader = obj.Shader;
                     shader.Use();
-
-                    shader.SetVector3("player_position", playerPos);
-
-                    shader.SetMatrix4("view_translate", View_Translate);
-                    shader.SetMatrix4("view_scale", View_Scale);
-                    shader.SetMatrix4("view_rotate", View_Rotate);
 
                     shader.SetMatrix4("obj_translate", obj.matPos);
                     shader.SetMatrix4("obj_scale", obj.matScale);
@@ -306,7 +302,7 @@ namespace PixelCraft
             }
         }
 
-        void RenderUIElements(List<TextObject> objs, Vector3 playerPos)
+        void RenderUIElements(List<TextObject> objs)
         {
             foreach (var obj in objs)
             {
@@ -315,12 +311,50 @@ namespace PixelCraft
                     shader = obj.Shader;
                     shader.Use();
 
-                    shader.SetVector3("player_position", playerPos);
+                    shader.SetMatrix4("obj_translate", obj.matPos);
+                    shader.SetMatrix4("obj_scale", obj.matScale);
+                    shader.SetMatrix4("obj_rotate", obj.matRot);
 
-                    shader.SetMatrix4("view_translate", View_Translate);
-                    shader.SetMatrix4("view_scale", View_Scale);
-                    shader.SetMatrix4("view_rotate", View_Rotate);
+                    foreach (RenderObject.Section section in obj.RenderSections)
+                    {
+                        if (section.Visible)
+                        {
+                            shader.SetFloat("tex_alpha", section.Alpha);
 
+                            if (section.ImageHandle == 0)
+                            {
+                                section.ImageHandle = GL.GenTexture();
+                                GL.ActiveTexture(TextureUnit.Texture0);
+                                GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
+                                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
+                                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+                            }
+                            if (section.ImageUpdate)
+                            {
+                                GL.ActiveTexture(TextureUnit.Texture0);
+                                GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
+                                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
+                                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+                            }
+
+                            GL.ActiveTexture(TextureUnit.Texture0);
+                            GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
+                            BufferObject(section.VBOData.ToArray());
+                            GL.DrawArrays(PrimitiveType.Triangles, 0, VerticesLength);
+                        }
+                    }
+                }
+            }
+        }
+
+        void Render(List<RenderObject> objs)
+        {
+            foreach (RenderObject obj in objs)
+            {
+                if (obj.Visible)
+                {
+                    shader = obj.Shader;
+                    shader.Use();
                     shader.SetMatrix4("obj_translate", obj.matPos);
                     shader.SetMatrix4("obj_scale", obj.matScale);
                     shader.SetMatrix4("obj_rotate", obj.matRot);
@@ -362,25 +396,35 @@ namespace PixelCraft
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             Model = Matrix4.CreateTranslation(0, 0, 0);
-            View_Translate = Matrix4.CreateTranslation(-ViewX, -ViewY, 0);
+            View_Translate = Matrix4.CreateTranslation(-ViewX - 0.2f / ViewZ, -ViewY, 0);
             View_Scale = Matrix4.CreateScale(ViewZ, ViewZ, 1f);
             View_Rotate = Matrix4.CreateRotationY(0 * 3.14f / 180) * Matrix4.CreateRotationX(0 * 3.14f / 180);
             Vector3 playerPos = new Vector3(ViewX, ViewY, 0);
 
+            foreach (var shader in Program.Shaders.Values)
+            {
+                shader.Use();
+                shader.SetVector3("player_position", playerPos);
+                shader.SetMatrix4("view_translate", View_Translate);
+                shader.SetMatrix4("view_scale", View_Scale);
+                shader.SetMatrix4("view_rotate", View_Rotate);
+            }
+
             GL.BindVertexArray(VertexArrayObject);
-            RenderSpaceObjects(SpaceObjects, playerPos);
-            RenderUIElements(UIElements, playerPos);
+            RenderSpaceObjects(SpaceObjects);
+            RenderUIElements(UIElements);
             bulletCnt = 0;
             render_sw.Restart();
             foreach (var list in SpaceObjects)
             {
-                bulletCnt += list.Projectiles.Count;                
-                RenderSpaceObjects(list.Projectiles, playerPos);
-                RenderSpaceObjects(list.Modules, playerPos);
+                bulletCnt += list.Projectiles.Count;
+                RenderSpaceObjects(list.Projectiles);
+                RenderSpaceObjects(list.Modules);
                 render_sw.Start();
-                RenderUIElements(list.UI, playerPos);
+                RenderUIElements(list.UI);
                 render_sw.Stop();
             }
+            foreach (var obj in UIPanel.Elements) { obj.Render(VertexArrayObject); }
             render_sw.Stop();
 
             GL.BindVertexArray(0);

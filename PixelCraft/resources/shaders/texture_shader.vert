@@ -31,7 +31,7 @@ out vec3 viewPos;
 
 void main()
 {
-	vec4 obj = vec4(vPosition, 1) * obj_scale * obj_rotate * obj_translate;
+	vec4 obj = vec4(vPosition.x, vPosition.y, 0, 1) * obj_scale * obj_rotate * obj_translate;
 	gl_Position = obj * view_translate * view_rotate * view_scale;
 	texAlpha = tex_alpha;
 	

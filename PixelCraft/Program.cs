@@ -37,6 +37,7 @@ namespace PixelCraft
 
                 FontSets = new Dictionary<string, RenderObject>();
                 FontSets.Add("DebugFont", CreateFontsetRender(Fonts["times"], Color.White, Color.Black, 24, Shaders["debugText_shader"]));
+                FontSets.Add("UIFont", CreateFontsetRender(Fonts["times"], Color.Black, Color.White, 24, Shaders["debugText_shader"]));
 
                 AllyAI.Shaders = Shaders;
                 AllyAI.Fonts = Fonts;
@@ -44,6 +45,9 @@ namespace PixelCraft
                 EnemyAI.Shaders = Shaders;
                 EnemyAI.Fonts = Fonts;
                 EnemyAI.RenderSections = RenderSections;
+
+                var SidePanel = new UIElement();
+                gWin.UIPanel = SidePanel;
 
                 SetDir(@"/resources/models");
 
