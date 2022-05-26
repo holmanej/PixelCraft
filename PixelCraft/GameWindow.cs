@@ -59,7 +59,6 @@ namespace PixelCraft
         public List<SpaceObject> SpaceObjects = new List<SpaceObject>();
         public List<TextObject> UIElements = new List<TextObject>();
         public UIElement UIPanel;
-        Shader shader;
         private GameCursor GameCursor;
 
         public TextObject Readout_Position;
@@ -80,7 +79,6 @@ namespace PixelCraft
 
         private int VertexArrayObject;
         private int VertexBufferObject;
-        private int VerticesLength;
 
         private int MouseX;
         private int MouseY;
@@ -97,6 +95,7 @@ namespace PixelCraft
         int bulletCnt = 0;
         Queue<int> avgFPS = new Queue<int>();
         Queue<float> avgLGC = new Queue<float>();
+        Queue<float> avgRNDR = new Queue<float>();
 
 
         public GameWindow(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
@@ -189,13 +188,18 @@ namespace PixelCraft
                 Readout_Position.Text = "X=" + ViewX.ToString("F2") + "  Y=" + ViewY.ToString("F2") + "  Z=" + ViewZ.ToString("F3");
                 Readout_Gametime.Text = "Gametime=" + GameTime.ToString("F1");
                 Readout_FPS.Text = "FPS=" + (int)avgFPS.Average();
-                Readout_SW.Text = "LGC=" + (avgLGC.Average() / 10000f / 60 * 100).ToString("F1") + "%  GUI=" + (render_sw.ElapsedTicks / 10000f).ToString("F2");
+                Readout_SW.Text = "LGC=" + (avgLGC.Average() / 10000f / 60 * 100).ToString("F1") + "%  GUI=" + (render_sw.ElapsedTicks / 1f).ToString("F2");
             }
             logic_sw.Stop();
             avgLGC.Enqueue(logic_sw.ElapsedTicks);
             if (avgLGC.Count > 32)
             {
                 avgLGC.Dequeue();
+            }
+            avgRNDR.Enqueue(render_sw.ElapsedTicks);
+            if (avgRNDR.Count > 32)
+            {
+                avgRNDR.Dequeue();
             }
             base.OnUpdateFrame(e);
         }
@@ -240,6 +244,7 @@ namespace PixelCraft
             GameCursor.Cursor = new SpaceObject() { RenderSections = Program.Img2Sect(Program.Textures["Cursor"]), Shader = Program.Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.4f, 0.4f, 1f), Rotation = new Vector3(0, 0, 30f), SOI = 1f, Collidable = false };
             SpaceObjects.Add(GameCursor.Cursor);
             avgLGC.Enqueue(0);
+            avgRNDR.Enqueue(0);
 
             base.OnLoad(e);
         }
@@ -254,141 +259,6 @@ namespace PixelCraft
             }
 
             base.OnUnload(e);
-        }
-
-        public void BufferObject(float[] vertices)
-        {
-            GL.BindVertexArray(VertexArrayObject);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
-            VerticesLength = vertices.Length;
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-        }
-
-        void RenderSpaceObjects(List<SpaceObject> objs)
-        {
-            foreach (var obj in objs)
-            {
-                if (obj.Visible && obj.Shader != null)
-                {
-                    shader = obj.Shader;
-                    shader.Use();
-
-                    shader.SetMatrix4("obj_translate", obj.matPos);
-                    shader.SetMatrix4("obj_scale", obj.matScale);
-                    shader.SetMatrix4("obj_rotate", obj.matRot);
-
-                    foreach (RenderObject.Section section in obj.RenderSections)
-                    {
-                        if (section.Visible)
-                        {
-                            shader.SetFloat("tex_alpha", section.Alpha);
-
-                            if (section.ImageHandle == 0)
-                            {
-                                section.ImageHandle = GL.GenTexture();
-                                GL.ActiveTexture(TextureUnit.Texture0);
-                                GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
-                                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
-                                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-                            }
-                            GL.ActiveTexture(TextureUnit.Texture0);
-                            GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
-                            BufferObject(section.VBOData.ToArray());
-                            GL.DrawArrays(PrimitiveType.Triangles, 0, VerticesLength);
-                        }
-                    }
-                }
-            }
-        }
-
-        void RenderUIElements(List<TextObject> objs)
-        {
-            foreach (var obj in objs)
-            {
-                if (obj.Visible)
-                {
-                    shader = obj.Shader;
-                    shader.Use();
-
-                    shader.SetMatrix4("obj_translate", obj.matPos);
-                    shader.SetMatrix4("obj_scale", obj.matScale);
-                    shader.SetMatrix4("obj_rotate", obj.matRot);
-
-                    foreach (RenderObject.Section section in obj.RenderSections)
-                    {
-                        if (section.Visible)
-                        {
-                            shader.SetFloat("tex_alpha", section.Alpha);
-
-                            if (section.ImageHandle == 0)
-                            {
-                                section.ImageHandle = GL.GenTexture();
-                                GL.ActiveTexture(TextureUnit.Texture0);
-                                GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
-                                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
-                                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-                            }
-                            if (section.ImageUpdate)
-                            {
-                                GL.ActiveTexture(TextureUnit.Texture0);
-                                GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
-                                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
-                                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-                            }
-
-                            GL.ActiveTexture(TextureUnit.Texture0);
-                            GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
-                            BufferObject(section.VBOData.ToArray());
-                            GL.DrawArrays(PrimitiveType.Triangles, 0, VerticesLength);
-                        }
-                    }
-                }
-            }
-        }
-
-        void Render(List<RenderObject> objs)
-        {
-            foreach (RenderObject obj in objs)
-            {
-                if (obj.Visible)
-                {
-                    shader = obj.Shader;
-                    shader.Use();
-                    shader.SetMatrix4("obj_translate", obj.matPos);
-                    shader.SetMatrix4("obj_scale", obj.matScale);
-                    shader.SetMatrix4("obj_rotate", obj.matRot);
-
-                    foreach (RenderObject.Section section in obj.RenderSections)
-                    {
-                        if (section.Visible)
-                        {
-                            shader.SetFloat("tex_alpha", section.Alpha);
-
-                            if (section.ImageHandle == 0)
-                            {
-                                section.ImageHandle = GL.GenTexture();
-                                GL.ActiveTexture(TextureUnit.Texture0);
-                                GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
-                                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
-                                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-                            }
-                            if (section.ImageUpdate)
-                            {
-                                GL.ActiveTexture(TextureUnit.Texture0);
-                                GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
-                                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
-                                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-                            }
-
-                            GL.ActiveTexture(TextureUnit.Texture0);
-                            GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
-                            BufferObject(section.VBOData.ToArray());
-                            GL.DrawArrays(PrimitiveType.Triangles, 0, VerticesLength);
-                        }
-                    }
-                }
-            }
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -411,21 +281,33 @@ namespace PixelCraft
             }
 
             GL.BindVertexArray(VertexArrayObject);
-            RenderSpaceObjects(SpaceObjects);
-            RenderUIElements(UIElements);
             bulletCnt = 0;
-            render_sw.Restart();
-            foreach (var list in SpaceObjects)
+            foreach (var obj in SpaceObjects)
             {
-                bulletCnt += list.Projectiles.Count;
-                RenderSpaceObjects(list.Projectiles);
-                RenderSpaceObjects(list.Modules);
-                render_sw.Start();
-                RenderUIElements(list.UI);
+                obj.Render(VertexArrayObject);
+                foreach (var p in obj.Projectiles)
+                {
+                    p.Render(VertexArrayObject);
+                }
+                foreach (var m in obj.Modules)
+                {
+                    m.Render(VertexArrayObject);
+                }
+                foreach (var u in obj.UI)
+                {
+                    u.Render(VertexArrayObject);
+                }
+            }
+            foreach (var obj in UIElements)
+            {
+                obj.Render(VertexArrayObject);
+            }
+            foreach (var obj in UIPanel.Elements)
+            {
+                render_sw.Restart();
+                obj.Render(VertexArrayObject);
                 render_sw.Stop();
             }
-            foreach (var obj in UIPanel.Elements) { obj.Render(VertexArrayObject); }
-            render_sw.Stop();
 
             GL.BindVertexArray(0);
 

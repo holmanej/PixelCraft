@@ -122,6 +122,7 @@ namespace PixelCraft
 
         public void Render(int vArrayObj)
         {
+            Stopwatch sw = new Stopwatch();
             if (Visible && Shader != null)
             {
                 Shader.Use();
@@ -137,29 +138,31 @@ namespace PixelCraft
                         if (section.ImageHandle == 0)
                         {
                             section.ImageHandle = GL.GenTexture();
-                            GL.ActiveTexture(TextureUnit.Texture0);
-                            GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
-                            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
-                            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-                        }
-                        if (section.ImageUpdate)
-                        {
-                            GL.ActiveTexture(TextureUnit.Texture0);
-                            GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
-                            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
-                            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+                            section.ImageUpdate = true;
                         }
 
                         GL.ActiveTexture(TextureUnit.Texture0);
                         GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
+
+                        if (section.ImageUpdate)
+                        {
+                            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
+                            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+                            section.ImageUpdate = false;
+                        }
+                        sw.Start();
+                        
                         GL.BindVertexArray(vArrayObj);
                         GL.BindBuffer(BufferTarget.ArrayBuffer, vArrayObj);
                         GL.BufferData(BufferTarget.ArrayBuffer, section.VBOData.Count * sizeof(float), section.VBOData.ToArray(), BufferUsageHint.DynamicDraw);
-                        GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
                         GL.DrawArrays(PrimitiveType.Triangles, 0, section.VBOData.Count);
+                        GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+                        sw.Stop();
                     }
                 }
             }
+            
+            //Debug.WriteLine(sw.ElapsedTicks);
         }
 
         private void CalculateNormalData()
