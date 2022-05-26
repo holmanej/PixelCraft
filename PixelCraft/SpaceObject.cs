@@ -51,6 +51,7 @@ namespace PixelCraft
         // WEAPON
         public bool Armed = false;
         public float FireRate = float.MaxValue;
+        public float FiringArc = 15;
         public float Burst = 0;
         public float Spread = 0;
         public float Accuracy = 0;
@@ -191,7 +192,7 @@ namespace PixelCraft
                 if (mod.Armed && mod.Target.ObjectState == SpaceObjectState.ALIVE && Distance(mod.Target.Position) < mod.Range && mod.Ammo != null && mod.Target != this)
                 {
                     mod.FireSW.Start();
-                    if (mod.FireSW.ElapsedMilliseconds > mod.FireRate)
+                    if (mod.FireSW.ElapsedMilliseconds > mod.FireRate && Math.Abs(dTheta(mod.Target.Position)) < mod.FiringArc)
                     {
                         for (int i = 0; i < mod.Burst; i++)
                         {

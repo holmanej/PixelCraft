@@ -102,6 +102,17 @@ namespace PixelCraft
             return Vector3.Distance(Position, target);
         }
 
+        public float dTheta(Vector3 target)
+        {
+            float dx = target.X - Position.X;
+            float dy = target.Y - Position.Y;
+            float theta = (float)Math.Atan(dy / dx);
+            if (dx < 0) { theta += 3.14f; }
+            float dt = theta * 180f / 3.14f - Rotation.Z - 90;
+            if (Math.Abs(dt) > 180) { dt = dt - Math.Sign(dt) * 360; }
+            return dt;
+        }
+
         public static float Mag(float a, float b)
         {
             return (float)Math.Sqrt(Math.Pow(a, 2) + Math.Pow(b, 2));

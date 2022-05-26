@@ -55,20 +55,21 @@ namespace PixelCraft
 
         public static void Point(this SpaceObject obj, float dx, float dy)
         {
-            float theta = (float)(Math.Atan(dy / dx) * 180 / Math.PI);
-            if (dx < 0) { theta += 180; }
-            obj.SetRotation(obj.Rotation.X, obj.Rotation.Y, theta - 90);
+            float theta = (float)Math.Atan(dy / dx);
+            if (dx < 0) { theta += 3.14f; }
+            obj.SetRotation(obj.Rotation.X, obj.Rotation.Y, theta * 180f / 3.14f - 90);
         }
 
         public static void Point(this SpaceObject obj, SpaceObject target)
         {
-            float dx = target.Position.X - obj.Position.X;
-            float dy = target.Position.Y - obj.Position.Y;
-            float theta = (float)Math.Atan(dy / dx);
-            if (dx < 0) { theta += 3.14f; }
-            float dt = theta * 180f / 3.14f - obj.Rotation.Z - 90;
-            if (Math.Abs(dt) > 180) { dt = dt - Math.Sign(dt) * 360; }
-            theta = Math.Abs(dt) < obj.Agility ? dt : Math.Sign(dt) * obj.Agility;
+            //float dx = target.Position.X - obj.Position.X;
+            //float dy = target.Position.Y - obj.Position.Y;
+            //float theta = (float)Math.Atan(dy / dx);
+            //if (dx < 0) { theta += 3.14f; }
+            float dt = obj.dTheta(target.Position);
+            //float dt = theta * 180f / 3.14f - obj.Rotation.Z - 90;
+            //if (Math.Abs(dt) > 180) { dt = dt - Math.Sign(dt) * 360; }
+            float theta = Math.Abs(dt) < obj.Agility ? dt : Math.Sign(dt) * obj.Agility;
             obj.Rotate(0, 0, theta);
         }
 
