@@ -18,7 +18,7 @@ namespace PixelCraft
         static Stopwatch SpawnTimer = new Stopwatch();
         public static List<SpaceObject> Ships = new List<SpaceObject>();
         static long FighterSpawnTimer = 2000;
-        static long GunshipSpawnTimer = 60000;
+        static long GunshipSpawnTimer = 45000;
 
         public static void Update(List<SpaceObject> objs, SpaceObject player)
         {
@@ -41,12 +41,12 @@ namespace PixelCraft
             if (shipCount < 3 || SpawnTimer.ElapsedMilliseconds > FighterSpawnTimer)
             {
                 objs.Add(BuildFighter());
-                FighterSpawnTimer += 4000;
+                FighterSpawnTimer += 2000;
             }
             if (SpawnTimer.ElapsedMilliseconds > GunshipSpawnTimer)
             {
                 objs.Add(BuildGunship());
-                GunshipSpawnTimer = SpawnTimer.ElapsedMilliseconds + 30000;
+                GunshipSpawnTimer = SpawnTimer.ElapsedMilliseconds + 45000;
             }
         }
 
@@ -94,13 +94,14 @@ namespace PixelCraft
                 Scale = new Vector3(2.6f, 2.6f, 1f),
                 Health = 250,
                 HealthMax = 250,
+                ArmorMax = 1,
                 TopSpeed = 0.1f,
                 Acceleration_X = 0.01f,
                 Acceleration_Y = 0.01f,
                 Friction = 0.01f,
                 Agility = 0.7f,
                 SOI = 3f,
-                ScoreValue = 5,
+                ScoreValue = 10,
                 MaxOrbit = 15,
                 MinOrbit = 0,
                 ObjectState = SpaceObject.SpaceObjectState.ALIVE,
@@ -108,8 +109,9 @@ namespace PixelCraft
             };
             section.Add(new RenderObject.Section(RenderSections["Enemy"], true));
             section.Add(new RenderObject.Section(RenderSections["Dednemy"], false));
-            enemy.Modules.Add(new SpaceObject() { Armed = true, Range = 20, FiringArc = 30, Accuracy = 15, FireRate = 40, Burst = 2 });
-            enemy.Modules.Add(new SpaceObject() { Armed = true, Range = 20, FiringArc = 360, FireRate = 2500, Burst = 45, Spread = 360 });
+            enemy.Modules.Add(new SpaceObject() { Armed = true, Range = 30, FiringArc = 270, Accuracy = 45, FireRate = 250, Burst = 2 });
+            enemy.Modules.Add(new SpaceObject() { Armed = true, Range = 20, FiringArc = 15, Accuracy = 5, FireRate = 100, Burst = 4 });
+            enemy.Modules.Add(new SpaceObject() { Armed = true, Range = 10, FiringArc = 360, FireRate = 2500, Burst = 45, Spread = 360 });
             enemy.Modules.Add(new SpaceObject()
             {
                 RenderSections = new List<RenderObject.Section>() { new RenderObject.Section(RenderSections["Shield"], false) },
@@ -120,7 +122,8 @@ namespace PixelCraft
                 Armor = 4
             });
             enemy.Modules[0].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["RedBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.2f, 0.2f, 1f), TopSpeed = 0.7f, Damage = 1 };
-            enemy.Modules[1].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["RedBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(1.0f, 0.5f, 1f), TopSpeed = 0.4f, Damage = 10 };
+            enemy.Modules[1].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["RedBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.2f, 0.2f, 1f), TopSpeed = 0.7f, Damage = 2 };
+            enemy.Modules[2].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["RedBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(1.0f, 0.5f, 1f), TopSpeed = 0.4f, Damage = 10 };
 
             Ships.Add(enemy);
             return enemy;

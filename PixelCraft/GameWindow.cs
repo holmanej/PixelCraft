@@ -17,6 +17,8 @@ namespace PixelCraft
 {
     public class GameCursor
     {
+        public float Mx;
+        public float My;
         public float X;
         public float Y;
         public bool LeftPrev;
@@ -31,12 +33,14 @@ namespace PixelCraft
         public bool MiddlePrev;
         public bool MiddleReleased;
         public bool MiddleDown;
-        public SpaceObject Cursor;
+        public RenderObject Cursor;
 
         public void Update(MouseState m, int x, int y, int w, int h, float vX, float vY, float vZ)
         {
-            X = (((x - w / 2) / (float)w * 2) / vZ + vX);
-            Y = ((-(y - h / 2) / (float)h * 2) / vZ + vY);
+            Mx = (x - w / 2) / (float)w * 2;
+            My = -(y - h / 2) / (float)h * 2;
+            X = (Mx + 0.2f) / vZ + vX;
+            Y = My / vZ + vY;
             LeftDown = m.LeftButton == ButtonState.Pressed;
             RightDown = m.RightButton == ButtonState.Pressed;
             MiddleDown = m.MiddleButton == ButtonState.Pressed;
@@ -57,7 +61,7 @@ namespace PixelCraft
     public class GameWindow : OpenTK.GameWindow
     {
         public List<SpaceObject> SpaceObjects = new List<SpaceObject>();
-        private GameCursor GameCursor;
+        public GameCursor GameCursor;
 
         private const int VPosition_loc = 0;
         private const int VNormal_loc = 1;
@@ -122,7 +126,7 @@ namespace PixelCraft
             // Update inputs
             KeyboardState keybd = Keyboard.GetState();
             GameCursor.Update(Mouse.GetCursorState(), MouseX, MouseY, Width, Height, ViewX, ViewY, ViewZ);
-            GameCursor.Cursor.SetPosition(GameCursor.X, GameCursor.Y, 0f);
+            GameCursor.Cursor.SetPosition(GameCursor.Mx, GameCursor.My, 0f);
 
             // Clear ship corpses
             if (SpaceObjects.FindAll(o => o.ObjectState == SpaceObject.SpaceObjectState.DEAD).Count > 20)
@@ -196,8 +200,9 @@ namespace PixelCraft
 
             // Objects
             GameCursor = new GameCursor();
-            GameCursor.Cursor = new SpaceObject() { RenderSections = Program.Img2Sect(Program.Textures["Cursor"]), Shader = Program.Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.4f, 0.4f, 1f), Rotation = new Vector3(0, 0, 30f), SOI = 1f, Collidable = false };
-            SpaceObjects.Add(GameCursor.Cursor);
+            GameCursor.Cursor = new SpaceObject() { RenderSections = Program.Img2Sect(Program.Textures["Cursor"]), Shader = Program.Shaders["debugText_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.02f, 0.02f, 0f), Rotation = new Vector3(0, 0, 30f), SOI = 1f, Collidable = false };
+            UIManager.Cursor = GameCursor;
+
             avgFPS.Enqueue(0);
             avgLGC.Enqueue(0);
             avgRNDR.Enqueue(0);
@@ -262,6 +267,8 @@ namespace PixelCraft
                     obj.Render(VertexArrayObject);
                 }
             }
+            GameCursor.Cursor.Render(VertexArrayObject);
+
             render_sw.Stop();
 
             GL.BindVertexArray(0);

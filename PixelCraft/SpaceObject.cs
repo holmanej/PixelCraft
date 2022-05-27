@@ -114,7 +114,7 @@ namespace PixelCraft
             {
                 if (obj.Collidable && Distance(obj.Position) < obj.SOI && obj != this) { inSOI = obj; }
                 if (Distance(obj.Position) < Radius) { inRad = obj; }
-                if (cursor.Cursor.Distance(obj.Position) < obj.SOI * 3 && obj.ObjectState == SpaceObjectState.ALIVE) { cursorTarget = obj; }
+                if (Mag(obj.Position.X - cursor.X, obj.Position.Y - cursor.Y) < obj.SOI * 3 && obj.ObjectState == SpaceObjectState.ALIVE) { cursorTarget = obj; }
                 if (cursor.LeftReleased && Mag(obj.Position.X - cursor.X, obj.Position.Y - cursor.Y) < obj.Radius) { clickTarget = obj; }
 
                 for (int i = 0; i < Projectiles.Count; i++)
@@ -179,8 +179,8 @@ namespace PixelCraft
                     Collidable = false;
                     SOI = 0;
 
-                    foreach (var mod in Modules) { mod.Armed = false; mod.Visible = false; }
-                    foreach (var ui in UI) { ui.Visible = false; }
+                    foreach (var mod in Modules) { mod.Armed = false; mod.Enabled = false; }
+                    foreach (var ui in UI) { ui.Enabled = false; }
                     if (RenderSections.Count > 1)
                     {
                         RenderSections[0].Visible = false;
@@ -220,7 +220,7 @@ namespace PixelCraft
                             
                             Projectiles.Add(new SpaceObject()
                             {
-                                Visible = true,
+                                Enabled = true,
                                 RenderSections = mod.Ammo.RenderSections,
                                 Shader = mod.Ammo.Shader,
                                 Scale = mod.Ammo.Scale,
@@ -255,17 +255,17 @@ namespace PixelCraft
             float uiPos = -2 * Scale.Y;
             UI[0].SetPosition(Position.X, Position.Y + uiPos, Position.Z);
             UI[0].Text = "HP " + Health.ToString("F0");
-            UI[0].Visible = HealthMax > 0 && ObjectState == SpaceObjectState.ALIVE;
+            UI[0].Enabled = HealthMax > 0 && ObjectState == SpaceObjectState.ALIVE;
 
             uiPos -= 0.5f;
             UI[1].SetPosition(Position.X, Position.Y + uiPos, Position.Z);
             UI[1].Text = "AR " + Armor.ToString("F0");
-            UI[1].Visible = ArmorMax > 0 && ObjectState == SpaceObjectState.ALIVE;
+            UI[1].Enabled = ArmorMax > 0 && ObjectState == SpaceObjectState.ALIVE;
 
             uiPos = ArmorMax > 0 && ObjectState == SpaceObjectState.ALIVE ? uiPos - 0.5f : uiPos;
             UI[2].SetPosition(Position.X, Position.Y + uiPos, Position.Z);
             UI[2].Text = "SH " + Shields.ToString("F1");
-            UI[2].Visible = ShieldMax > 0 && ObjectState == SpaceObjectState.ALIVE;
+            UI[2].Enabled = ShieldMax > 0 && ObjectState == SpaceObjectState.ALIVE;
         }
     }
 }

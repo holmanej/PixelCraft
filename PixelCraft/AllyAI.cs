@@ -48,7 +48,7 @@ namespace PixelCraft
                 Debug.WriteLine("Respawn");
                 int score = PlayerShip == null ? 0 : PlayerShip.Score;
                 PlayerShip = BuildCore();
-                PlayerShip.Score = score;
+                PlayerShip.Score = 100 + score;
                 objs.Add(PlayerShip);
             }
         }
@@ -87,7 +87,7 @@ namespace PixelCraft
                 Collidable = false,
                 ShieldMax = 100, ShieldRegen = 0.1f, Shields = 100
             });
-            core.Modules.Add(new SpaceObject() { Armed = false, Range = 20, FiringArc = 360, Accuracy = 5, FireRate = 250, Burst = 1 });
+            core.Modules.Add(new SpaceObject() { Armed = false, Range = 20, FiringArc = 360, Accuracy = 5, FireRate = 500, Burst = 1 });
             core.Modules.Add(new SpaceObject() { Armed = true, Range = 10, FiringArc = 360, Accuracy = 0, Spread = 30, FireRate = 50, Burst = 1 });
             core.Modules.Add(new SpaceObject() { Armed = false, Range = 30, FiringArc = 360, Accuracy = 1, FireRate = 2500, Burst = 1 });
             core.Modules[1].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["BlueBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.2f, 1.5f, 1f), TopSpeed = 0.6f, Damage = 10 };

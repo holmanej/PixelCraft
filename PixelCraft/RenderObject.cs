@@ -97,7 +97,7 @@ namespace PixelCraft
         public Matrix4 matRot = Matrix4.Identity;
         public Matrix4 colRot = Matrix4.Identity;
 
-        public bool Visible = true;
+        public bool Enabled = true;
 
         public float Distance(Vector3 target)
         {
@@ -123,7 +123,7 @@ namespace PixelCraft
         public void Render(int vArrayObj)
         {
             Stopwatch sw = new Stopwatch();
-            if (Visible && Shader != null)
+            if (Enabled && Shader != null)
             {
                 Shader.Use();
                 Shader.SetMatrix4("obj_translate", matPos);
