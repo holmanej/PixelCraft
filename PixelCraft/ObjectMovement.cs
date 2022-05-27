@@ -62,13 +62,7 @@ namespace PixelCraft
 
         public static void Point(this SpaceObject obj, SpaceObject target)
         {
-            //float dx = target.Position.X - obj.Position.X;
-            //float dy = target.Position.Y - obj.Position.Y;
-            //float theta = (float)Math.Atan(dy / dx);
-            //if (dx < 0) { theta += 3.14f; }
             float dt = obj.dTheta(target.Position);
-            //float dt = theta * 180f / 3.14f - obj.Rotation.Z - 90;
-            //if (Math.Abs(dt) > 180) { dt = dt - Math.Sign(dt) * 360; }
             float theta = Math.Abs(dt) < obj.Agility ? dt : Math.Sign(dt) * obj.Agility;
             obj.Rotate(0, 0, theta);
         }
@@ -97,7 +91,6 @@ namespace PixelCraft
             float dy = obj.Position.Y - target.Position.Y;
             float mag = Mag(dx, dy);
             obj.Thrust(dx / mag, dy / mag);
-            //obj.Point(dx, dy);
         }
 
         public static void Walk(this SpaceObject obj)

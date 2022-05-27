@@ -60,7 +60,7 @@
     <Compile Include="ObjectMovement.cs" />
     <Compile Include="SpaceObject.cs" />
     <Compile Include="TextObject.cs" />
-    <Compile Include="UIElement.cs" />
+    <Compile Include="UIManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

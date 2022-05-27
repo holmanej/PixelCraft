@@ -54,17 +54,10 @@ namespace PixelCraft
         }
     }
 
-    class GameWindow : OpenTK.GameWindow
+    public class GameWindow : OpenTK.GameWindow
     {
         public List<SpaceObject> SpaceObjects = new List<SpaceObject>();
-        public List<TextObject> UIElements = new List<TextObject>();
-        public UIElement UIPanel;
         private GameCursor GameCursor;
-
-        public TextObject Readout_Position;
-        public TextObject Readout_Gametime;
-        public TextObject Readout_FPS;
-        public TextObject Readout_SW;
 
         private const int VPosition_loc = 0;
         private const int VNormal_loc = 1;
@@ -83,19 +76,17 @@ namespace PixelCraft
         private int MouseX;
         private int MouseY;
 
-        private float ViewX = 0f;
-        private float ViewY = 0;
-        private float ViewZ = 0.06f;
+        public float ViewX = 0f;
+        public float ViewY = 0;
+        public float ViewZ = 0.06f;
 
-        private bool F3_Down = false;
-        private double GameTime = 0;
+        public double GameTime = 0;
 
-        Stopwatch logic_sw = new Stopwatch();
-        Stopwatch render_sw = new Stopwatch();
-        int bulletCnt = 0;
-        Queue<int> avgFPS = new Queue<int>();
-        Queue<float> avgLGC = new Queue<float>();
-        Queue<float> avgRNDR = new Queue<float>();
+        public Stopwatch logic_sw = new Stopwatch();
+        public Stopwatch render_sw = new Stopwatch();
+        public Queue<int> avgFPS = new Queue<int>();
+        public Queue<float> avgLGC = new Queue<float>();
+        public Queue<float> avgRNDR = new Queue<float>();
 
 
         public GameWindow(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
@@ -106,8 +97,6 @@ namespace PixelCraft
 
         protected override void OnMouseMove(MouseMoveEventArgs e)
         {
-            //MouseX = e.X;
-            //MouseY = e.Y;
             MouseX += e.XDelta;
             MouseY += e.YDelta;
             base.OnMouseMove(e);
@@ -122,74 +111,50 @@ namespace PixelCraft
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             logic_sw.Restart();
-            float playerX = AllyAI.PlayerShip.Position.X;
-            float playerY = AllyAI.PlayerShip.Position.Y;
-            float porp = 0.05f;
-            ViewX -= (ViewX - playerX) * porp;
-            ViewY -= (ViewY - playerY) * porp;
 
-            KeyboardState keybd = Keyboard.GetState();
-            MouseState mouse = Mouse.GetCursorState();
-            GameCursor.Update(mouse, MouseX, MouseY, Width, Height, ViewX, ViewY, ViewZ);
-            //Debug.Print("Mx: {0} My: {1}", MouseX, MouseY);
-            //Debug.WriteLine(GameCursor.X + " " + GameCursor.Y);
+            // Accumulate gametime
             GameTime += e.Time;
-            //Debug.WriteLine(PlayerObject.Health);
 
+            // Update view coordinates
+            ViewX -= (ViewX - AllyAI.PlayerShip.Position.X) * 0.05f;
+            ViewY -= (ViewY - AllyAI.PlayerShip.Position.Y) * 0.05f;
+
+            // Update inputs
+            KeyboardState keybd = Keyboard.GetState();
+            GameCursor.Update(Mouse.GetCursorState(), MouseX, MouseY, Width, Height, ViewX, ViewY, ViewZ);
             GameCursor.Cursor.SetPosition(GameCursor.X, GameCursor.Y, 0f);
 
-
+            // Clear ship corpses
             if (SpaceObjects.FindAll(o => o.ObjectState == SpaceObject.SpaceObjectState.DEAD).Count > 20)
             {
                 SpaceObjects.Remove(SpaceObjects.Find(o => o.ObjectState == SpaceObject.SpaceObjectState.DEAD));
             }
+
+            // Run object updates
             foreach (var obj in SpaceObjects)
             {
                 obj.Update(SpaceObjects, keybd, GameCursor, GameTime);
             }
             EnemyAI.Update(SpaceObjects, AllyAI.PlayerShip);
             AllyAI.Update(SpaceObjects);
-            UIPanel.Update(GameCursor);
-
-
-            if (keybd.IsKeyDown(Key.F1))
+            foreach (var ui in UIManager.UIGroups.Values)
             {
+                ui.UpdateDel.DynamicInvoke(this);
             }
-            if (keybd.IsKeyDown(Key.F2))
-            {
-                ViewX = 0;
-                ViewY = 0;
-                ViewZ = 0.1f;
-            }
-            if (keybd.IsKeyDown(Key.F3) && !F3_Down)
-            {
-                Readout_Position.Visible = !Readout_Position.Visible;
-                Readout_Gametime.Visible = !Readout_Gametime.Visible;
-                Readout_FPS.Visible = !Readout_FPS.Visible;
-            }
-            F3_Down = keybd.IsKeyDown(Key.F3);
 
+            // Special key functions
             if (keybd.IsKeyDown(Key.Escape))
             {
                 Exit();
             }
 
-            // Readouts
+            // Debug stats
             avgFPS.Enqueue((int)RenderFrequency);
             if (avgFPS.Count > 32)
             {
                 avgFPS.Dequeue();
             }
 
-
-
-            //if (Readout_Position.Visible)
-            {
-                Readout_Position.Text = "X=" + ViewX.ToString("F2") + "  Y=" + ViewY.ToString("F2") + "  Z=" + ViewZ.ToString("F3");
-                Readout_Gametime.Text = "Gametime=" + GameTime.ToString("F1");
-                Readout_FPS.Text = "FPS=" + (int)avgFPS.Average();
-                Readout_SW.Text = "LGC=" + (avgLGC.Average() / 10000f / 60 * 100).ToString("F1") + "%  GUI=" + (render_sw.ElapsedTicks / 1f).ToString("F2");
-            }
             logic_sw.Stop();
             avgLGC.Enqueue(logic_sw.ElapsedTicks);
             if (avgLGC.Count > 32)
@@ -229,20 +194,11 @@ namespace PixelCraft
             GL.VertexAttribPointer(TexCoord_loc, 2, VertexAttribPointerType.Float, false, stride * sizeof(float), 10 * sizeof(float));
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
-            // Readouts
-            Readout_Position = new TextObject("POS XYZ", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.92f, 0), Scale = new Vector3(0.002f, 0.002f, 1f) };
-            Readout_Gametime = new TextObject("GAMETIME X.X", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.84f, 0), Scale = new Vector3(0.002f, 0.002f, 1f) };
-            Readout_FPS = new TextObject("FPS X", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.76f, 0), Scale = new Vector3(0.002f, 0.002f, 1f) };
-            Readout_SW = new TextObject("SW X", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.68f, 0), Scale = new Vector3(0.002f, 0.002f, 1f) };
-            UIElements.Add(Readout_Position);
-            UIElements.Add(Readout_Gametime);
-            UIElements.Add(Readout_FPS);
-            UIElements.Add(Readout_SW);
-
             // Objects
             GameCursor = new GameCursor();
             GameCursor.Cursor = new SpaceObject() { RenderSections = Program.Img2Sect(Program.Textures["Cursor"]), Shader = Program.Shaders["texture_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.4f, 0.4f, 1f), Rotation = new Vector3(0, 0, 30f), SOI = 1f, Collidable = false };
             SpaceObjects.Add(GameCursor.Cursor);
+            avgFPS.Enqueue(0);
             avgLGC.Enqueue(0);
             avgRNDR.Enqueue(0);
 
@@ -281,7 +237,7 @@ namespace PixelCraft
             }
 
             GL.BindVertexArray(VertexArrayObject);
-            bulletCnt = 0;
+
             foreach (var obj in SpaceObjects)
             {
                 obj.Render(VertexArrayObject);
@@ -298,16 +254,15 @@ namespace PixelCraft
                     u.Render(VertexArrayObject);
                 }
             }
-            foreach (var obj in UIElements)
+            render_sw.Restart();
+            foreach (var ui in UIManager.UIGroups.Values)
             {
-                obj.Render(VertexArrayObject);
+                foreach (var obj in ui.GraphicsObjects)
+                {
+                    obj.Render(VertexArrayObject);
+                }
             }
-            foreach (var obj in UIPanel.Elements)
-            {
-                render_sw.Restart();
-                obj.Render(VertexArrayObject);
-                render_sw.Stop();
-            }
+            render_sw.Stop();
 
             GL.BindVertexArray(0);
 

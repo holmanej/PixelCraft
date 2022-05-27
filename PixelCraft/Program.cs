@@ -42,12 +42,11 @@ namespace PixelCraft
                 AllyAI.Shaders = Shaders;
                 AllyAI.Fonts = Fonts;
                 AllyAI.RenderSections = RenderSections;
+                AllyAI.Update(gWin.SpaceObjects);
                 EnemyAI.Shaders = Shaders;
                 EnemyAI.Fonts = Fonts;
                 EnemyAI.RenderSections = RenderSections;
-
-                var SidePanel = new UIElement();
-                gWin.UIPanel = SidePanel;
+                EnemyAI.Update(gWin.SpaceObjects, AllyAI.PlayerShip);
 
                 SetDir(@"/resources/models");
 
@@ -64,10 +63,8 @@ namespace PixelCraft
                 }
                 gWin.SpaceObjects.AddRange(asteroids);
 
-                gWin.SpaceObjects = gWin.SpaceObjects.OrderByDescending(o => o.Position.Z).ToList();
-
-                AllyAI.PlayerShip = AllyAI.BuildCore();
-                gWin.SpaceObjects.Add(AllyAI.PlayerShip);
+                //AllyAI.PlayerShip = AllyAI.BuildCore();
+                //gWin.SpaceObjects.Add(AllyAI.PlayerShip);
 
                 sw.Stop();
                 Debug.WriteLine("Load Time: " + sw.Elapsed);

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PixelCraft
 {
-    class AllyAI
+    public static class AllyAI
     {
         public static SpaceObject PlayerShip;
         static int Team = 1;
@@ -24,25 +24,33 @@ namespace PixelCraft
         public static void Update(List<SpaceObject> objs)
         {
             SpawnTimer.Start();
-            Ships.RemoveAll(i => i.ObjectState == SpaceObject.SpaceObjectState.DEAD);
-            foreach (var ship in Ships) { if (EnemyAI.Ships.Count > 0) { ship.Target = EnemyAI.Ships.First(); } }
+            for (int i = 0; i < Ships.Count; i++)
+            {
+                var ship = Ships[i];
+                if (ship.ObjectState == SpaceObject.SpaceObjectState.DEAD) { Ships.Remove(ship); }
+                if (EnemyAI.Ships.Count > 0 && (ship.Target.ObjectState == SpaceObject.SpaceObjectState.DEAD || ship.Target == ship))
+                {
+                    ship.Target = EnemyAI.Ships.First();
+                }
+            }
             if (SpawnTimer.ElapsedMilliseconds > FighterSpawnRate || Ships.Count == 0)
             {
-                objs.Add(BuildFighter(EnemyAI.Ships.First()));
+                objs.Add(BuildFighter());
                 FighterSpawnRate += 8000;
             }
             if (SpawnTimer.ElapsedMilliseconds > TankSpawnRate || Ships.Count == 0)
             {
-                objs.Add(BuildTank(EnemyAI.Ships.First()));
+                objs.Add(BuildTank());
                 TankSpawnRate += 30000;
             }
             if (!Ships.Exists(s => s.NPC == false))
             {
                 Debug.WriteLine("Respawn");
+                int score = PlayerShip == null ? 0 : PlayerShip.Score;
                 PlayerShip = BuildCore();
+                PlayerShip.Score = score;
                 objs.Add(PlayerShip);
             }
-            
         }
 
         public static SpaceObject BuildCore()
@@ -90,7 +98,7 @@ namespace PixelCraft
             return core;
         }
 
-        public static SpaceObject BuildFighter(SpaceObject target)
+        public static SpaceObject BuildFighter()
         {
             var section = new List<RenderObject.Section>();            
             Random rand = new Random();
@@ -110,19 +118,18 @@ namespace PixelCraft
                 MaxOrbit = rand.Next(6, 8),
                 MinOrbit = rand.Next(1, 2),
                 ObjectState = SpaceObject.SpaceObjectState.ALIVE,
-                Target = target,
                 Team = Team
             };
             section.Add(new RenderObject.Section(RenderSections["Ally"], true));
             section.Add(new RenderObject.Section(RenderSections["Ally_Dead"], false));
-            ally.Modules.Add(new SpaceObject() { Armed = true, Range = 20, FiringArc = 45, Accuracy = 10, FireRate = 150, Burst = 1, Target = target });
+            ally.Modules.Add(new SpaceObject() { Armed = true, Range = 20, FiringArc = 45, Accuracy = 10, FireRate = 150, Burst = 1 });
             ally.Modules[0].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["BlueBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.1f, 1.5f, 1f), TopSpeed = 0.5f, Damage = 4 };
             
             Ships.Add(ally);
             return ally;
         }
 
-        public static SpaceObject BuildTank(SpaceObject target)
+        public static SpaceObject BuildTank()
         {
             var section = new List<RenderObject.Section>();
             Random rand = new Random();
@@ -144,12 +151,11 @@ namespace PixelCraft
                 MaxOrbit = 4,
                 MinOrbit = 0,
                 ObjectState = SpaceObject.SpaceObjectState.ALIVE,
-                Target = target,
                 Team = Team
             };
             section.Add(new RenderObject.Section(RenderSections["Ally"], true));
             section.Add(new RenderObject.Section(RenderSections["Ally_Dead"], false));
-            ally.Modules.Add(new SpaceObject() { Armed = true, Range = 5, FiringArc = 5, FireRate = 250, Burst = 5, Spread = 45, Target = target });
+            ally.Modules.Add(new SpaceObject() { Armed = true, Range = 5, FiringArc = 5, FireRate = 250, Burst = 5, Spread = 45 });
             ally.Modules.Add(new SpaceObject()
             {
                 RenderSections = new List<RenderObject.Section>() { new RenderObject.Section(RenderSections["Shield"], true) },
