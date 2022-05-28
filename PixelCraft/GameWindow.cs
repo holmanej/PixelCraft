@@ -244,10 +244,6 @@ namespace PixelCraft
 
             GL.BindVertexArray(VertexArrayObject);
             bulletCnt = 0;
-            foreach (var obj in WorldManager.CurrentLevel)
-            {
-                obj.Render(VertexArrayObject);
-            }
             foreach (var obj in SpaceObjects)
             {
                 obj.Render(VertexArrayObject);

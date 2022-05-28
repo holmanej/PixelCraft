@@ -84,7 +84,8 @@ namespace PixelCraft
                 ((TextObject)go[0]).Text = "X=" + gwin.ViewX.ToString("F2") + "  Y=" + gwin.ViewY.ToString("F2") + "  Z=" + gwin.ViewZ.ToString("F3");
                 ((TextObject)go[1]).Text = "Gametime=" + gwin.GameTime.ToString("F1");
                 ((TextObject)go[2]).Text = "FPS=" + (int)gwin.avgFPS.Average();
-                ((TextObject)go[3]).Text = "LGC=" + (gwin.avgLGC.Average() / 10000f / 60 * 100).ToString("F1") + "%  GUI=" + (gwin.render_sw.ElapsedTicks / 1f).ToString("F2");
+                ((TextObject)go[3]).Text = "LGC=" + (gwin.avgLGC.Average() / 10000f / 60 * 100).ToString("F1") + "%  BLT=" + (gwin.bulletCnt / 1000).ToString("F1");
+                //((TextObject)go[3]).Text = "LGC=" + (gwin.avgLGC.Average() / 10000f / 60 * 100).ToString("F1") + "%  GUI=" + (gwin.render_sw.ElapsedTicks / 1f).ToString("F2");
             });
 
             return ui;

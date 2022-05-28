@@ -71,7 +71,7 @@ namespace PixelCraft
                 Friction = 0.3f,
                 SOI = 1f,
                 ObjectState = SpaceObject.SpaceObjectState.ALIVE,
-                Health = 100,
+                Health = 1000,
                 HealthMax = 100,
                 HealthRegen = 0.005f,
                 Armor = 1,
