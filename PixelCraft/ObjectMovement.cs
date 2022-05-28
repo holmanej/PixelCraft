@@ -87,6 +87,11 @@ namespace PixelCraft
 
         public static void Flee(this SpaceObject obj, SpaceObject target)
         {
+            if (obj.Position == target.Position)
+            {
+                Random rand = new Random();
+                obj.Thrust((float)rand.NextDouble(), (float)rand.NextDouble());
+            }
             float dx = obj.Position.X - target.Position.X;
             float dy = obj.Position.Y - target.Position.Y;
             float mag = Mag(dx, dy);

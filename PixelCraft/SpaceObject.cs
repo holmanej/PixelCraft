@@ -117,39 +117,39 @@ namespace PixelCraft
                 if (Mag(obj.Position.X - cursor.X, obj.Position.Y - cursor.Y) < obj.SOI * 3 && obj.ObjectState == SpaceObjectState.ALIVE) { cursorTarget = obj; }
                 if (cursor.LeftReleased && Mag(obj.Position.X - cursor.X, obj.Position.Y - cursor.Y) < obj.Radius) { clickTarget = obj; }
 
+                float dmg = 0;
+                float apen = 0;
+                float spen = 0;
                 for (int i = 0; i < Projectiles.Count; i++)
                 {
                     var p = Projectiles[i];
                     if (obj.Distance(p.Position) < obj.Radius && obj.Team != Team && obj.Collidable)
                     {
-                        if (p.Damage > 0)
-                        {
-                            float dmg = p.Damage;
-                            foreach (var mod in obj.Modules)
-                            {
-                                if (mod.Shields > 0)
-                                {
-                                    dmg *= 10 / (10 + mod.Shields);
-                                    mod.Shields = Math.Max(mod.Shields - Mag(p.Velocity_X, p.Velocity_Y) * 10, 0);
-                                }
-                            }
-
-                            foreach (var mod in obj.Modules)
-                            {
-                                if (mod.Armor > 0)
-                                {
-                                    dmg = Math.Max(dmg - mod.Armor, 0);
-                                    mod.Armor = Math.Max(mod.Armor - p.ArmorPen, 0);
-                                }
-                            }
-
-                            bool alive = obj.Health > 0;
-                            obj.Health = Math.Max(obj.Health - dmg, 0);
-                            //if (alive && obj.Health == 0) { Score += obj.ScoreValue; }
-                        }
+                        dmg += p.Damage;
+                        apen += p.ArmorPen;
+                        spen += Mag(p.Velocity_X, p.Velocity_Y) * 10;
                         Projectiles.Remove(p);
                     }
                 }
+                foreach (var mod in obj.Modules)
+                {
+                    if (mod.Shields > 0)
+                    {
+                        dmg *= 10 / (10 + mod.Shields);
+                        mod.Shields = Math.Max(mod.Shields - spen, 0);
+                    }
+                }
+
+                foreach (var mod in obj.Modules)
+                {
+                    if (mod.Armor > 0)
+                    {
+                        dmg = Math.Max(dmg - mod.Armor, 0);
+                        mod.Armor = Math.Max(mod.Armor - apen, 0);
+                    }
+                }
+
+                obj.Health = Math.Max(obj.Health - dmg, 0);
             }
 
             switch (ObjectState)
@@ -192,7 +192,9 @@ namespace PixelCraft
             }
 
             Armor = 0;
+            bool hasArmor = false;
             Shields = 0;
+            bool hasShields = false;
             foreach (var mod in Modules)
             {
                 if (mod.Armed && mod.Target.ObjectState == SpaceObjectState.ALIVE && Distance(mod.Target.Position) < mod.Range && mod.Ammo != null && mod.Target != this)
@@ -240,10 +242,12 @@ namespace PixelCraft
                 }
                 if (mod.ArmorMax > 0)
                 {
+                    hasArmor = true;
                     Armor += mod.Armor;
                 }
                 if (mod.ShieldMax > 0)
                 {
+                    hasShields = true;
                     mod.Shields = Math.Min(mod.Shields + mod.ShieldRegen, mod.ShieldMax);
                     Shields += mod.Shields;
                     mod.Position = Position;
@@ -254,18 +258,18 @@ namespace PixelCraft
 
             float uiPos = -2 * Scale.Y;
             UI[0].SetPosition(Position.X, Position.Y + uiPos, Position.Z);
-            UI[0].Text = "HP " + Health.ToString("F0");
-            UI[0].Enabled = HealthMax > 0 && ObjectState == SpaceObjectState.ALIVE;
+            UI[0].Text = "HP " + Health.ToString("F1");
+            UI[0].Enabled = ObjectState == SpaceObjectState.ALIVE;
 
             uiPos -= 0.5f;
             UI[1].SetPosition(Position.X, Position.Y + uiPos, Position.Z);
             UI[1].Text = "AR " + Armor.ToString("F0");
-            UI[1].Enabled = ArmorMax > 0 && ObjectState == SpaceObjectState.ALIVE;
+            UI[1].Enabled = hasArmor && ObjectState == SpaceObjectState.ALIVE;
 
-            uiPos = ArmorMax > 0 && ObjectState == SpaceObjectState.ALIVE ? uiPos - 0.5f : uiPos;
+            uiPos = hasArmor && ObjectState == SpaceObjectState.ALIVE ? uiPos - 0.5f : uiPos;
             UI[2].SetPosition(Position.X, Position.Y + uiPos, Position.Z);
             UI[2].Text = "SH " + Shields.ToString("F1");
-            UI[2].Enabled = ShieldMax > 0 && ObjectState == SpaceObjectState.ALIVE;
+            UI[2].Enabled = hasShields && ObjectState == SpaceObjectState.ALIVE;
         }
     }
 }

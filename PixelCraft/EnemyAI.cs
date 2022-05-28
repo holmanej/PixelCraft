@@ -47,6 +47,10 @@ namespace PixelCraft
             if (SpawnTimer.ElapsedMilliseconds > GunshipSpawnTimer)
             {
                 objs.Add(BuildGunship(Rand.Next(-20, 20), Rand.Next(-20, 20)));
+                for (int i = 0; i < SpawnTimer.ElapsedMilliseconds / 120000; i++)
+                {
+                    objs.Add(BuildGunship(Rand.Next(-20, 20), Rand.Next(-20, 20)));
+                }
                 GunshipSpawnTimer = SpawnTimer.ElapsedMilliseconds + 45000;
             }
         }
@@ -93,7 +97,6 @@ namespace PixelCraft
                 Scale = new Vector3(2.6f, 2.6f, 1f),
                 Health = 250,
                 HealthMax = 250,
-                ArmorMax = 1,
                 TopSpeed = 0.1f,
                 Acceleration_X = 0.01f,
                 Acceleration_Y = 0.01f,

@@ -74,9 +74,6 @@ namespace PixelCraft
                 Health = 1000,
                 HealthMax = 100,
                 HealthRegen = 0.005f,
-                Armor = 1,
-                ArmorMax = 1,
-                ShieldMax = 1
             };
             section.Add(new RenderObject.Section(RenderSections["ShipCore"], true));
             section.Add(new RenderObject.Section(RenderSections["ShipCore_Dead"], false));            
@@ -141,7 +138,6 @@ namespace PixelCraft
                 Scale = new Vector3(3f, 1f, 1f),
                 Health = 100,
                 HealthMax = 100,
-                ShieldMax = 1,
                 TopSpeed = 0.2f,
                 Acceleration_X = 0.01f,
                 Acceleration_Y = 0.01f,
