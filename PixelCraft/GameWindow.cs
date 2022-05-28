@@ -132,7 +132,9 @@ namespace PixelCraft
             // Clear ship corpses
             if (SpaceObjects.FindAll(o => o.ObjectState == SpaceObject.SpaceObjectState.DEAD).Count > 20)
             {
-                SpaceObjects.Remove(SpaceObjects.Find(o => o.ObjectState == SpaceObject.SpaceObjectState.DEAD));
+                var deadObjs = SpaceObjects.Find(o => o.ObjectState == SpaceObject.SpaceObjectState.DEAD);
+                foreach (var obj in deadObjs.RenderSections) { GL.DeleteTexture(obj.ImageHandle); }
+                SpaceObjects.Remove(deadObjs);
             }
 
             // Run object updates

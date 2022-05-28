@@ -1,5 +1,7 @@
 ﻿using OpenTK;
 using OpenTK.Input;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -178,7 +180,6 @@ namespace PixelCraft
                 case SpaceObjectState.DEAD:
                     Collidable = false;
                     SOI = 0;
-
                     foreach (var mod in Modules) { mod.Armed = false; mod.Enabled = false; }
                     foreach (var ui in UI) { ui.Enabled = false; }
                     if (RenderSections.Count > 1)
