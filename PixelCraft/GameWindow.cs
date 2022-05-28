@@ -91,6 +91,7 @@ namespace PixelCraft
         public Queue<int> avgFPS = new Queue<int>();
         public Queue<float> avgLGC = new Queue<float>();
         public Queue<float> avgRNDR = new Queue<float>();
+        public int bulletCnt = 0;
 
 
         public GameWindow(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
@@ -242,12 +243,17 @@ namespace PixelCraft
             }
 
             GL.BindVertexArray(VertexArrayObject);
-
+            bulletCnt = 0;
+            foreach (var obj in WorldManager.CurrentLevel)
+            {
+                obj.Render(VertexArrayObject);
+            }
             foreach (var obj in SpaceObjects)
             {
                 obj.Render(VertexArrayObject);
                 foreach (var p in obj.Projectiles)
                 {
+                    bulletCnt += obj.Projectiles.Count;
                     p.Render(VertexArrayObject);
                 }
                 foreach (var m in obj.Modules)

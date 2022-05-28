@@ -17,6 +17,7 @@ namespace PixelCraft
         public static Dictionary<string, FontFamily> Fonts;
         public static Dictionary<string, RenderObject.Section> RenderSections;
         static Stopwatch SpawnTimer = new Stopwatch();
+        static Random Rand = new Random();
         public static List<SpaceObject> Ships = new List<SpaceObject>();
         public static int FighterSpawnRate = 3000;
         public static int TankSpawnRate = 10000;
@@ -35,12 +36,12 @@ namespace PixelCraft
             }
             if (SpawnTimer.ElapsedMilliseconds > FighterSpawnRate || Ships.Count == 0)
             {
-                objs.Add(BuildFighter());
+                objs.Add(BuildFighter(Rand.Next(-20, 20), Rand.Next(-20, 20)));
                 FighterSpawnRate += 8000;
             }
             if (SpawnTimer.ElapsedMilliseconds > TankSpawnRate || Ships.Count == 0)
             {
-                objs.Add(BuildTank());
+                objs.Add(BuildTank(Rand.Next(-20, 20), Rand.Next(-20, 20)));
                 TankSpawnRate += 30000;
             }
             if (!Ships.Exists(s => s.NPC == false))
@@ -98,15 +99,14 @@ namespace PixelCraft
             return core;
         }
 
-        public static SpaceObject BuildFighter()
+        public static SpaceObject BuildFighter(int x, int y)
         {
-            var section = new List<RenderObject.Section>();            
-            Random rand = new Random();
+            var section = new List<RenderObject.Section>();
             var ally = new SpaceObject()
             {
                 RenderSections = section,
                 Shader = Shaders["texture_shader"],
-                Position = new Vector3(rand.Next(-20, 20), rand.Next(-20, 20), 0f),
+                Position = new Vector3(x, y, 0f),
                 Scale = new Vector3(0.6f, 0.6f, 1f),
                 Health = 25,
                 HealthMax = 25,
@@ -115,8 +115,8 @@ namespace PixelCraft
                 Acceleration_Y = 0.01f,
                 Friction = 0.05f,
                 SOI = 1f,
-                MaxOrbit = rand.Next(6, 8),
-                MinOrbit = rand.Next(1, 2),
+                MaxOrbit = 4,
+                MinOrbit = 0,
                 ObjectState = SpaceObject.SpaceObjectState.ALIVE,
                 Team = Team
             };
@@ -129,7 +129,7 @@ namespace PixelCraft
             return ally;
         }
 
-        public static SpaceObject BuildTank()
+        public static SpaceObject BuildTank(int x, int y)
         {
             var section = new List<RenderObject.Section>();
             Random rand = new Random();
@@ -137,7 +137,7 @@ namespace PixelCraft
             {
                 RenderSections = section,
                 Shader = Shaders["texture_shader"],
-                Position = new Vector3(rand.Next(-20, 20), rand.Next(-20, 20), 0f),
+                Position = new Vector3(x, y, 0f),
                 Scale = new Vector3(3f, 1f, 1f),
                 Health = 100,
                 HealthMax = 100,

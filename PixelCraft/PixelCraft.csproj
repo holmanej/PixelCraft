@@ -61,6 +61,7 @@
     <Compile Include="SpaceObject.cs" />
     <Compile Include="TextObject.cs" />
     <Compile Include="UIManager.cs" />
+    <Compile Include="WorldManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -16,6 +16,7 @@ namespace PixelCraft
         public static Dictionary<string, FontFamily> Fonts;
         public static Dictionary<string, RenderObject.Section> RenderSections;
         static Stopwatch SpawnTimer = new Stopwatch();
+        static Random Rand = new Random();
         public static List<SpaceObject> Ships = new List<SpaceObject>();
         static long FighterSpawnTimer = 2000;
         static long GunshipSpawnTimer = 45000;
@@ -40,25 +41,24 @@ namespace PixelCraft
             SpaceObject target = AllyAI.Ships.Count > 0 ? AllyAI.Ships.Last() : player;
             if (shipCount < 3 || SpawnTimer.ElapsedMilliseconds > FighterSpawnTimer)
             {
-                objs.Add(BuildFighter());
+                objs.Add(BuildFighter(Rand.Next(-20, 20), Rand.Next(-20, 20)));
                 FighterSpawnTimer += 2000;
             }
             if (SpawnTimer.ElapsedMilliseconds > GunshipSpawnTimer)
             {
-                objs.Add(BuildGunship());
+                objs.Add(BuildGunship(Rand.Next(-20, 20), Rand.Next(-20, 20)));
                 GunshipSpawnTimer = SpawnTimer.ElapsedMilliseconds + 45000;
             }
         }
 
-        public static SpaceObject BuildFighter()
+        public static SpaceObject BuildFighter(int x, int y)
         {
             var section = new List<RenderObject.Section>();
-            Random rand = new Random();
             var enemy = new SpaceObject()
             {
                 RenderSections = section,
                 Shader = Shaders["texture_shader"],
-                Position = new Vector3(rand.Next(-20, 20), rand.Next(-20, 20), 0f),
+                Position = new Vector3(x, y, 0f),
                 Scale = new Vector3(0.6f, 0.6f, 1f),
                 Health = 50,
                 HealthMax = 50,
@@ -68,8 +68,8 @@ namespace PixelCraft
                 Friction = 0.05f,
                 SOI = 1f,
                 ScoreValue = 1,
-                MaxOrbit = rand.Next(4, 6),
-                MinOrbit = rand.Next(1, 2),
+                MaxOrbit = 6,
+                MinOrbit = 2,
                 ObjectState = SpaceObject.SpaceObjectState.ALIVE,
                 Team = Team
             };
@@ -82,15 +82,14 @@ namespace PixelCraft
             return enemy;
         }
 
-        public static SpaceObject BuildGunship()
+        public static SpaceObject BuildGunship(int x, int y)
         {
             var section = new List<RenderObject.Section>();
-            Random rand = new Random();
             var enemy = new SpaceObject()
             {
                 RenderSections = section,
                 Shader = Shaders["texture_shader"],
-                Position = new Vector3(rand.Next(-20, 20), rand.Next(-20, 20), 0f),
+                Position = new Vector3(x, y, 0f),
                 Scale = new Vector3(2.6f, 2.6f, 1f),
                 Health = 250,
                 HealthMax = 250,
