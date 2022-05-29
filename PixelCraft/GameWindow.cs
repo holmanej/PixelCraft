@@ -79,6 +79,7 @@ namespace PixelCraft
 
         private int MouseX;
         private int MouseY;
+        public bool DebugShown = false;
 
         public float ViewX = 0f;
         public float ViewY = 0;
@@ -113,6 +114,26 @@ namespace PixelCraft
             base.OnMouseWheel(e);
         }
 
+        protected override void OnKeyUp(KeyboardKeyEventArgs e)
+        {
+            if (e.Key == Key.F1)
+            {
+                WorldManager.ChangeLevel("Title");
+            }
+
+            if (e.Key == Key.F3)
+            {
+                DebugShown = !DebugShown;
+                UIManager.UIGroups["DebugPanel"].Enabled = DebugShown;
+            }
+
+            if (e.Key == Key.Escape)
+            {
+                Exit();
+            }
+            base.OnKeyUp(e);
+        }
+
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             logic_sw.Restart();
@@ -130,22 +151,16 @@ namespace PixelCraft
             GameCursor.Cursor.SetPosition(GameCursor.Mx, GameCursor.My, 0f);
 
             // Run object updates
-            WorldManager.LevelBehavior.DynamicInvoke();
+            WorldManager.LevelAI();
             for (int i = 0; i < SpaceObjects.Count; i++)
             {
                 SpaceObjects[i].Update(SpaceObjects, keybd, GameCursor, GameTime);
             }
-            EnemyAI.Update(SpaceObjects);
-            AllyAI.Update(SpaceObjects);
+            EnemyAI.Update();
+            AllyAI.Update();
             foreach (var ui in UIManager.UIGroups.Values)
             {
-                ui.UpdateDel.DynamicInvoke(this);
-            }
-
-            // Special key functions
-            if (keybd.IsKeyDown(Key.Escape))
-            {
-                Exit();
+                if (ui.Enabled) { ui.UpdateDel(); }
             }
 
             // Debug stats
@@ -198,6 +213,7 @@ namespace PixelCraft
             GameCursor = new GameCursor();
             GameCursor.Cursor = new SpaceObject() { RenderSections = Program.Img2Sect(Program.Textures["Cursor"]), Shader = Program.Shaders["debugText_shader"], Position = new Vector3(0f, 0f, 0f), Scale = new Vector3(0.02f, 0.02f, 0f), Rotation = new Vector3(0, 0, 30f), SOI = 1f, Collidable = false };
             UIManager.Cursor = GameCursor;
+            UIManager.Gwin = this;
 
             avgFPS.Enqueue(0);
             avgLGC.Enqueue(0);
@@ -259,9 +275,12 @@ namespace PixelCraft
             render_sw.Restart();
             foreach (var ui in UIManager.UIGroups.Values)
             {
-                foreach (var obj in ui.GraphicsObjects)
+                if (ui.Enabled)
                 {
-                    obj.Render(VertexArrayObject);
+                    foreach (var obj in ui.GraphicsObjects)
+                    {
+                        obj.Render(VertexArrayObject);
+                    }
                 }
             }
             GameCursor.Cursor.Render(VertexArrayObject);

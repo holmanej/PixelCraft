@@ -13,7 +13,7 @@ namespace PixelCraft
     {
         public static GameWindow Gwin;
         static List<Spawner> Spawners = new List<Spawner>();
-        public static Delegate LevelBehavior;
+        public static Action LevelAI;
         static Random Rand = new Random();
         static Stopwatch SpawnTimer = new Stopwatch();
 
@@ -42,22 +42,34 @@ namespace PixelCraft
             }
         }
 
-        public static void ChangeLevel(int level)
+        public static void ChangeLevel(string level)
         {
+            Spawners.Clear();
             AllyAI.Ships.Clear();
             EnemyAI.Ships.Clear();
             Gwin.SpaceObjects.Clear();
+            SpawnTimer.Restart();
 
             switch (level)
             {
-                case 0: Level0(); break;
-                case 1: Level1(); break;
+                case "Title": Title(); break;
+                case "GunTest": GunTest(); break;
+                case "Arcade": Arcade(); break;
                 default: break;
             }
         }
 
-        public static void Level0()
+        public static void Title()
         {
+            AllyAI.PlayerShip = new SpaceObject();
+            UIManager.UIGroups["UpgradePanel"].Enabled = false;
+            UIManager.UIGroups["Title"].Enabled = true;
+            LevelAI = new Action(() => { });
+        }
+
+        public static void GunTest()
+        {
+            UIManager.UIGroups["Title"].Enabled = false;
             var worldObjs = new List<SpaceObject>();
             worldObjs.Add(new SpaceObject() { RenderSections = new List<Section>() { Program.RenderSections["StarField"] }, Shader = Program.Shaders["texture_shader"],
                 Position = new Vector3(0f, 0f, 0.2f),
@@ -66,7 +78,7 @@ namespace PixelCraft
             });
             Gwin.SpaceObjects.AddRange(worldObjs);
 
-            LevelBehavior = new Action(() =>
+            LevelAI = new Action(() =>
             {
                 if (EnemyAI.Ships.Count == 0)
                 {
@@ -84,11 +96,13 @@ namespace PixelCraft
                 }
             });
 
+            UIManager.UIGroups["UpgradePanel"].Enabled = true;
             SpawnTimer.Restart();
         }
 
-        public static void Level1()
+        public static void Arcade()
         {
+            UIManager.UIGroups["Title"].Enabled = false;
             var worldObjs = new List<SpaceObject>();
             worldObjs.Add(new SpaceObject()
             {
@@ -128,7 +142,7 @@ namespace PixelCraft
             Spawners.Add(new Spawner(5000, 4000));      // FIGHTER
             Spawners.Add(new Spawner(40000, 30000));    // TANK
 
-            LevelBehavior = new Action(() =>
+            LevelAI = new Action(() =>
             {
                 if (Spawners[0].Update(SpawnTimer.ElapsedMilliseconds))
                 {
@@ -156,6 +170,7 @@ namespace PixelCraft
                 }
             });
 
+            UIManager.UIGroups["UpgradePanel"].Enabled = true;
             SpawnTimer.Restart();
         }
     }

@@ -14,7 +14,8 @@ namespace PixelCraft
         public class UIGroup
         {
             public List<RenderObject> GraphicsObjects = new List<RenderObject>();
-            public Delegate UpdateDel;
+            public Action UpdateDel;
+            public bool Enabled = false;
         }
 
         public class UpgradeBtn
@@ -47,11 +48,11 @@ namespace PixelCraft
                 });
             }
 
-            public int Upgrade(Delegate del, string text)
+            public int Upgrade(Action del, string text)
             {
                 if (Gobjs[0].LClicked() && AllyAI.PlayerShip.Score >= Cost && Enabled)
                 {
-                    del.DynamicInvoke();
+                    del();
                     return Cost;
                 }
                 else
@@ -65,9 +66,11 @@ namespace PixelCraft
         public static Dictionary<string, UIGroup> UIGroups = new Dictionary<string, UIGroup>()
         {
             { "DebugPanel", DebugPanel() },
-            { "UpgradePanel", UpgradePanel() }
+            { "UpgradePanel", UpgradePanel() },
+            { "Title", TitleScreen() }
         };
 
+        public static GameWindow Gwin;
         public static GameCursor Cursor;
 
         public static UIGroup DebugPanel()
@@ -79,15 +82,37 @@ namespace PixelCraft
             go.Add(new TextObject("GAMETIME X.X", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.84f, 0), Scale = new Vector3(0.002f, 0.002f, 1f) });
             go.Add(new TextObject("FPS X", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.76f, 0), Scale = new Vector3(0.002f, 0.002f, 1f) });
             go.Add(new TextObject("SW X", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.99f, 0.68f, 0), Scale = new Vector3(0.002f, 0.002f, 1f) });
-            ui.UpdateDel = new Action<GameWindow>((gwin) =>
+            ui.UpdateDel = new Action(() =>
             {
-                ((TextObject)go[0]).Text = "X=" + gwin.ViewX.ToString("F2") + "  Y=" + gwin.ViewY.ToString("F2") + "  Z=" + gwin.ViewZ.ToString("F3");
-                ((TextObject)go[1]).Text = "Gametime=" + gwin.GameTime.ToString("F1");
-                ((TextObject)go[2]).Text = "FPS=" + (int)gwin.avgFPS.Average();
-                ((TextObject)go[3]).Text = "LGC=" + (gwin.avgLGC.Average() / 10000f / 60 * 100).ToString("F1") + "%  BLT=" + (gwin.bulletCnt / 1000f).ToString("F1") + "k";
+                ((TextObject)go[0]).Text = "X=" + Gwin.ViewX.ToString("F2") + "  Y=" + Gwin.ViewY.ToString("F2") + "  Z=" + Gwin.ViewZ.ToString("F3");
+                ((TextObject)go[1]).Text = "Gametime=" + Gwin.GameTime.ToString("F1");
+                ((TextObject)go[2]).Text = "FPS=" + (int)Gwin.avgFPS.Average();
+                ((TextObject)go[3]).Text = "LGC=" + (Gwin.avgLGC.Average() / 10000f / 60 * 100).ToString("F1") + "%  BLT=" + (Gwin.bulletCnt / 1000f).ToString("F1") + "k";
                 //((TextObject)go[3]).Text = "LGC=" + (gwin.avgLGC.Average() / 10000f / 60 * 100).ToString("F1") + "%  GUI=" + (gwin.render_sw.ElapsedTicks / 1f).ToString("F2");
             });
 
+            return ui;
+        }
+
+        public static UIGroup TitleScreen()
+        {
+            var ui = new UIGroup();
+            var go = ui.GraphicsObjects;
+
+            go.Add(new TextObject("PixelCraft", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.7f, 0.5f, 0), Scale = new Vector3(0.008f, 0.008f, 1f) });
+
+            var Guntest = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, -5, 0);
+            go.AddRange(Guntest.Gobjs);
+            var Arcade = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, -3, 0);
+            go.AddRange(Arcade.Gobjs);
+
+            ui.UpdateDel = new Action(() =>
+            {
+                Guntest.Upgrade(new Action(() => { ui.Enabled = false; WorldManager.ChangeLevel("GunTest"); }), "LVL 0");
+                Arcade.Upgrade(new Action(() => { ui.Enabled = false; WorldManager.ChangeLevel("Arcade"); }), "LVL 1");
+            });
+
+            ui.Enabled = true;
             return ui;
         }
 
@@ -108,35 +133,29 @@ namespace PixelCraft
                 Position = new Vector3(0.65f, 0.9f, 0f),
                 Scale = new Vector3(0.0015f, 0.0015f, 0f)
             });
-            var lvl0 = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, -2);
-            go.AddRange(lvl0.Gobjs);
-            var lvl1 = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 1, -2);
-            go.AddRange(lvl1.Gobjs);
-            var FB = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, 0);
+            var FB = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, -1);
             go.AddRange(FB.Gobjs);
-            var SB = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 1, 0);
+            var SB = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 1, -1);
             go.AddRange(SB.Gobjs);
-            var GB = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, 1);
+            var GB = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, 0);
             go.AddRange(GB.Gobjs);
-            var FR = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 1, 1);
+            var FR = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 1, 0);
             go.AddRange(FR.Gobjs);
-            var SR = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, 2);
+            var SR = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, 1);
             go.AddRange(SR.Gobjs);
-            var GR = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 1, 2);
+            var GR = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 1, 1);
             go.AddRange(GR.Gobjs);
-            var FP = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, 3);
+            var FP = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, 2);
             go.AddRange(FP.Gobjs);
-            var SP = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 1, 3);
+            var SP = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 1, 2);
             go.AddRange(SP.Gobjs);
-            var GP = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, 4);
+            var GP = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, 3);
             go.AddRange(GP.Gobjs);
 
-            ui.UpdateDel = new Action<GameWindow>((gwin) =>
+            ui.UpdateDel = new Action(() =>
             {
                 go.OrderByDescending(o => o.Position.Z);
                 ((TextObject)go[1]).Text = "Score  " + AllyAI.PlayerShip.Score.ToString("F0");
-                lvl0.Upgrade(new Action(() => { WorldManager.ChangeLevel(0); }), "LVL 0");
-                lvl1.Upgrade(new Action(() => { WorldManager.ChangeLevel(1); }), "LVL 1");
                 FB.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[1] = GunTypes.FBGun(AmmoTypes.SDAmmo()); }), "FB");
                 SB.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[1] = GunTypes.SBGun(AmmoTypes.SDAmmo()); }), "SB");
                 GB.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[1] = GunTypes.GBGun(AmmoTypes.SDAmmo()); }), "GB");

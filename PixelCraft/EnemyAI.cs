@@ -14,7 +14,7 @@ namespace PixelCraft
         static readonly int Team = 2;
         public static List<SpaceObject> Ships = new List<SpaceObject>();
 
-        public static void Update(List<SpaceObject> objs)
+        public static void Update()
         {
             for (int i = 0; i < Ships.Count; i++)
             {

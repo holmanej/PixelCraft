@@ -40,8 +40,7 @@ namespace PixelCraft
                 FontSets.Add("UIFont", CreateFontsetRender(Fonts["times"], Color.Black, Color.White, 24, Shaders["debugText_shader"]));
 
                 WorldManager.Gwin = gWin;
-                WorldManager.ChangeLevel(0);
-                WorldManager.LevelBehavior.DynamicInvoke();                
+                WorldManager.ChangeLevel("Title");
 
                 sw.Stop();
                 Debug.WriteLine("Load Time: " + sw.Elapsed);
