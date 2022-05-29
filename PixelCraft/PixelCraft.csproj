@@ -51,7 +51,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AllyAI.cs" />
+    <Compile Include="AmmoTypes.cs" />
     <Compile Include="EnemyAI.cs" />
+    <Compile Include="GunTypes.cs" />
     <Compile Include="RenderObject.cs" />
     <Compile Include="GameWindow.cs" />
     <Compile Include="Program.cs" />

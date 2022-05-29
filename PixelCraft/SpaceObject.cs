@@ -173,6 +173,7 @@ namespace PixelCraft
                     else
                     {
                         this.WASDFly(keybd);
+                        this.Point(cursorTarget);
                         foreach (var m in Modules) { m.Target = cursorTarget; }
                     }
                     break;
@@ -259,17 +260,17 @@ namespace PixelCraft
 
             float uiPos = -2 * Scale.Y;
             UI[0].SetPosition(Position.X, Position.Y + uiPos, Position.Z);
-            UI[0].Text = "HP " + Health.ToString("F1");
+            UI[0].Text = "HP " + Health.ToString("F0");
             UI[0].Enabled = ObjectState == SpaceObjectState.ALIVE;
 
             uiPos -= 0.5f;
             UI[1].SetPosition(Position.X, Position.Y + uiPos, Position.Z);
-            UI[1].Text = "AR " + Armor.ToString("F0");
+            UI[1].Text = "AR " + Armor.ToString("F2");
             UI[1].Enabled = hasArmor && ObjectState == SpaceObjectState.ALIVE;
 
             uiPos = hasArmor && ObjectState == SpaceObjectState.ALIVE ? uiPos - 0.5f : uiPos;
             UI[2].SetPosition(Position.X, Position.Y + uiPos, Position.Z);
-            UI[2].Text = "SH " + Shields.ToString("F1");
+            UI[2].Text = "SH " + Shields.ToString("F0");
             UI[2].Enabled = hasShields && ObjectState == SpaceObjectState.ALIVE;
         }
     }

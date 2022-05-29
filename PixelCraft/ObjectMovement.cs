@@ -18,7 +18,6 @@ namespace PixelCraft
             if (keybd.IsKeyDown(Key.D)) { xMove = 1; }
 
             obj.Thrust(xMove, yMove);
-            obj.Point(obj.Velocity_X, obj.Velocity_Y);
         }
 
         public static void Thrust(this SpaceObject obj, float x, float y)
@@ -62,9 +61,12 @@ namespace PixelCraft
 
         public static void Point(this SpaceObject obj, SpaceObject target)
         {
-            float dt = obj.dTheta(target.Position);
-            float theta = Math.Abs(dt) < obj.Agility ? dt : Math.Sign(dt) * obj.Agility;
-            obj.Rotate(0, 0, theta);
+            if (obj != target)
+            {
+                float dt = obj.dTheta(target.Position);
+                float theta = Math.Abs(dt) < obj.Agility ? dt : Math.Sign(dt) * obj.Agility;
+                obj.Rotate(0, 0, theta);
+            }
         }
 
         public static void Approach(this SpaceObject obj, SpaceObject target)

@@ -71,7 +71,7 @@ namespace PixelCraft
                 Friction = 0.3f,
                 SOI = 1f,
                 ObjectState = SpaceObject.SpaceObjectState.ALIVE,
-                Health = 1000,
+                Health = 100,
                 HealthMax = 100,
                 HealthRegen = 0.005f,
             };
@@ -85,12 +85,8 @@ namespace PixelCraft
                 Collidable = false,
                 ShieldMax = 100, ShieldRegen = 0.1f, Shields = 100
             });
-            core.Modules.Add(new SpaceObject() { Armed = false, Range = 20, FiringArc = 360, Accuracy = 5, FireRate = 500, Burst = 1 });
-            core.Modules.Add(new SpaceObject() { Armed = true, Range = 10, FiringArc = 360, Accuracy = 0, Spread = 30, FireRate = 50, Burst = 1 });
-            core.Modules.Add(new SpaceObject() { Armed = false, Range = 30, FiringArc = 360, Accuracy = 1, FireRate = 2500, Burst = 1 });
-            core.Modules[1].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["BlueBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.2f, 1.5f, 1f), TopSpeed = 0.6f, Damage = 10 };
-            core.Modules[2].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["GreenBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.2f, 0.1f, 1f), TopSpeed = 0.8f, Damage = 2 };
-            core.Modules[3].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["WhiteBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.5f, 5f, 1f), TopSpeed = 1.2f, Damage = 50 };
+            core.Modules.Add(GunTypes.FPGun(AmmoTypes.MDAmmo()));
+            core.Modules.Add(GunTypes.GRGun(AmmoTypes.MSAmmo()));
             Ships.Add(core);
 
             return core;
@@ -119,8 +115,7 @@ namespace PixelCraft
             };
             section.Add(new RenderObject.Section(RenderSections["Ally"], true));
             section.Add(new RenderObject.Section(RenderSections["Ally_Dead"], false));
-            ally.Modules.Add(new SpaceObject() { Armed = true, Range = 20, FiringArc = 45, Accuracy = 10, FireRate = 150, Burst = 1 });
-            ally.Modules[0].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["BlueBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(0.1f, 1.5f, 1f), TopSpeed = 0.5f, Damage = 4 };
+            ally.Modules.Add(GunTypes.GRGun(AmmoTypes.MSAmmo()));
             
             Ships.Add(ally);
             return ally;
@@ -151,7 +146,7 @@ namespace PixelCraft
             };
             section.Add(new RenderObject.Section(RenderSections["Ally"], true));
             section.Add(new RenderObject.Section(RenderSections["Ally_Dead"], false));
-            ally.Modules.Add(new SpaceObject() { Armed = true, Range = 5, FiringArc = 5, FireRate = 250, Burst = 5, Spread = 45 });
+            ally.Modules.Add(GunTypes.FBGun(AmmoTypes.SDAmmo()));
             ally.Modules.Add(new SpaceObject()
             {
                 RenderSections = new List<RenderObject.Section>() { new RenderObject.Section(RenderSections["Shield"], true) },
@@ -160,7 +155,6 @@ namespace PixelCraft
                 Collidable = false,
                 ShieldMax = 200, ShieldRegen = 0.05f, Shields = 200
             });
-            ally.Modules[0].Ammo = new SpaceObject() { RenderSections = new List<RenderObject.Section>() { RenderSections["BlueBullet"] }, Shader = Shaders["texture_shader"], Scale = new Vector3(1f, 0.5f, 1f), TopSpeed = 0.4f, Damage = 5 };
 
             Ships.Add(ally);
             return ally;
