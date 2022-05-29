@@ -61,6 +61,7 @@ namespace PixelCraft
         public float Accuracy = 0;
         public float Range = 10;
         public Stopwatch FireSW = new Stopwatch();
+        public Stopwatch DespawnSW = new Stopwatch();
         public Random WeaponAcc = new Random();
 
         // PROJECTILE
@@ -74,7 +75,7 @@ namespace PixelCraft
         public float MiningRate = 0;
 
         // STATE
-        public enum SpaceObjectState { ALIVE, DEAD, INERT };
+        public enum SpaceObjectState { ALIVE, DEAD, INERT, TBD };
         public SpaceObjectState ObjectState = SpaceObjectState.INERT;
         public enum SpaceObjectMvmt { FLYING, LANDED, ANCHORED };
         public SpaceObjectMvmt MvmtState = SpaceObjectMvmt.FLYING;
@@ -163,15 +164,19 @@ namespace PixelCraft
                     else if (NPC)
                     {
                         if (Distance(Target.Position) < MinOrbit) { this.Orbit(Target); }
-                        //this.Approach(Target);
+                        this.Approach(Target);
                         this.Point(Target);
                         foreach (var m in Modules) { m.Target = Target; }
                     }
                     else
                     {
                         this.WASDFly(keybd);
-                        this.Point(cursor.X - Position.X, cursor.Y - Position.Y);
-                        foreach (var m in Modules) { m.Target = EnemyAI.Ships.First(); }
+                        this.Point(cursor.X, cursor.Y);
+                        foreach (var m in Modules)
+                        {
+                            if (cursorTarget != this) { m.Target = cursorTarget; }
+                            else if (EnemyAI.Ships.Count > 0) { m.Target = EnemyAI.Ships.First(); }
+                        }
                     }
                     break;
 
@@ -185,6 +190,13 @@ namespace PixelCraft
                         RenderSections[0].Visible = false;
                         RenderSections[1].Visible = true;
                     }
+                    DespawnSW.Start();
+                    if (DespawnSW.Elapsed.Seconds > 30) { ObjectState = SpaceObjectState.TBD; }
+                    break;
+
+                case SpaceObjectState.TBD:
+                    objs.Remove(this);
+                    DeleteTex();
                     break;
 
                 default: break;

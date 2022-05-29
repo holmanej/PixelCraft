@@ -52,13 +52,16 @@ namespace PixelCraft
             obj.Translate(Vx, Vy, 0);
         }
 
-        public static void Point(this SpaceObject obj, float dx, float dy)
+        public static void Point(this SpaceObject obj, float x, float y)
         {
-            if (dx != 0)
+            if (x != 0)
             {
-                float theta = (float)Math.Atan(dy / dx);
-                if (dx < 0) { theta += 3.14f; }
-                obj.SetRotation(obj.Rotation.X, obj.Rotation.Y, theta * 180f / 3.14f - 90);
+                //float theta = (float)Math.Atan(dy / dx);
+                //if (dx < 0) { theta += 3.14f; }
+                //obj.SetRotation(obj.Rotation.X, obj.Rotation.Y, theta * 180f / 3.14f - 90);
+                float dt = obj.dTheta(new Vector3(x, y, 0));
+                float theta = Math.Abs(dt) < obj.Agility ? dt : Math.Sign(dt) * obj.Agility;
+                obj.Rotate(0, 0, theta);
             }
         }
 

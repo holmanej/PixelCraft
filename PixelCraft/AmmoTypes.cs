@@ -9,13 +9,13 @@ namespace PixelCraft
 {
 
     /* TYPE DMG PEN SPD
-     * SD   3   0   5
-     * MD   5   1   6
-     * LD   10  2   7
+     * SD   3   0   3
+     * MD   5   1   4
+     * LD   10  2   5
      * 
-     * SP   0   5   7
-     * MP   2   8   8
-     * LP   4   10  10
+     * SP   0   5   5
+     * MP   2   8   6
+     * LP   4   10  8
      * 
      * SS   1   1   8
      * MS   2   2   10
@@ -32,7 +32,7 @@ namespace PixelCraft
                 Scale = new Vector3(0.4f, 0.2f, 1f),
                 Damage = 3f,
                 ArmorPen = 0f,
-                TopSpeed = 0.5f
+                TopSpeed = 0.4f
             };
         }
         public static SpaceObject MDAmmo()
@@ -68,7 +68,7 @@ namespace PixelCraft
                 Scale = new Vector3(0.2f, 0.2f, 1f),
                 Damage = 0f,
                 ArmorPen = 0.05f,
-                TopSpeed = 0.7f
+                TopSpeed = 0.5f
             };
         }
         public static SpaceObject MPAmmo()
@@ -80,7 +80,7 @@ namespace PixelCraft
                 Scale = new Vector3(0.4f, 0.4f, 1f),
                 Damage = 2,
                 ArmorPen = 0.08f,
-                TopSpeed = 0.8f
+                TopSpeed = 0.6f
             };
         }
         public static SpaceObject LPAmmo()
@@ -92,7 +92,7 @@ namespace PixelCraft
                 Scale = new Vector3(0.6f, 0.6f, 1f),
                 Damage = 4f,
                 ArmorPen = 0.1f,
-                TopSpeed = 1.0f
+                TopSpeed = 0.8f
             };
         }
         public static SpaceObject SSAmmo()

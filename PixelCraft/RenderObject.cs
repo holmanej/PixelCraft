@@ -111,13 +111,21 @@ namespace PixelCraft
             float theta = (float)Math.Atan(dy / dx);
             if (dx < 0) { theta += 3.14f; }
             float dt = theta * 180f / 3.14f - Rotation.Z - 90;
-            if (Math.Abs(dt) > 180) { dt = dt - Math.Sign(dt) * 360; }
+            if (Math.Abs(dt) > 180) { dt -= Math.Sign(dt) * 360; }
             return dt;
         }
 
         public static float Mag(float a, float b)
         {
             return (float)Math.Sqrt(Math.Pow(a, 2) + Math.Pow(b, 2));
+        }
+
+        public void DeleteTex()
+        {
+            foreach (var sect in RenderSections)
+            {
+                GL.DeleteTexture(sect.ImageHandle);
+            }
         }
 
         public void Render(int vArrayObj)

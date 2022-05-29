@@ -32,9 +32,9 @@ namespace PixelCraft
                 Burst = 5,
                 FireRate = 200,
                 Accuracy = 0,
-                Spread = 30,
+                Spread = 120,
                 FiringArc = 15,
-                Range = 15,
+                Range = 20,
                 Ammo = ammo,
                 Armed = armed
             };
@@ -44,11 +44,11 @@ namespace PixelCraft
             return new SpaceObject()
             {
                 Burst = 3,
-                FireRate = 400,
+                FireRate = 300,
                 Accuracy = 0,
-                Spread = 45,
+                Spread = 60,
                 FiringArc = 90,
-                Range = 10,
+                Range = 15,
                 Ammo = ammo,
                 Armed = armed
             };
@@ -59,10 +59,10 @@ namespace PixelCraft
             {
                 Burst = 2,
                 FireRate = 500,
-                Accuracy = 60,
+                Accuracy = 25,
                 Spread = 0,
                 FiringArc = 360,
-                Range = 10,
+                Range = 15,
                 Ammo = ammo,
                 Armed = armed
             };
@@ -76,7 +76,7 @@ namespace PixelCraft
                 Accuracy = 15,
                 Spread = 0,
                 FiringArc = 15,
-                Range = 20,
+                Range = 25,
                 Ammo = ammo,
                 Armed = armed
             };
@@ -86,11 +86,11 @@ namespace PixelCraft
             return new SpaceObject()
             {
                 Burst = 1,
-                FireRate = 100,
+                FireRate = 75,
                 Accuracy = 30,
                 Spread = 0,
                 FiringArc = 45,
-                Range = 15,
+                Range = 20,
                 Ammo = ammo,
                 Armed = armed
             };
@@ -100,11 +100,11 @@ namespace PixelCraft
             return new SpaceObject()
             {
                 Burst = 1,
-                FireRate = 200,
+                FireRate = 100,
                 Accuracy = 45,
                 Spread = 0,
                 FiringArc = 360,
-                Range = 15,
+                Range = 20,
                 Ammo = ammo,
                 Armed = armed
             };
@@ -114,11 +114,11 @@ namespace PixelCraft
             return new SpaceObject()
             {
                 Burst = 1,
-                FireRate = 300,
+                FireRate = 200,
                 Accuracy = 5,
                 Spread = 10,
                 FiringArc = 15,
-                Range = 25,
+                Range = 30,
                 Ammo = ammo,
                 Armed = armed
             };
@@ -132,7 +132,7 @@ namespace PixelCraft
                 Accuracy = 15,
                 Spread = 5,
                 FiringArc = 60,
-                Range = 20,
+                Range = 25,
                 Ammo = ammo,
                 Armed = armed
             };
@@ -146,7 +146,7 @@ namespace PixelCraft
                 Accuracy = 25,
                 Spread = 0,
                 FiringArc = 180,
-                Range = 20,
+                Range = 25,
                 Ammo = ammo,
                 Armed = armed
             };
@@ -155,7 +155,7 @@ namespace PixelCraft
         {
             return new SpaceObject()
             {
-                Burst = 45,
+                Burst = 90,
                 FireRate = 2500,
                 Accuracy = 0,
                 Spread = 360,

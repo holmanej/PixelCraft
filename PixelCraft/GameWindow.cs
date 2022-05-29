@@ -129,20 +129,13 @@ namespace PixelCraft
             GameCursor.Update(Mouse.GetCursorState(), MouseX, MouseY, Width, Height, ViewX, ViewY, ViewZ);
             GameCursor.Cursor.SetPosition(GameCursor.Mx, GameCursor.My, 0f);
 
-            // Clear ship corpses
-            if (SpaceObjects.FindAll(o => o.ObjectState == SpaceObject.SpaceObjectState.DEAD).Count > 20)
-            {
-                var deadObjs = SpaceObjects.Find(o => o.ObjectState == SpaceObject.SpaceObjectState.DEAD);
-                foreach (var obj in deadObjs.RenderSections) { GL.DeleteTexture(obj.ImageHandle); }
-                SpaceObjects.Remove(deadObjs);
-            }
-
             // Run object updates
-            foreach (var obj in SpaceObjects)
+            WorldManager.LevelBehavior.DynamicInvoke(SpaceObjects);
+            for (int i = 0; i < SpaceObjects.Count; i++)
             {
-                obj.Update(SpaceObjects, keybd, GameCursor, GameTime);
+                SpaceObjects[i].Update(SpaceObjects, keybd, GameCursor, GameTime);
             }
-            EnemyAI.Update(SpaceObjects, AllyAI.PlayerShip);
+            EnemyAI.Update(SpaceObjects);
             AllyAI.Update(SpaceObjects);
             foreach (var ui in UIManager.UIGroups.Values)
             {
