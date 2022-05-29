@@ -130,7 +130,7 @@ namespace PixelCraft
             GameCursor.Cursor.SetPosition(GameCursor.Mx, GameCursor.My, 0f);
 
             // Run object updates
-            WorldManager.LevelBehavior.DynamicInvoke(SpaceObjects);
+            WorldManager.LevelBehavior.DynamicInvoke();
             for (int i = 0; i < SpaceObjects.Count; i++)
             {
                 SpaceObjects[i].Update(SpaceObjects, keybd, GameCursor, GameTime);

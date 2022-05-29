@@ -39,10 +39,9 @@ namespace PixelCraft
                 FontSets.Add("DebugFont", CreateFontsetRender(Fonts["times"], Color.White, Color.Black, 24, Shaders["debugText_shader"]));
                 FontSets.Add("UIFont", CreateFontsetRender(Fonts["times"], Color.Black, Color.White, 24, Shaders["debugText_shader"]));
 
-                //AllyAI.Update(gWin.SpaceObjects);
-                //EnemyAI.Update(gWin.SpaceObjects);
-                gWin.SpaceObjects.AddRange(WorldManager.Level0());
-                WorldManager.LevelBehavior.DynamicInvoke(gWin.SpaceObjects);                
+                WorldManager.Gwin = gWin;
+                WorldManager.ChangeLevel(0);
+                WorldManager.LevelBehavior.DynamicInvoke();                
 
                 sw.Stop();
                 Debug.WriteLine("Load Time: " + sw.Elapsed);

@@ -11,7 +11,7 @@ namespace PixelCraft
 {
     class WorldManager
     {
-        public static List<SpaceObject> CurrentLevel = new List<SpaceObject>();
+        public static GameWindow Gwin;
         static List<Spawner> Spawners = new List<Spawner>();
         public static Delegate LevelBehavior;
         static Random Rand = new Random();
@@ -42,7 +42,21 @@ namespace PixelCraft
             }
         }
 
-        public static List<SpaceObject> Level0()
+        public static void ChangeLevel(int level)
+        {
+            AllyAI.Ships.Clear();
+            EnemyAI.Ships.Clear();
+            Gwin.SpaceObjects.Clear();
+
+            switch (level)
+            {
+                case 0: Level0(); break;
+                case 1: Level1(); break;
+                default: break;
+            }
+        }
+
+        public static void Level0()
         {
             var worldObjs = new List<SpaceObject>();
             worldObjs.Add(new SpaceObject() { RenderSections = new List<Section>() { Program.RenderSections["StarField"] }, Shader = Program.Shaders["texture_shader"],
@@ -50,14 +64,15 @@ namespace PixelCraft
                 Scale = new Vector3(50f, 50f, 1f),
                 Collidable = false
             });
+            Gwin.SpaceObjects.AddRange(worldObjs);
 
-            LevelBehavior = new Action<List<SpaceObject>>((spaceObjs) =>
+            LevelBehavior = new Action(() =>
             {
                 if (EnemyAI.Ships.Count == 0)
                 {
                     var fighter = EnemyAI.BuildFighter(5, 0);
                     fighter.TopSpeed = 0;
-                    spaceObjs.Add(fighter);
+                    Gwin.SpaceObjects.Add(fighter);
                 }
                 if (!AllyAI.Ships.Exists(s => s.NPC == false))
                 {
@@ -65,15 +80,14 @@ namespace PixelCraft
                     int score = AllyAI.PlayerShip == null ? 0 : AllyAI.PlayerShip.Score;
                     AllyAI.PlayerShip = AllyAI.BuildCore();
                     AllyAI.PlayerShip.Score = 100 + score;
-                    spaceObjs.Add(AllyAI.PlayerShip);
+                    Gwin.SpaceObjects.Add(AllyAI.PlayerShip);
                 }
             });
 
             SpawnTimer.Restart();
-            return worldObjs;
         }
 
-        public static List<SpaceObject> Level1()
+        public static void Level1()
         {
             var worldObjs = new List<SpaceObject>();
             worldObjs.Add(new SpaceObject()
@@ -104,6 +118,7 @@ namespace PixelCraft
                 });
             }
             worldObjs.AddRange(asteroids);
+            Gwin.SpaceObjects.AddRange(worldObjs);
 
             // ENEMY
             Spawners.Add(new Spawner(0, 2000));         // FIGHTER
@@ -113,23 +128,23 @@ namespace PixelCraft
             Spawners.Add(new Spawner(5000, 4000));      // FIGHTER
             Spawners.Add(new Spawner(40000, 30000));    // TANK
 
-            LevelBehavior = new Action<List<SpaceObject>>((spaceObjs) =>
+            LevelBehavior = new Action(() =>
             {
                 if (Spawners[0].Update(SpawnTimer.ElapsedMilliseconds))
                 {
-                    spaceObjs.Add(EnemyAI.BuildFighter(Rand.Next(-20, 20), Rand.Next(-20, 20)));
+                    Gwin.SpaceObjects.Add(EnemyAI.BuildFighter(Rand.Next(-20, 20), Rand.Next(-20, 20)));
                 }
                 if (Spawners[1].Update(SpawnTimer.ElapsedMilliseconds))
                 {
-                    spaceObjs.Add(EnemyAI.BuildGunship(Rand.Next(-20, 20), Rand.Next(-20, 20)));
+                    Gwin.SpaceObjects.Add(EnemyAI.BuildGunship(Rand.Next(-20, 20), Rand.Next(-20, 20)));
                 }
                 if (Spawners[2].Update(SpawnTimer.ElapsedMilliseconds))
                 {
-                    spaceObjs.Add(AllyAI.BuildFighter(Rand.Next(-20, 20), Rand.Next(-20, 20)));
+                    Gwin.SpaceObjects.Add(AllyAI.BuildFighter(Rand.Next(-20, 20), Rand.Next(-20, 20)));
                 }
                 if (Spawners[3].Update(SpawnTimer.ElapsedMilliseconds))
                 {
-                    spaceObjs.Add(AllyAI.BuildTank(Rand.Next(-20, 20), Rand.Next(-20, 20)));
+                    Gwin.SpaceObjects.Add(AllyAI.BuildTank(Rand.Next(-20, 20), Rand.Next(-20, 20)));
                 }
                 if (!AllyAI.Ships.Exists(s => s.NPC == false))
                 {
@@ -137,13 +152,11 @@ namespace PixelCraft
                     int score = AllyAI.PlayerShip == null ? 0 : AllyAI.PlayerShip.Score;
                     AllyAI.PlayerShip = AllyAI.BuildCore();
                     AllyAI.PlayerShip.Score = 100 + score;
-                    spaceObjs.Add(AllyAI.PlayerShip);
+                    Gwin.SpaceObjects.Add(AllyAI.PlayerShip);
                 }
             });
 
             SpawnTimer.Restart();
-
-            return worldObjs;
         }
     }
 }

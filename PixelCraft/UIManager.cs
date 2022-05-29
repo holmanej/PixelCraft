@@ -108,6 +108,10 @@ namespace PixelCraft
                 Position = new Vector3(0.65f, 0.9f, 0f),
                 Scale = new Vector3(0.0015f, 0.0015f, 0f)
             });
+            var lvl0 = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, -2);
+            go.AddRange(lvl0.Gobjs);
+            var lvl1 = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 1, -2);
+            go.AddRange(lvl1.Gobjs);
             var FB = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, 0);
             go.AddRange(FB.Gobjs);
             var SB = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 1, 0);
@@ -131,6 +135,8 @@ namespace PixelCraft
             {
                 go.OrderByDescending(o => o.Position.Z);
                 ((TextObject)go[1]).Text = "Score  " + AllyAI.PlayerShip.Score.ToString("F0");
+                lvl0.Upgrade(new Action(() => { WorldManager.ChangeLevel(0); }), "LVL 0");
+                lvl1.Upgrade(new Action(() => { WorldManager.ChangeLevel(1); }), "LVL 1");
                 FB.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[1] = GunTypes.FBGun(AmmoTypes.SDAmmo()); }), "FB");
                 SB.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[1] = GunTypes.SBGun(AmmoTypes.SDAmmo()); }), "SB");
                 GB.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[1] = GunTypes.GBGun(AmmoTypes.SDAmmo()); }), "GB");

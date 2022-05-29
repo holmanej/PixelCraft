@@ -13,12 +13,10 @@ namespace PixelCraft
     {
         public static SpaceObject PlayerShip;
         static readonly int Team = 1;
-        static Stopwatch SpawnTimer = new Stopwatch();
         public static List<SpaceObject> Ships = new List<SpaceObject>();
 
         public static void Update(List<SpaceObject> objs)
         {
-            SpawnTimer.Start();
             for (int i = 0; i < Ships.Count; i++)
             {
                 var ship = Ships[i];
