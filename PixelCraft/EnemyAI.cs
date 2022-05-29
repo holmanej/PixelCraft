@@ -39,18 +39,19 @@ namespace PixelCraft
             }
             int shipCount = Ships.Count;
             SpaceObject target = AllyAI.Ships.Count > 0 ? AllyAI.Ships.Last() : player;
-            if (shipCount < 3 || SpawnTimer.ElapsedMilliseconds > FighterSpawnTimer)
+            if (shipCount < 1)// || SpawnTimer.ElapsedMilliseconds > FighterSpawnTimer)
             {
-                objs.Add(BuildFighter(Rand.Next(-20, 20), Rand.Next(-20, 20)));
+                objs.Add(BuildFighter(0, 0));
+                //objs.Add(BuildFighter(Rand.Next(-20, 20), Rand.Next(-20, 20)));
                 FighterSpawnTimer += 2000;
             }
             if (SpawnTimer.ElapsedMilliseconds > GunshipSpawnTimer)
             {
-                objs.Add(BuildGunship(Rand.Next(-20, 20), Rand.Next(-20, 20)));
-                for (int i = 0; i < SpawnTimer.ElapsedMilliseconds / 120000; i++)
-                {
-                    objs.Add(BuildGunship(Rand.Next(-20, 20), Rand.Next(-20, 20)));
-                }
+                //objs.Add(BuildGunship(Rand.Next(-20, 20), Rand.Next(-20, 20)));
+                //for (int i = 0; i < SpawnTimer.ElapsedMilliseconds / 120000; i++)
+                //{
+                //    objs.Add(BuildGunship(Rand.Next(-20, 20), Rand.Next(-20, 20)));
+                //}
                 GunshipSpawnTimer = SpawnTimer.ElapsedMilliseconds + 45000;
             }
         }
@@ -66,7 +67,9 @@ namespace PixelCraft
                 Scale = new Vector3(0.6f, 0.6f, 1f),
                 Health = 50,
                 HealthMax = 50,
+                HealthRegen = 100,
                 TopSpeed = 0.2f,
+                Agility = 0.5f,
                 Acceleration_X = 0.01f,
                 Acceleration_Y = 0.01f,
                 Friction = 0.05f,
@@ -79,8 +82,7 @@ namespace PixelCraft
             };
             section.Add(new RenderObject.Section(RenderSections["Enemy"], true));
             section.Add(new RenderObject.Section(RenderSections["Dednemy"], false));
-            enemy.Modules.Add(GunTypes.SBGun());
-            enemy.Modules[0].Ammo = AmmoTypes.SDAmmo();
+            //enemy.Modules.Add(GunTypes.SBGun(AmmoTypes.SDAmmo()));
 
             Ships.Add(enemy);
             return enemy;

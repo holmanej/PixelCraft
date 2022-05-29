@@ -59,8 +59,8 @@ namespace PixelCraft
             {
                 Burst = 2,
                 FireRate = 500,
-                Accuracy = 0,
-                Spread = 60,
+                Accuracy = 60,
+                Spread = 0,
                 FiringArc = 360,
                 Range = 10,
                 Ammo = ammo,
@@ -115,7 +115,7 @@ namespace PixelCraft
             {
                 Burst = 1,
                 FireRate = 300,
-                Accuracy = 0,
+                Accuracy = 5,
                 Spread = 10,
                 FiringArc = 15,
                 Range = 25,
@@ -129,7 +129,7 @@ namespace PixelCraft
             {
                 Burst = 1,
                 FireRate = 400,
-                Accuracy = 5,
+                Accuracy = 15,
                 Spread = 5,
                 FiringArc = 60,
                 Range = 20,
@@ -143,7 +143,7 @@ namespace PixelCraft
             {
                 Burst = 1,
                 FireRate = 500,
-                Accuracy = 10,
+                Accuracy = 25,
                 Spread = 0,
                 FiringArc = 180,
                 Range = 20,

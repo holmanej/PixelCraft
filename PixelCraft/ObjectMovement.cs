@@ -54,9 +54,12 @@ namespace PixelCraft
 
         public static void Point(this SpaceObject obj, float dx, float dy)
         {
-            float theta = (float)Math.Atan(dy / dx);
-            if (dx < 0) { theta += 3.14f; }
-            obj.SetRotation(obj.Rotation.X, obj.Rotation.Y, theta * 180f / 3.14f - 90);
+            if (dx != 0)
+            {
+                float theta = (float)Math.Atan(dy / dx);
+                if (dx < 0) { theta += 3.14f; }
+                obj.SetRotation(obj.Rotation.X, obj.Rotation.Y, theta * 180f / 3.14f - 90);
+            }
         }
 
         public static void Point(this SpaceObject obj, SpaceObject target)
@@ -71,20 +74,26 @@ namespace PixelCraft
 
         public static void Approach(this SpaceObject obj, SpaceObject target)
         {
-            float dx = target.Position.X - obj.Position.X;
-            float dy = target.Position.Y - obj.Position.Y;
-            float mag = Mag(dx, dy);
-            if (mag > obj.MaxOrbit) { obj.Thrust(dx / mag, dy / mag); }
-            else { obj.Thrust(0, 0); }
+            if (obj != target)
+            {
+                float dx = target.Position.X - obj.Position.X;
+                float dy = target.Position.Y - obj.Position.Y;
+                float mag = Mag(dx, dy);
+                if (mag > obj.MaxOrbit) { obj.Thrust(dx / mag, dy / mag); }
+                else { obj.Thrust(0, 0); }
+            }
         }
 
         public static void Orbit(this SpaceObject obj, SpaceObject target)
         {
-            float dx = obj.Position.X - target.Position.X;
-            float dy = obj.Position.Y - target.Position.Y;
-            float mag = Mag(dx, dy);
-            obj.Thrust(dx / mag, dy / mag);
-            obj.Point(dx, dy);
+            if (obj != target)
+            {
+                float dx = obj.Position.X - target.Position.X;
+                float dy = obj.Position.Y - target.Position.Y;
+                float mag = Mag(dx, dy);
+                obj.Thrust(dx / mag, dy / mag);
+                obj.Point(dx, dy);
+            }
         }
 
         public static void Flee(this SpaceObject obj, SpaceObject target)

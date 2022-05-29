@@ -36,12 +36,12 @@ namespace PixelCraft
             }
             if (SpawnTimer.ElapsedMilliseconds > FighterSpawnRate || Ships.Count == 0)
             {
-                objs.Add(BuildFighter(Rand.Next(-20, 20), Rand.Next(-20, 20)));
+                //objs.Add(BuildFighter(Rand.Next(-20, 20), Rand.Next(-20, 20)));
                 FighterSpawnRate += 8000;
             }
             if (SpawnTimer.ElapsedMilliseconds > TankSpawnRate || Ships.Count == 0)
             {
-                objs.Add(BuildTank(Rand.Next(-20, 20), Rand.Next(-20, 20)));
+                //objs.Add(BuildTank(Rand.Next(-20, 20), Rand.Next(-20, 20)));
                 TankSpawnRate += 30000;
             }
             if (!Ships.Exists(s => s.NPC == false))
@@ -73,7 +73,7 @@ namespace PixelCraft
                 ObjectState = SpaceObject.SpaceObjectState.ALIVE,
                 Health = 100,
                 HealthMax = 100,
-                HealthRegen = 0.005f,
+                HealthRegen = 100.005f,
             };
             section.Add(new RenderObject.Section(RenderSections["ShipCore"], true));
             section.Add(new RenderObject.Section(RenderSections["ShipCore_Dead"], false));            
@@ -86,7 +86,7 @@ namespace PixelCraft
                 ShieldMax = 100, ShieldRegen = 0.1f, Shields = 100
             });
             core.Modules.Add(GunTypes.FPGun(AmmoTypes.MDAmmo()));
-            core.Modules.Add(GunTypes.GRGun(AmmoTypes.MSAmmo()));
+            //core.Modules.Add(GunTypes.GRGun(AmmoTypes.MSAmmo()));
             Ships.Add(core);
 
             return core;

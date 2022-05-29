@@ -41,7 +41,7 @@ namespace PixelCraft
                     SOI = size * 1.5f,
                 });
             }
-            objs.AddRange(asteroids);
+            //objs.AddRange(asteroids);
 
             return objs;
         }

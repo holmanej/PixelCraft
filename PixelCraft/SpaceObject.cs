@@ -162,19 +162,16 @@ namespace PixelCraft
                     if (inSOI != this) { this.Flee(inSOI); }
                     else if (NPC)
                     {
-                        if (Target != this)
-                        {
-                            if (Distance(Target.Position) < MinOrbit) { this.Orbit(Target); }
-                            this.Approach(Target);
-                            this.Point(Target);
-                            foreach (var m in Modules) { m.Target = Target; }
-                        }
+                        if (Distance(Target.Position) < MinOrbit) { this.Orbit(Target); }
+                        //this.Approach(Target);
+                        this.Point(Target);
+                        foreach (var m in Modules) { m.Target = Target; }
                     }
                     else
                     {
                         this.WASDFly(keybd);
-                        this.Point(cursorTarget);
-                        foreach (var m in Modules) { m.Target = cursorTarget; }
+                        this.Point(cursor.X - Position.X, cursor.Y - Position.Y);
+                        foreach (var m in Modules) { m.Target = EnemyAI.Ships.First(); }
                     }
                     break;
 
@@ -218,7 +215,7 @@ namespace PixelCraft
                             float theta = (float)(Math.Atan(ay / ax));
                             if (dx < 0) { theta += 3.14f; }
                             theta += dacc * 3.14f / 180;
-                            if (mod.Burst > 1) { theta += (i * spread) - (mod.Burst / 2 * spread); }
+                            if (mod.Burst > 1) { theta += spread * (i - (mod.Burst - 1) / 2); }
                             ax = (float)Math.Cos(theta) * mod.Ammo.TopSpeed;
                             ay = (float)Math.Sin(theta) * mod.Ammo.TopSpeed;
                             

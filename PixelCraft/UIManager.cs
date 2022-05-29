@@ -84,7 +84,7 @@ namespace PixelCraft
                 ((TextObject)go[0]).Text = "X=" + gwin.ViewX.ToString("F2") + "  Y=" + gwin.ViewY.ToString("F2") + "  Z=" + gwin.ViewZ.ToString("F3");
                 ((TextObject)go[1]).Text = "Gametime=" + gwin.GameTime.ToString("F1");
                 ((TextObject)go[2]).Text = "FPS=" + (int)gwin.avgFPS.Average();
-                ((TextObject)go[3]).Text = "LGC=" + (gwin.avgLGC.Average() / 10000f / 60 * 100).ToString("F1") + "%  BLT=" + (gwin.bulletCnt / 1000).ToString("F1");
+                ((TextObject)go[3]).Text = "LGC=" + (gwin.avgLGC.Average() / 10000f / 60 * 100).ToString("F1") + "%  BLT=" + (gwin.bulletCnt / 1000f).ToString("F1") + "k";
                 //((TextObject)go[3]).Text = "LGC=" + (gwin.avgLGC.Average() / 10000f / 60 * 100).ToString("F1") + "%  GUI=" + (gwin.render_sw.ElapsedTicks / 1f).ToString("F2");
             });
 
@@ -108,30 +108,38 @@ namespace PixelCraft
                 Position = new Vector3(0.65f, 0.9f, 0f),
                 Scale = new Vector3(0.0015f, 0.0015f, 0f)
             });
-            var HealthRegen = new UpgradeBtn(Program.RenderSections["HeartPlus"], 2, 0, 0);
-            go.AddRange(HealthRegen.Gobjs);
-            var ShieldUp = new UpgradeBtn(Program.RenderSections["HeartPlus"], 2, 1, 0);
-            go.AddRange(ShieldUp.Gobjs);
-            var SpreadUp = new UpgradeBtn(Program.RenderSections["HeartPlus"], 15, 0, 1);
-            go.AddRange(SpreadUp.Gobjs);
-            var DamageUp = new UpgradeBtn(Program.RenderSections["HeartPlus"], 10, 1, 1);
-            go.AddRange(DamageUp.Gobjs);
-            var CannonAdd = new UpgradeBtn(Program.RenderSections["HeartPlus"], 25, 0, 2);
-            go.AddRange(CannonAdd.Gobjs);
-            var CannonUp = new UpgradeBtn(Program.RenderSections["HeartPlus"], 5, 1, 2);
-            go.AddRange(CannonUp.Gobjs);
+            var FB = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, 0);
+            go.AddRange(FB.Gobjs);
+            var SB = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 1, 0);
+            go.AddRange(SB.Gobjs);
+            var GB = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, 1);
+            go.AddRange(GB.Gobjs);
+            var FR = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 1, 1);
+            go.AddRange(FR.Gobjs);
+            var SR = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, 2);
+            go.AddRange(SR.Gobjs);
+            var GR = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 1, 2);
+            go.AddRange(GR.Gobjs);
+            var FP = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, 3);
+            go.AddRange(FP.Gobjs);
+            var SP = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 1, 3);
+            go.AddRange(SP.Gobjs);
+            var GP = new UpgradeBtn(Program.RenderSections["HeartPlus"], 0, 0, 4);
+            go.AddRange(GP.Gobjs);
 
             ui.UpdateDel = new Action<GameWindow>((gwin) =>
             {
                 go.OrderByDescending(o => o.Position.Z);
-                //if (go[0].LClicked()) { AllyAI.PlayerShip.Score--; }
                 ((TextObject)go[1]).Text = "Score  " + AllyAI.PlayerShip.Score.ToString("F0");
-                AllyAI.PlayerShip.Score -= HealthRegen.Upgrade(new Action(() => { AllyAI.PlayerShip.HealthRegen += 0.0005f; }), (AllyAI.PlayerShip.HealthRegen * 60).ToString("F2"));
-                AllyAI.PlayerShip.Score -= ShieldUp.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[0].ShieldMax += 5f; }), AllyAI.PlayerShip.Modules[0].ShieldMax.ToString("F0"));
-                AllyAI.PlayerShip.Score -= SpreadUp.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[2].Burst++; }), AllyAI.PlayerShip.Modules[2].Burst.ToString("F0"));
-                AllyAI.PlayerShip.Score -= DamageUp.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[2].Ammo.Damage *= 1.1f; }), AllyAI.PlayerShip.Modules[2].Ammo.Damage.ToString("F1"));
-                AllyAI.PlayerShip.Score -= CannonAdd.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[1].Armed = true; }), AllyAI.PlayerShip.Modules[1].Armed.ToString());
-                AllyAI.PlayerShip.Score -= CannonUp.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[1].FireRate *= 0.95f; }), AllyAI.PlayerShip.Modules[1].FireRate.ToString("F0"));
+                FB.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[1] = GunTypes.FBGun(AmmoTypes.SDAmmo()); }), "FB");
+                SB.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[1] = GunTypes.SBGun(AmmoTypes.SDAmmo()); }), "SB");
+                GB.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[1] = GunTypes.GBGun(AmmoTypes.SDAmmo()); }), "GB");
+                FR.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[1] = GunTypes.FRGun(AmmoTypes.SDAmmo()); }), "FR");
+                SR.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[1] = GunTypes.SRGun(AmmoTypes.SDAmmo()); }), "SR");
+                GR.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[1] = GunTypes.GRGun(AmmoTypes.SDAmmo()); }), "GR");
+                FP.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[1] = GunTypes.FPGun(AmmoTypes.SDAmmo()); }), "FP");
+                SP.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[1] = GunTypes.SPGun(AmmoTypes.SDAmmo()); }), "SP");
+                GP.Upgrade(new Action(() => { AllyAI.PlayerShip.Modules[1] = GunTypes.GPGun(AmmoTypes.SDAmmo()); }), "GP");
             });
 
             return ui;
