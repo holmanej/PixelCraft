@@ -204,7 +204,7 @@ namespace PixelCraft
                         for (int i = 0; i < mod.Burst; i++)
                         {
                             Vector3 pos = Position;
-                            float spread = mod.Spread * 3.14f / 180f / mod.Burst;
+                            float spread = mod.Spread / 2 * 3.14f / 180f / mod.Burst;
                             float dacc = (float)(WeaponAcc.NextDouble() - 0.5f) * mod.Accuracy;
                             float vx = Velocity_X;
                             float vy = Velocity_Y;
