@@ -52,16 +52,16 @@ namespace PixelCraft
                 });
             }
 
-            public int Upgrade(Action del, string text)
+            public int Upgrade(Action del, string text, bool cond)
             {
-                if (Gobjs[0].LClicked() && AllyAI.PlayerShip.Score >= Cost)
+                ((TextObject)Gobjs[1]).Text = text;
+                if (Gobjs[0].LClicked() && AllyAI.PlayerShip.Score >= Cost && cond)
                 {
                     del();
                     return Cost;
                 }
                 else
                 {
-                    ((TextObject)Gobjs[1]).Text = text;
                     return 0;
                 }
             }
@@ -72,7 +72,9 @@ namespace PixelCraft
             { "DebugPanel", DebugPanel() },
             { "UpgradePanel", UpgradePanel() },
             { "Title", TitleScreen() },
-            { "DeathScreen", DeathScreen() }
+            { "DeathScreen", DeathScreen() },
+            { "WinScreen", WinScreen() },
+            { "Countdown", Countdown() }
         };
 
         public static GameWindow Gwin;
@@ -146,6 +148,46 @@ namespace PixelCraft
             return ui;
         }
 
+        public static UIGroup WinScreen()
+        {
+            var ui = new UIGroup();
+            var go = ui.GraphicsObjects;
+
+            go.Add(new TextObject("OK U WIN", Program.FontSets["WinFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.7f, 0f, 0), Scale = new Vector3(0.003f, 0.003f, 1f) });
+            ui.UpdateDel = new Action(() =>
+            {
+                go[0].AdjustAlpha(0.002f);
+            });
+
+            return ui;
+        }
+
+        public static UIGroup Countdown()
+        {
+            var ui = new UIGroup();
+            var go = ui.GraphicsObjects;
+
+            go.Add(new TextObject("PREPARE", Program.FontSets["BigFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.5f, -0.7f, 0), Scale = new Vector3(0.002f, 0.002f, 1f) });
+            go.Add(new TextObject("", Program.FontSets["BigFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.5f, -0.8f, 0), Scale = new Vector3(0.002f, 0.002f, 1f) });
+
+            ui.UpdateDel = new Action(() =>
+            {
+                TimeSpan t = WorldManager.SpawnTimer.Elapsed - TimeSpan.FromSeconds(20);
+                if (WorldManager.SpawnTimer.ElapsedMilliseconds < 20000)
+                {
+                    go[0].Enabled = true;
+                    ((TextObject)go[1]).Text = (t.TotalMilliseconds / 1000f).ToString("F3");
+                }
+                else
+                {
+                    go[0].Enabled = false;
+                    ((TextObject)go[1]).Text = t.Minutes + ":" + ((t.TotalMilliseconds % 60000) / 1000f).ToString("F3").PadLeft(6, '0');
+                }
+            });
+
+            return ui;
+        }
+
         public static UIGroup UpgradePanel()
         {
             var ui = new UIGroup();
@@ -164,30 +206,30 @@ namespace PixelCraft
                 Scale = new Vector3(0.0015f, 0.0015f, 0f)
             });
             // SHIP UPGRADES
-            var HealthRegen = new SmallPanelButton(Program.RenderSections["GreenBtn"], "HR+", 2, 0, 0); go.AddRange(HealthRegen.Gobjs);
-            var ArmorUp = new SmallPanelButton(Program.RenderSections["GreenBtn"], "AR+", 8, 1, 0); go.AddRange(ArmorUp.Gobjs);
-            var ShieldMax = new SmallPanelButton(Program.RenderSections["GreenBtn"], "SM+", 4, 2, 0); go.AddRange(ShieldMax.Gobjs);
-            var ShieldRegen = new SmallPanelButton(Program.RenderSections["GreenBtn"], "SR+", 2, 3, 0); go.AddRange(ShieldRegen.Gobjs);
+            var HealthRegen = new SmallPanelButton(Program.RenderSections["HRegen_Up"], "HR+", 2, 0, 0); go.AddRange(HealthRegen.Gobjs);
+            var ArmorUp = new SmallPanelButton(Program.RenderSections["Armor_Up"], "AR+", 8, 1, 0); go.AddRange(ArmorUp.Gobjs);
+            var ShieldMax = new SmallPanelButton(Program.RenderSections["SMax_Up"], "SM+", 5, 2, 0); go.AddRange(ShieldMax.Gobjs);
+            var ShieldRegen = new SmallPanelButton(Program.RenderSections["SRegen_Up"], "SR+", 4, 3, 0); go.AddRange(ShieldRegen.Gobjs);
 
-            var GR = new SmallPanelButton(Program.RenderSections["GreenBtn"], "BUY", 15, 0, -2); go.AddRange(GR.Gobjs);
-            var GRD = new SmallPanelButton(Program.RenderSections["GreenBtn"], "DMG", 10, 1, -2); go.AddRange(GRD.Gobjs);
-            var GRF = new SmallPanelButton(Program.RenderSections["GreenBtn"], "RATE", 10, 2, -2); go.AddRange(GRF.Gobjs);
-            var GRA = new SmallPanelButton(Program.RenderSections["GreenBtn"], "ACC", 10, 3, -2); go.AddRange(GRA.Gobjs);
+            var GR = new SmallPanelButton(Program.RenderSections["GRGun"], "BUY", 15, 0, -2); go.AddRange(GR.Gobjs);
+            var GRD = new SmallPanelButton(Program.RenderSections["Dmg_Up"], "DMG", 10, 1, -2); go.AddRange(GRD.Gobjs);
+            var GRF = new SmallPanelButton(Program.RenderSections["FRate_Up"], "RATE", 10, 2, -2); go.AddRange(GRF.Gobjs);
+            var GRA = new SmallPanelButton(Program.RenderSections["Acc_Up"], "ACC", 5, 3, -2); go.AddRange(GRA.Gobjs);
 
-            var FB = new SmallPanelButton(Program.RenderSections["GreenBtn"], "BUY", 20, 0, -4); go.AddRange(FB.Gobjs);
-            var FBD = new SmallPanelButton(Program.RenderSections["GreenBtn"], "DMG", 15, 1, -4); go.AddRange(FBD.Gobjs);
-            var FBF = new SmallPanelButton(Program.RenderSections["GreenBtn"], "RATE", 15, 2, -4); go.AddRange(FBF.Gobjs);
-            var FBR = new SmallPanelButton(Program.RenderSections["GreenBtn"], "RANGE", 15, 3, -4); go.AddRange(FBR.Gobjs);
+            var FB = new SmallPanelButton(Program.RenderSections["FBGun"], "BUY", 20, 0, -4); go.AddRange(FB.Gobjs);
+            var FBD = new SmallPanelButton(Program.RenderSections["Dmg_Up"], "DMG", 10, 1, -4); go.AddRange(FBD.Gobjs);
+            var FBF = new SmallPanelButton(Program.RenderSections["FRate_Up"], "RATE", 15, 2, -4); go.AddRange(FBF.Gobjs);
+            var FBR = new SmallPanelButton(Program.RenderSections["Range_Up"], "RANGE", 10, 3, -4); go.AddRange(FBR.Gobjs);
 
-            var SP = new SmallPanelButton(Program.RenderSections["GreenBtn"], "BUY", 25, 0, -6); go.AddRange(SP.Gobjs);
-            var SPD = new SmallPanelButton(Program.RenderSections["GreenBtn"], "DMG", 20, 1, -6); go.AddRange(SPD.Gobjs);
-            var SPF = new SmallPanelButton(Program.RenderSections["GreenBtn"], "RATE", 20, 2, -6); go.AddRange(SPF.Gobjs);
-            var SPA = new SmallPanelButton(Program.RenderSections["GreenBtn"], "ACC", 20, 3, -6); go.AddRange(SPA.Gobjs);
+            var SP = new SmallPanelButton(Program.RenderSections["SPGun"], "BUY", 25, 0, -6); go.AddRange(SP.Gobjs);
+            var SPD = new SmallPanelButton(Program.RenderSections["Dmg_Up"], "DMG", 10, 1, -6); go.AddRange(SPD.Gobjs);
+            var SPF = new SmallPanelButton(Program.RenderSections["FRate_Up"], "RATE", 20, 2, -6); go.AddRange(SPF.Gobjs);
+            var SPA = new SmallPanelButton(Program.RenderSections["Acc_Up"], "ACC", 15, 3, -6); go.AddRange(SPA.Gobjs);
 
-            var GB = new SmallPanelButton(Program.RenderSections["GreenBtn"], "BUY", 10, 0, -8); go.AddRange(GB.Gobjs);
-            var GBD = new SmallPanelButton(Program.RenderSections["GreenBtn"], "DMG", 10, 1, -8); go.AddRange(GBD.Gobjs);
-            var GBF = new SmallPanelButton(Program.RenderSections["GreenBtn"], "RATE", 10, 2, -8); go.AddRange(GBF.Gobjs);
-            var GBA = new SmallPanelButton(Program.RenderSections["GreenBtn"], "ACC", 10, 3, -8); go.AddRange(GBA.Gobjs);
+            var GB = new SmallPanelButton(Program.RenderSections["GBGun"], "BUY", 10, 0, -8); go.AddRange(GB.Gobjs);
+            var GBD = new SmallPanelButton(Program.RenderSections["Dmg_Up"], "DMG", 10, 1, -8); go.AddRange(GBD.Gobjs);
+            var GBF = new SmallPanelButton(Program.RenderSections["FRate_Up"], "RATE", 15, 2, -8); go.AddRange(GBF.Gobjs);
+            var GBA = new SmallPanelButton(Program.RenderSections["Acc_Up"], "ACC", 5, 3, -8); go.AddRange(GBA.Gobjs);
 
 
 
@@ -196,30 +238,30 @@ namespace PixelCraft
                 var ps = AllyAI.PlayerShip;
                 go.OrderByDescending(o => o.Position.Z);
                 ((TextObject)go[1]).Text = "Score  " + ps.Score.ToString("F0");
-                ps.Score -= HealthRegen.Upgrade(new Action(() => { ps.HealthRegen += 0.0005f; }), (ps.HealthRegen * 60).ToString("F2"));
-                ps.Score -= ArmorUp.Upgrade(new Action(() => { ps.Modules[1].Armor++; }), ps.Modules[1].Armor.ToString("F2"));
-                ps.Score -= ShieldMax.Upgrade(new Action(() => { ps.Modules[0].ShieldMax += 5f; }), ps.Modules[0].ShieldMax.ToString("F0"));
-                ps.Score -= ShieldRegen.Upgrade(new Action(() => { ps.Modules[0].ShieldRegen += 0.02f; }), (ps.Modules[0].ShieldRegen * 60).ToString("F1"));
+                ps.Score -= HealthRegen.Upgrade(new Action(() => { ps.HealthRegen += 0.0005f; }), (ps.HealthRegen * 60).ToString("F2"), ps.HealthRegen < 5);
+                ps.Score -= ArmorUp.Upgrade(new Action(() => { ps.Modules[1].Armor++; }), ps.Modules[1].Armor.ToString("F2"), ps.Modules[1].Armor < 10);
+                ps.Score -= ShieldMax.Upgrade(new Action(() => { ps.Modules[0].ShieldMax += 5f; }), ps.Modules[0].ShieldMax.ToString("F0"), ps.Modules[0].ShieldMax < 300);
+                ps.Score -= ShieldRegen.Upgrade(new Action(() => { ps.Modules[0].ShieldRegen += 0.02f; }), (ps.Modules[0].ShieldRegen * 60).ToString("F1"), ps.Modules[0].ShieldRegen < 50);
 
-                if (ps.Modules[2].Armed == false) { ps.Score -= GR.Upgrade(new Action(() => { ps.Modules[2].Armed = true; }), "GR"); }
-                if (ps.Modules[2].Ammo.Damage + 0.2f <= 6) { ps.Score -= GRD.Upgrade(new Action(() => { ps.Modules[2].Ammo.Damage += 0.2f; }), ps.Modules[2].Ammo.Damage.ToString("F1")); }
-                if (ps.Modules[2].FireRate * 0.95f > 20) { ps.Score -= GRF.Upgrade(new Action(() => { ps.Modules[2].FireRate *= 0.9f; }), ps.Modules[2].FireRate.ToString("F0")); }
-                if (ps.Modules[2].Accuracy - 3f > 5) { ps.Score -= GRA.Upgrade(new Action(() => { ps.Modules[2].Accuracy -= 3f; }), ps.Modules[2].Accuracy.ToString("F0")); }
+                ps.Score -= GR.Upgrade(new Action(() => { ps.Modules[2].Armed = true; }), "GR", ps.Modules[2].Armed == false);
+                ps.Score -= GRD.Upgrade(new Action(() => { ps.Modules[2].Ammo.Damage += 0.2f; }), ps.Modules[2].Ammo.Damage.ToString("F1"), ps.Modules[2].Ammo.Damage < 6);
+                ps.Score -= GRF.Upgrade(new Action(() => { ps.Modules[2].FireRate *= 0.9f; }), ps.Modules[2].FireRate.ToString("F0"), ps.Modules[2].FireRate > 20);
+                ps.Score -= GRA.Upgrade(new Action(() => { ps.Modules[2].Accuracy -= 3f; }), ps.Modules[2].Accuracy.ToString("F0"), ps.Modules[2].Accuracy > 5);
 
-                if (ps.Modules[3].Armed == false) { ps.Score -= FB.Upgrade(new Action(() => { ps.Modules[3].Armed = true; }), "FB"); }
-                if (ps.Modules[3].Ammo.Damage + 0.19f < 4) { ps.Score -= FBD.Upgrade(new Action(() => { ps.Modules[3].Ammo.Damage += 0.2f; }), ps.Modules[3].Ammo.Damage.ToString("F1")); }
-                if (ps.Modules[3].FireRate * 0.9f > 50) { ps.Score -= FBF.Upgrade(new Action(() => { ps.Modules[3].FireRate *= 0.9f; }), ps.Modules[3].FireRate.ToString("F0")); }
-                if (ps.Modules[3].Range + 1f <= 25) { ps.Score -= FBR.Upgrade(new Action(() => { ps.Modules[3].Range += 1f; }), ps.Modules[3].Range.ToString("F0")); }
+                ps.Score -= FB.Upgrade(new Action(() => { ps.Modules[3].Armed = true; }), "FB", ps.Modules[3].Armed == false);
+                ps.Score -= FBD.Upgrade(new Action(() => { ps.Modules[3].Ammo.Damage += 0.2f; }), ps.Modules[3].Ammo.Damage.ToString("F1"), ps.Modules[3].Ammo.Damage < 4);
+                ps.Score -= FBF.Upgrade(new Action(() => { ps.Modules[3].FireRate *= 0.9f; }), ps.Modules[3].FireRate.ToString("F0"), ps.Modules[3].FireRate > 50);
+                ps.Score -= FBR.Upgrade(new Action(() => { ps.Modules[3].Range += 1f; }), ps.Modules[3].Range.ToString("F0"), ps.Modules[3].Range < 25);
 
-                if (ps.Modules[4].Armed == false) { ps.Score -= SP.Upgrade(new Action(() => { ps.Modules[4].Armed = true; }), "SP"); }
-                if (ps.Modules[4].Ammo.Damage + 0.5f <= 12) { ps.Score -= SPD.Upgrade(new Action(() => { ps.Modules[4].Ammo.Damage += 0.5f; }), ps.Modules[4].Ammo.Damage.ToString("F1")); }
-                if (ps.Modules[4].FireRate * 0.9f > 100) { ps.Score -= SPF.Upgrade(new Action(() => { ps.Modules[4].FireRate *= 0.9f; }), ps.Modules[4].FireRate.ToString("F0")); }
-                if (ps.Modules[4].Accuracy - 3f > 0) { ps.Score -= SPA.Upgrade(new Action(() => { ps.Modules[4].Accuracy -= 3f; }), ps.Modules[4].Accuracy.ToString("F0")); }
+                ps.Score -= SP.Upgrade(new Action(() => { ps.Modules[4].Armed = true; }), "SP", ps.Modules[4].Armed == false);
+                ps.Score -= SPD.Upgrade(new Action(() => { ps.Modules[4].Ammo.Damage += 0.5f; }), ps.Modules[4].Ammo.Damage.ToString("F1"), ps.Modules[4].Ammo.Damage < 12);
+                ps.Score -= SPF.Upgrade(new Action(() => { ps.Modules[4].FireRate *= 0.9f; }), ps.Modules[4].FireRate.ToString("F0"), ps.Modules[4].FireRate > 100);
+                ps.Score -= SPA.Upgrade(new Action(() => { ps.Modules[4].Accuracy -= 3f; }), ps.Modules[4].Accuracy.ToString("F0"), ps.Modules[4].Accuracy > 0);
 
-                if (ps.Modules[5].Armed == false) { ps.Score -= GB.Upgrade(new Action(() => { ps.Modules[5].Armed = true; }), "GB"); }
-                if (ps.Modules[5].Ammo.Damage + 0.5f <= 10) { ps.Score -= GBD.Upgrade(new Action(() => { ps.Modules[5].Ammo.Damage += 0.5f; }), ps.Modules[5].Ammo.Damage.ToString("F1")); }
-                if (ps.Modules[5].FireRate * 0.8f > 50) { ps.Score -= GBF.Upgrade(new Action(() => { ps.Modules[5].FireRate *= 0.8f; }), ps.Modules[5].FireRate.ToString("F0")); }
-                if (ps.Modules[5].Accuracy - 2.5f > 10) { ps.Score -= GBA.Upgrade(new Action(() => { ps.Modules[5].Accuracy -= 2.5f; }), ps.Modules[5].Accuracy.ToString("F0")); }
+                ps.Score -= GB.Upgrade(new Action(() => { ps.Modules[5].Armed = true; }), "GB", ps.Modules[5].Armed == false);
+                ps.Score -= GBD.Upgrade(new Action(() => { ps.Modules[5].Ammo.Damage += 0.5f; }), ps.Modules[5].Ammo.Damage.ToString("F1"), ps.Modules[5].Ammo.Damage <= 10);
+                ps.Score -= GBF.Upgrade(new Action(() => { ps.Modules[5].FireRate *= 0.8f; }), ps.Modules[5].FireRate.ToString("F0"), ps.Modules[5].FireRate > 50);
+                ps.Score -= GBA.Upgrade(new Action(() => { ps.Modules[5].Accuracy -= 2.5f; }), ps.Modules[5].Accuracy.ToString("F0"), ps.Modules[5].Accuracy > 10);
             });
 
             return ui;

@@ -14,14 +14,27 @@ namespace PixelCraft
         public static SpaceObject PlayerShip;
         static readonly int Team = 1;
         public static List<SpaceObject> Ships = new List<SpaceObject>();
+        public static Dictionary<string, int> Roster = new Dictionary<string, int>()
+        {
+            { "fighter", 0 },
+            { "tank", 0 }
+        };
 
         public static void Update()
         {
             for (int i = 0; i < Ships.Count; i++)
             {
                 var ship = Ships[i];
-                if (ship.ObjectState == SpaceObject.SpaceObjectState.DEAD && ship != PlayerShip) { Ships.Remove(ship); }
-                if (EnemyAI.Ships.Count > 0 && (ship.Target.ObjectState == SpaceObject.SpaceObjectState.DEAD || ship.Target == ship))
+                if (ship.ObjectState == SpaceObject.SpaceObjectState.DEAD && ship != PlayerShip)
+                {
+                    Roster[ship.Type]--;
+                    Ships.Remove(ship);
+                }
+                if (EnemyAI.Ships.Exists(s => s.Target == PlayerShip))
+                {
+                    ship.Target = EnemyAI.Ships.Find(s => s.Target == PlayerShip);
+                }
+                else if (EnemyAI.Ships.Count > 0)
                 {
                     ship.Target = EnemyAI.Ships.First();
                 }
@@ -37,6 +50,7 @@ namespace PixelCraft
                 Shader = Program.Shaders["texture_shader"],
                 Position = new Vector3(0f, 0f, 0f),
                 Scale = new Vector3(0.6f, 0.6f, 1f),
+                Type = "player",
                 Team = Team,
                 NPC = false,
                 TopSpeed = 0.2f,
@@ -51,20 +65,22 @@ namespace PixelCraft
                 HealthRegen = 0.005f,
             };
             section.Add(new RenderObject.Section(Program.RenderSections["ShipCore"], true));
-            section.Add(new RenderObject.Section(Program.RenderSections["ShipCore_Dead"], false));            
+            section.Add(new RenderObject.Section(Program.RenderSections["ShipCore_Dead"], false));
             core.Modules.Add(new SpaceObject()
             {
                 RenderSections = new List<RenderObject.Section>() { new RenderObject.Section(Program.RenderSections["Shield"], true) },
                 Shader = Program.Shaders["texture_shader"],
                 Scale = new Vector3(1.5f, 1.5f, 1f),
                 Collidable = false,
-                ShieldMax = 50, ShieldRegen = 0.1f, Shields = 100
+                ShieldMax = 50,
+                ShieldRegen = 0.1f,
+                Shields = 100
             });
             core.Modules.Add(new SpaceObject()
             {
-                RenderSections = new List<RenderObject.Section>() { new RenderObject.Section(Program.RenderSections["Shield"], false) },
+                RenderSections = new List<RenderObject.Section>() { new RenderObject.Section(Program.RenderSections["Armor"], true) },
                 Shader = Program.Shaders["texture_shader"],
-                Scale = new Vector3(4f, 4f, 1f),
+                Scale = new Vector3(1.5f, 1.5f, 1f),
                 Collidable = false,
                 ArmorMax = 10,
                 Armor = 1
@@ -78,7 +94,7 @@ namespace PixelCraft
             return core;
         }
 
-        public static SpaceObject BuildFighter(int x, int y)
+        public static SpaceObject BuildFighter(float x, float y)
         {
             var section = new List<RenderObject.Section>();
             var ally = new SpaceObject()
@@ -87,6 +103,7 @@ namespace PixelCraft
                 Shader = Program.Shaders["texture_shader"],
                 Position = new Vector3(x, y, 0f),
                 Scale = new Vector3(0.6f, 0.6f, 1f),
+                Type = "fighter",
                 Health = 25,
                 HealthMax = 25,
                 TopSpeed = 0.2f,
@@ -104,19 +121,20 @@ namespace PixelCraft
             ally.Modules.Add(GunTypes.GRGun(AmmoTypes.MSAmmo()));
             
             Ships.Add(ally);
+            Roster["fighter"]++;
             return ally;
         }
 
-        public static SpaceObject BuildTank(int x, int y)
+        public static SpaceObject BuildTank(float x, float y)
         {
             var section = new List<RenderObject.Section>();
-            Random rand = new Random();
             var ally = new SpaceObject()
             {
                 RenderSections = section,
                 Shader = Program.Shaders["texture_shader"],
                 Position = new Vector3(x, y, 0f),
                 Scale = new Vector3(3f, 1f, 1f),
+                Type = "tank",
                 Health = 100,
                 HealthMax = 100,
                 TopSpeed = 0.2f,
@@ -143,6 +161,7 @@ namespace PixelCraft
             });
 
             Ships.Add(ally);
+            Roster["tank"]++;
             return ally;
         }
     }

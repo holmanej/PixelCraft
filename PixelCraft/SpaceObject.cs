@@ -13,6 +13,9 @@ namespace PixelCraft
 {
     public class SpaceObject : RenderObject
     {
+        // META
+        public string Type = "none";
+
         // PHYSICAL
         public float Health = 0;
         public float HealthRegen = 0;
@@ -113,10 +116,14 @@ namespace PixelCraft
             SpaceObject inRad = this;
             SpaceObject cursorTarget = this;
             SpaceObject clickTarget = this;
+            SpaceObject closestTarget = this;
+            float closestDist = float.MaxValue;
             foreach (var obj in objs)
             {
                 if (obj.Collidable && Distance(obj.Position) < obj.SOI && obj != this) { inSOI = obj; }
                 if (Distance(obj.Position) < Radius) { inRad = obj; }
+                float dist = Mag(obj.Position.X - Position.X, obj.Position.Y - Position.Y);
+                if (dist < closestDist && obj.ObjectState == SpaceObjectState.ALIVE && obj != this) { closestTarget = obj; closestDist = dist; }                
                 if (Mag(obj.Position.X - cursor.X, obj.Position.Y - cursor.Y) < obj.SOI * 3 && obj.ObjectState == SpaceObjectState.ALIVE) { cursorTarget = obj; }
                 if (cursor.LeftReleased && Mag(obj.Position.X - cursor.X, obj.Position.Y - cursor.Y) < obj.Radius) { clickTarget = obj; }
 
@@ -175,7 +182,7 @@ namespace PixelCraft
                         foreach (var m in Modules)
                         {
                             if (cursorTarget != this) { m.Target = cursorTarget; }
-                            else if (EnemyAI.Ships.Count > 0) { m.Target = EnemyAI.Ships.First(); }
+                            else if (EnemyAI.Ships.Count > 0) { m.Target = closestTarget; }
                         }
                     }
                     break;
@@ -255,6 +262,8 @@ namespace PixelCraft
                 {
                     hasArmor = true;
                     Armor += mod.Armor;
+                    mod.Position = Position;
+                    mod.RenderSections[0].Alpha = mod.Armor / mod.ArmorMax;
                 }
                 if (mod.ShieldMax > 0)
                 {
@@ -262,7 +271,6 @@ namespace PixelCraft
                     mod.Shields = Math.Min(mod.Shields + mod.ShieldRegen, mod.ShieldMax);
                     Shields += mod.Shields;
                     mod.Position = Position;
-                    mod.Translate(0, 0, 0.1f);
                     mod.RenderSections[0].Alpha = mod.Shields / mod.ShieldMax;
                 }
             }

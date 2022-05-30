@@ -16,7 +16,7 @@ namespace PixelCraft
         public static Action LevelAI;
         static string CurrentLevel;
         static Random Rand = new Random();
-        static Stopwatch SpawnTimer = new Stopwatch();
+        public static Stopwatch SpawnTimer = new Stopwatch();
 
         class Spawner
         {
@@ -45,8 +45,11 @@ namespace PixelCraft
 
         public static void ChangeLevel(string level)
         {
+            UIManager.UIGroups["WinScreen"].Enabled = false;
+            UIManager.UIGroups["WinScreen"].GraphicsObjects[0].SetAlpha(0);
             UIManager.UIGroups["DeathScreen"].Enabled = false;
             UIManager.UIGroups["DeathScreen"].GraphicsObjects[0].SetAlpha(0);
+            UIManager.UIGroups["Countdown"].Enabled = false;
             Spawners.Clear();
             AllyAI.Ships.Clear();
             EnemyAI.Ships.Clear();
@@ -99,9 +102,8 @@ namespace PixelCraft
                 if (!AllyAI.Ships.Exists(s => s.NPC == false))
                 {
                     Debug.WriteLine("Respawn");
-                    int score = AllyAI.PlayerShip == null ? 0 : AllyAI.PlayerShip.Score;
                     AllyAI.PlayerShip = AllyAI.BuildCore();
-                    AllyAI.PlayerShip.Score = 100 + score;
+                    AllyAI.PlayerShip.Score = 100000;
                     Gwin.SpaceObjects.Add(AllyAI.PlayerShip);
                 }
             });
@@ -146,30 +148,37 @@ namespace PixelCraft
             Gwin.SpaceObjects.AddRange(worldObjs);
 
             // ENEMY
-            Spawners.Add(new Spawner(20000, 2000));         // FIGHTER
+            Spawners.Add(new Spawner(20000, 2000));     // FIGHTER
             Spawners.Add(new Spawner(65000, 30000));    // GUNSHIP
 
             // ALLY
-            Spawners.Add(new Spawner(24000, 4000));      // FIGHTER
+            Spawners.Add(new Spawner(24000, 6000));     // FIGHTER
             Spawners.Add(new Spawner(60000, 35000));    // TANK
 
             LevelAI = new Action(() =>
             {
                 if (Spawners[0].Update(SpawnTimer.ElapsedMilliseconds))
                 {
-                    Gwin.SpaceObjects.Add(EnemyAI.BuildFighter(Rand.Next(-20, 20), Rand.Next(-20, 20)));
+                    for (int i = EnemyAI.Roster["fighter"]; i < SpawnTimer.ElapsedMilliseconds / 45000 + 3; i++)
+                    {
+                        Gwin.SpaceObjects.Add(EnemyAI.BuildFighter(AllyAI.PlayerShip.Position.X - 20, Rand.Next(-20, 20)));
+                    }
                 }
-                if (Spawners[1].Update(SpawnTimer.ElapsedMilliseconds))
+                if (Spawners[1].Update(SpawnTimer.ElapsedMilliseconds) && AllyAI.Roster["tank"] < 2)
                 {
-                    Gwin.SpaceObjects.Add(EnemyAI.BuildGunship(Rand.Next(-20, 20), Rand.Next(-20, 20)));
+                    Gwin.SpaceObjects.Add(EnemyAI.BuildGunship(Rand.Next(-5, 5), Rand.Next(-5, 5)));
+                    for (int i = EnemyAI.Roster["gunship"]; i < SpawnTimer.ElapsedMilliseconds / 75000; i++)
+                    {
+                        Gwin.SpaceObjects.Add(EnemyAI.BuildGunship(Rand.Next(-20, 20), Rand.Next(-20, 20)));
+                    }
                 }
-                if (Spawners[2].Update(SpawnTimer.ElapsedMilliseconds))
+                if (Spawners[2].Update(SpawnTimer.ElapsedMilliseconds) && AllyAI.Roster["fighter"] < 5)
                 {
-                    Gwin.SpaceObjects.Add(AllyAI.BuildFighter(Rand.Next(-20, 20), Rand.Next(-20, 20)));
+                    Gwin.SpaceObjects.Add(AllyAI.BuildFighter(Rand.Next(-20, 20), -20));
                 }
                 if (Spawners[3].Update(SpawnTimer.ElapsedMilliseconds))
                 {
-                    Gwin.SpaceObjects.Add(AllyAI.BuildTank(Rand.Next(-20, 20), Rand.Next(-20, 20)));
+                    Gwin.SpaceObjects.Add(AllyAI.BuildTank(Rand.Next(-20, 20), -20));
                 }
                 if (!AllyAI.Ships.Exists(s => s.NPC == false))
                 {
@@ -180,17 +189,19 @@ namespace PixelCraft
                 }
                 else if (AllyAI.PlayerShip.ObjectState == SpaceObject.SpaceObjectState.DEAD)
                 {
+                    UIManager.UIGroups["WinScreen"].Enabled = false;
                     UIManager.UIGroups["DeathScreen"].Enabled = true;
                 }
-                if (SpawnTimer.ElapsedMilliseconds > 300000 && AllyAI.PlayerShip.ObjectState == SpaceObject.SpaceObjectState.ALIVE)
+                if (SpawnTimer.ElapsedMilliseconds > 320000 && AllyAI.PlayerShip.ObjectState == SpaceObject.SpaceObjectState.ALIVE)
                 {
-                    ChangeLevel("GunTest");
+                    UIManager.UIGroups["WinScreen"].Enabled = true;
                 }
             });
 
             Gwin.ViewZ = 0.06f;
             UIManager.UIGroups["Title"].Enabled = false;
             UIManager.UIGroups["UpgradePanel"].Enabled = true;
+            UIManager.UIGroups["Countdown"].Enabled = true;
             SpawnTimer.Restart();
         }
     }

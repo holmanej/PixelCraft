@@ -13,6 +13,11 @@ namespace PixelCraft
     {
         static readonly int Team = 2;
         public static List<SpaceObject> Ships = new List<SpaceObject>();
+        public static Dictionary<string, int> Roster = new Dictionary<string, int>()
+        {
+            { "fighter", 0 },
+            { "gunship", 0 }
+        };
 
         public static void Update()
         {
@@ -22,16 +27,21 @@ namespace PixelCraft
                 if (ship.ObjectState == SpaceObject.SpaceObjectState.DEAD)
                 {
                     AllyAI.PlayerShip.Score += ship.ScoreValue;
+                    Roster[ship.Type]--;
                     Ships.Remove(ship);
                 }
-                if (AllyAI.Ships.Count > 0 && (ship.Target.ObjectState == SpaceObject.SpaceObjectState.DEAD || ship.Target == ship))
+                if (AllyAI.Ships.Exists(s => s.Target == ship))
+                {
+                    ship.Target = AllyAI.Ships.Find(s => s.Target == ship);
+                }
+                else if (AllyAI.Ships.Count > 0)
                 {
                     ship.Target = AllyAI.Ships.Last();
                 }
             }
         }
 
-        public static SpaceObject BuildFighter(int x, int y)
+        public static SpaceObject BuildFighter(float x, float y)
         {
             var section = new List<RenderObject.Section>();
             var enemy = new SpaceObject()
@@ -40,6 +50,7 @@ namespace PixelCraft
                 Shader = Program.Shaders["texture_shader"],
                 Position = new Vector3(x, y, 0f),
                 Scale = new Vector3(0.6f, 0.6f, 1f),
+                Type = "fighter",
                 Health = 50,
                 HealthMax = 50,
                 HealthRegen = 0,
@@ -60,10 +71,11 @@ namespace PixelCraft
             enemy.Modules.Add(GunTypes.SBGun(AmmoTypes.SDAmmo()));
 
             Ships.Add(enemy);
+            Roster["fighter"]++;
             return enemy;
         }
 
-        public static SpaceObject BuildGunship(int x, int y)
+        public static SpaceObject BuildGunship(float x, float y)
         {
             var section = new List<RenderObject.Section>();
             var enemy = new SpaceObject()
@@ -72,6 +84,7 @@ namespace PixelCraft
                 Shader = Program.Shaders["texture_shader"],
                 Position = new Vector3(x, y, 0f),
                 Scale = new Vector3(2.6f, 2.6f, 1f),
+                Type = "gunship",
                 Health = 250,
                 HealthMax = 250,
                 TopSpeed = 0.1f,
@@ -102,6 +115,7 @@ namespace PixelCraft
             });
 
             Ships.Add(enemy);
+            Roster["gunship"]++;
             return enemy;
         }
     }

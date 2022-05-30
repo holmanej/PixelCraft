@@ -40,6 +40,7 @@ namespace PixelCraft
                     { "DebugFont", CreateFontsetRender(Fonts["times"], Color.White, Color.Black, 24, Shaders["debugText_shader"]) },
                     { "BigFont", CreateFontsetRender(Fonts["times"], Color.White, Color.Black, 48, Shaders["debugText_shader"]) },
                     { "DedFont", CreateFontsetRender(Fonts["times"], Color.Red, Color.Black, 48, Shaders["debugText_shader"]) },
+                    { "WinFont", CreateFontsetRender(Fonts["times"], Color.Blue, Color.Black, 48, Shaders["debugText_shader"]) },
                     { "UIFont", CreateFontsetRender(Fonts["times"], Color.Black, Color.White, 24, Shaders["debugText_shader"]) },
                     { "HUDFont", CreateFontsetRender(Fonts["times"], Color.Black, Color.White, 16, Shaders["debugText_shader"]) }
                 };
