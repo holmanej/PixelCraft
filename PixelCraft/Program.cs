@@ -35,9 +35,14 @@ namespace PixelCraft
                 Fonts = LoadFonts();
                 Textures = LoadTextures();
 
-                FontSets = new Dictionary<string, RenderObject>();
-                FontSets.Add("DebugFont", CreateFontsetRender(Fonts["times"], Color.White, Color.Black, 24, Shaders["debugText_shader"]));
-                FontSets.Add("UIFont", CreateFontsetRender(Fonts["times"], Color.Black, Color.White, 24, Shaders["debugText_shader"]));
+                FontSets = new Dictionary<string, RenderObject>
+                {
+                    { "DebugFont", CreateFontsetRender(Fonts["times"], Color.White, Color.Black, 24, Shaders["debugText_shader"]) },
+                    { "BigFont", CreateFontsetRender(Fonts["times"], Color.White, Color.Black, 48, Shaders["debugText_shader"]) },
+                    { "DedFont", CreateFontsetRender(Fonts["times"], Color.Red, Color.Black, 48, Shaders["debugText_shader"]) },
+                    { "UIFont", CreateFontsetRender(Fonts["times"], Color.Black, Color.White, 24, Shaders["debugText_shader"]) },
+                    { "HUDFont", CreateFontsetRender(Fonts["times"], Color.Black, Color.White, 16, Shaders["debugText_shader"]) }
+                };
 
                 WorldManager.Gwin = gWin;
                 WorldManager.ChangeLevel("Title");

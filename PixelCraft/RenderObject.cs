@@ -120,6 +120,16 @@ namespace PixelCraft
             return (float)Math.Sqrt(Math.Pow(a, 2) + Math.Pow(b, 2));
         }
 
+        public void SetAlpha(float alpha)
+        {
+            foreach (var sect in RenderSections) { sect.Alpha = alpha; }
+        }
+
+        public void AdjustAlpha(float dA)
+        {
+            foreach (var sect in RenderSections) { sect.Alpha += dA; }
+        }
+
         public void DeleteTex()
         {
             foreach (var sect in RenderSections)

@@ -46,6 +46,7 @@ namespace PixelCraft
         public static void ChangeLevel(string level)
         {
             UIManager.UIGroups["DeathScreen"].Enabled = false;
+            UIManager.UIGroups["DeathScreen"].GraphicsObjects[0].SetAlpha(0);
             Spawners.Clear();
             AllyAI.Ships.Clear();
             EnemyAI.Ships.Clear();
@@ -173,9 +174,8 @@ namespace PixelCraft
                 if (!AllyAI.Ships.Exists(s => s.NPC == false))
                 {
                     Debug.WriteLine("Respawn");
-                    int score = AllyAI.PlayerShip == null ? 0 : AllyAI.PlayerShip.Score;
                     AllyAI.PlayerShip = AllyAI.BuildCore();
-                    AllyAI.PlayerShip.Score = 200 + score;
+                    AllyAI.PlayerShip.Score = 200;
                     Gwin.SpaceObjects.Add(AllyAI.PlayerShip);
                 }
                 else if (AllyAI.PlayerShip.ObjectState == SpaceObject.SpaceObjectState.DEAD)

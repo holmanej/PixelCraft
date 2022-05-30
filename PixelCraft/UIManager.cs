@@ -45,10 +45,10 @@ namespace PixelCraft
                     Position = new Vector3(dx - 0.01f, dy + 0.045f, 0f),
                     Scale = new Vector3(0.0015f, 0.0015f, 0f)
                 });
-                Gobjs.Add(new TextObject(desc, Program.FontSets["UIFont"], Program.Shaders["debugText_shader"])
+                Gobjs.Add(new TextObject(desc, Program.FontSets["HUDFont"], Program.Shaders["debugText_shader"])
                 {
                     Position = new Vector3(dx - 0.03f, dy - 0.085f, 0f),
-                    Scale = new Vector3(0.001f, 0.001f, 0f)
+                    Scale = new Vector3(0.001f, 0.0014f, 0f)
                 });
             }
 
@@ -104,7 +104,7 @@ namespace PixelCraft
             var ui = new UIGroup();
             var go = ui.GraphicsObjects;
 
-            go.Add(new TextObject("PixelCraft", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.7f, 0.5f, 0), Scale = new Vector3(0.008f, 0.008f, 1f) });
+            go.Add(new TextObject("PixelCraft", Program.FontSets["BigFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.7f, 0.5f, 0), Scale = new Vector3(0.003f, 0.003f, 1f) });
             go.Add(new TextObject("Gun Test", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.5f, 0f, 0), Scale = new Vector3(0.003f, 0.003f, 1f) });
             go.Add(new TextObject("Arcade", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.5f, -0.1f, 0), Scale = new Vector3(0.003f, 0.003f, 1f) });
             go.Add(new RenderObject()
@@ -137,17 +137,10 @@ namespace PixelCraft
             var ui = new UIGroup();
             var go = ui.GraphicsObjects;
 
-            go.Add(new TextObject("HA U SUCK", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.7f, 0f, 0), Scale = new Vector3(0.008f, 0.008f, 1f) });
-            foreach (var sect in go[0].RenderSections)
-            {
-                sect.Alpha = 0;
-            }
+            go.Add(new TextObject("HA U SUCK", Program.FontSets["DedFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.7f, 0f, 0), Scale = new Vector3(0.003f, 0.003f, 1f) });
             ui.UpdateDel = new Action(() =>
             {
-                foreach (var sect in go[0].RenderSections)
-                {
-                    sect.Alpha += 0.001f;
-                }
+                go[0].AdjustAlpha(0.002f);
             });
 
             return ui;
