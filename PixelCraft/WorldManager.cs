@@ -14,6 +14,7 @@ namespace PixelCraft
         public static GameWindow Gwin;
         static List<Spawner> Spawners = new List<Spawner>();
         public static Action LevelAI;
+        static string CurrentLevel;
         static Random Rand = new Random();
         static Stopwatch SpawnTimer = new Stopwatch();
 
@@ -49,6 +50,7 @@ namespace PixelCraft
             EnemyAI.Ships.Clear();
             Gwin.SpaceObjects.Clear();
             SpawnTimer.Restart();
+            CurrentLevel = level;
 
             switch (level)
             {
@@ -57,6 +59,11 @@ namespace PixelCraft
                 case "Arcade": Arcade(); break;
                 default: break;
             }
+        }
+
+        public static void RestartLevel()
+        {
+            ChangeLevel(CurrentLevel);
         }
 
         public static void Title()
@@ -69,7 +76,6 @@ namespace PixelCraft
 
         public static void GunTest()
         {
-            UIManager.UIGroups["Title"].Enabled = false;
             var worldObjs = new List<SpaceObject>();
             worldObjs.Add(new SpaceObject() { RenderSections = new List<Section>() { Program.RenderSections["StarField"] }, Shader = Program.Shaders["texture_shader"],
                 Position = new Vector3(0f, 0f, 0.2f),
@@ -84,6 +90,7 @@ namespace PixelCraft
                 {
                     var fighter = EnemyAI.BuildFighter(5, 0);
                     fighter.TopSpeed = 0;
+                    fighter.Modules.Clear();
                     Gwin.SpaceObjects.Add(fighter);
                 }
                 if (!AllyAI.Ships.Exists(s => s.NPC == false))
@@ -96,13 +103,14 @@ namespace PixelCraft
                 }
             });
 
+            Gwin.ViewZ = 0.06f;
+            UIManager.UIGroups["Title"].Enabled = false;
             UIManager.UIGroups["UpgradePanel"].Enabled = true;
             SpawnTimer.Restart();
         }
 
         public static void Arcade()
         {
-            UIManager.UIGroups["Title"].Enabled = false;
             var worldObjs = new List<SpaceObject>();
             worldObjs.Add(new SpaceObject()
             {
@@ -135,12 +143,12 @@ namespace PixelCraft
             Gwin.SpaceObjects.AddRange(worldObjs);
 
             // ENEMY
-            Spawners.Add(new Spawner(0, 2000));         // FIGHTER
-            Spawners.Add(new Spawner(45000, 30000));    // GUNSHIP
+            Spawners.Add(new Spawner(20000, 2000));         // FIGHTER
+            Spawners.Add(new Spawner(65000, 30000));    // GUNSHIP
 
             // ALLY
-            Spawners.Add(new Spawner(5000, 4000));      // FIGHTER
-            Spawners.Add(new Spawner(40000, 30000));    // TANK
+            Spawners.Add(new Spawner(24000, 4000));      // FIGHTER
+            Spawners.Add(new Spawner(60000, 35000));    // TANK
 
             LevelAI = new Action(() =>
             {
@@ -170,6 +178,8 @@ namespace PixelCraft
                 }
             });
 
+            Gwin.ViewZ = 0.06f;
+            UIManager.UIGroups["Title"].Enabled = false;
             UIManager.UIGroups["UpgradePanel"].Enabled = true;
             SpawnTimer.Restart();
         }

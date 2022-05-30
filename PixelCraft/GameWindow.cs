@@ -110,7 +110,10 @@ namespace PixelCraft
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
-            ViewZ += ViewZ * 0.1f * Math.Sign(e.Delta);
+            if (ViewZ >= 0.01f && ViewZ <= 0.4f)
+            {
+                ViewZ += ViewZ * 0.1f * Math.Sign(e.Delta);
+            }
             base.OnMouseWheel(e);
         }
 
@@ -119,6 +122,11 @@ namespace PixelCraft
             if (e.Key == Key.F1)
             {
                 WorldManager.ChangeLevel("Title");
+            }
+
+            if (e.Key == Key.F2)
+            {
+                WorldManager.RestartLevel();
             }
 
             if (e.Key == Key.F3)
@@ -142,6 +150,8 @@ namespace PixelCraft
             GameTime += e.Time;
 
             // Update view coordinates
+            if (ViewZ < 0.01f) { ViewZ += 0.0001f; }
+            if (ViewZ > 0.4f) { ViewZ -= 0.01f; }
             ViewX -= (ViewX - AllyAI.PlayerShip.Position.X) * 0.05f;
             ViewY -= (ViewY - AllyAI.PlayerShip.Position.Y) * 0.05f;
 

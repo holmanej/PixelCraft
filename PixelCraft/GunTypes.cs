@@ -10,7 +10,7 @@ namespace PixelCraft
     /* TYPE BST FRTE ACC SPRD RNGE ARC
      * FB   5   200  0   30   15   15
      * SB   3   400  0   45   10   90
-     * GB   2   500  60  0    10   360
+     * GB   2   500  25  0    10   360
      * 
      * FR   1   50   15  0    20   15
      * SR   1   100  30  0    15   45
@@ -34,7 +34,7 @@ namespace PixelCraft
                 Accuracy = 0,
                 Spread = 120,
                 FiringArc = 15,
-                Range = 20,
+                Range = 15,
                 Ammo = ammo,
                 Armed = armed
             };
@@ -62,7 +62,7 @@ namespace PixelCraft
                 Accuracy = 25,
                 Spread = 0,
                 FiringArc = 360,
-                Range = 15,
+                Range = 20,
                 Ammo = ammo,
                 Armed = armed
             };

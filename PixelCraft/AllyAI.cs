@@ -58,10 +58,21 @@ namespace PixelCraft
                 Shader = Program.Shaders["texture_shader"],
                 Scale = new Vector3(1.5f, 1.5f, 1f),
                 Collidable = false,
-                ShieldMax = 100, ShieldRegen = 0.1f, Shields = 100
+                ShieldMax = 50, ShieldRegen = 0.1f, Shields = 100
             });
-            core.Modules.Add(GunTypes.FPGun(AmmoTypes.MSAmmo()));
-            core.Modules.Add(GunTypes.GBGun(AmmoTypes.MDAmmo()));
+            core.Modules.Add(new SpaceObject()
+            {
+                RenderSections = new List<RenderObject.Section>() { new RenderObject.Section(Program.RenderSections["Shield"], false) },
+                Shader = Program.Shaders["texture_shader"],
+                Scale = new Vector3(4f, 4f, 1f),
+                Collidable = false,
+                ArmorMax = 10,
+                Armor = 1
+            });
+            core.Modules.Add(GunTypes.GRGun(AmmoTypes.SDAmmo(), false));
+            core.Modules.Add(GunTypes.FBGun(AmmoTypes.MPAmmo(), false));
+            core.Modules.Add(GunTypes.SPGun(AmmoTypes.LSAmmo(), false));
+            core.Modules.Add(GunTypes.GBGun(AmmoTypes.SDAmmo(), false));
             Ships.Add(core);
 
             return core;
