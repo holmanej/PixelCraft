@@ -20,7 +20,7 @@ namespace PixelCraft
             for (int i = 0; i < Ships.Count; i++)
             {
                 var ship = Ships[i];
-                if (ship.ObjectState == SpaceObject.SpaceObjectState.DEAD) { Ships.Remove(ship); }
+                if (ship.ObjectState == SpaceObject.SpaceObjectState.DEAD && ship != PlayerShip) { Ships.Remove(ship); }
                 if (EnemyAI.Ships.Count > 0 && (ship.Target.ObjectState == SpaceObject.SpaceObjectState.DEAD || ship.Target == ship))
                 {
                     ship.Target = EnemyAI.Ships.First();

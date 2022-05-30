@@ -71,7 +71,8 @@ namespace PixelCraft
         {
             { "DebugPanel", DebugPanel() },
             { "UpgradePanel", UpgradePanel() },
-            { "Title", TitleScreen() }
+            { "Title", TitleScreen() },
+            { "DeathScreen", DeathScreen() }
         };
 
         public static GameWindow Gwin;
@@ -131,6 +132,27 @@ namespace PixelCraft
             return ui;
         }
 
+        public static UIGroup DeathScreen()
+        {
+            var ui = new UIGroup();
+            var go = ui.GraphicsObjects;
+
+            go.Add(new TextObject("HA U SUCK", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.7f, 0f, 0), Scale = new Vector3(0.008f, 0.008f, 1f) });
+            foreach (var sect in go[0].RenderSections)
+            {
+                sect.Alpha = 0;
+            }
+            ui.UpdateDel = new Action(() =>
+            {
+                foreach (var sect in go[0].RenderSections)
+                {
+                    sect.Alpha += 0.001f;
+                }
+            });
+
+            return ui;
+        }
+
         public static UIGroup UpgradePanel()
         {
             var ui = new UIGroup();
@@ -170,9 +192,9 @@ namespace PixelCraft
             var SPA = new SmallPanelButton(Program.RenderSections["GreenBtn"], "ACC", 20, 3, -6); go.AddRange(SPA.Gobjs);
 
             var GB = new SmallPanelButton(Program.RenderSections["GreenBtn"], "BUY", 10, 0, -8); go.AddRange(GB.Gobjs);
-            var GBD = new SmallPanelButton(Program.RenderSections["GreenBtn"], "DMG", 15, 1, -8); go.AddRange(GBD.Gobjs);
-            var GBF = new SmallPanelButton(Program.RenderSections["GreenBtn"], "RATE", 15, 2, -8); go.AddRange(GBF.Gobjs);
-            var GBA = new SmallPanelButton(Program.RenderSections["GreenBtn"], "ACC", 15, 3, -8); go.AddRange(GBA.Gobjs);
+            var GBD = new SmallPanelButton(Program.RenderSections["GreenBtn"], "DMG", 10, 1, -8); go.AddRange(GBD.Gobjs);
+            var GBF = new SmallPanelButton(Program.RenderSections["GreenBtn"], "RATE", 10, 2, -8); go.AddRange(GBF.Gobjs);
+            var GBA = new SmallPanelButton(Program.RenderSections["GreenBtn"], "ACC", 10, 3, -8); go.AddRange(GBA.Gobjs);
 
 
 

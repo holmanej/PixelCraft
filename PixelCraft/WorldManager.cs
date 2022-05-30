@@ -45,6 +45,7 @@ namespace PixelCraft
 
         public static void ChangeLevel(string level)
         {
+            UIManager.UIGroups["DeathScreen"].Enabled = false;
             Spawners.Clear();
             AllyAI.Ships.Clear();
             EnemyAI.Ships.Clear();
@@ -63,6 +64,7 @@ namespace PixelCraft
 
         public static void RestartLevel()
         {
+            UIManager.UIGroups["DeathScreen"].Enabled = false;
             ChangeLevel(CurrentLevel);
         }
 
@@ -173,8 +175,16 @@ namespace PixelCraft
                     Debug.WriteLine("Respawn");
                     int score = AllyAI.PlayerShip == null ? 0 : AllyAI.PlayerShip.Score;
                     AllyAI.PlayerShip = AllyAI.BuildCore();
-                    AllyAI.PlayerShip.Score = 100 + score;
+                    AllyAI.PlayerShip.Score = 200 + score;
                     Gwin.SpaceObjects.Add(AllyAI.PlayerShip);
+                }
+                else if (AllyAI.PlayerShip.ObjectState == SpaceObject.SpaceObjectState.DEAD)
+                {
+                    UIManager.UIGroups["DeathScreen"].Enabled = true;
+                }
+                if (SpawnTimer.ElapsedMilliseconds > 300000 && AllyAI.PlayerShip.ObjectState == SpaceObject.SpaceObjectState.ALIVE)
+                {
+                    ChangeLevel("GunTest");
                 }
             });
 
