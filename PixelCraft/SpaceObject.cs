@@ -51,8 +51,8 @@ namespace PixelCraft
         public bool Collidable = true;
         public float Aggression = 0;
         public float Morale = 0;
-        public float Radius = 0;
-        public float SOI = 0;
+        public float Radius = 1;
+        public float SOI = 1;
         public float ScoreValue = 0;
         public float Score = 0;
 
