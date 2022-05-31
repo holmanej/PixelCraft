@@ -109,6 +109,7 @@ namespace PixelCraft
             go.Add(new TextObject("PixelCraft", Program.FontSets["BigFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.7f, 0.5f, 0), Scale = new Vector3(0.003f, 0.003f, 1f) });
             go.Add(new TextObject("Gun Test", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.5f, 0f, 0), Scale = new Vector3(0.003f, 0.003f, 1f) });
             go.Add(new TextObject("Arcade", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.5f, -0.1f, 0), Scale = new Vector3(0.003f, 0.003f, 1f) });
+            go.Add(new TextObject("Peaceful", Program.FontSets["DebugFont"], Program.Shaders["debugText_shader"]) { Position = new Vector3(-0.5f, -0.2f, 0), Scale = new Vector3(0.003f, 0.003f, 1f) });
             go.Add(new RenderObject()
             {
                 RenderSections = new List<Section>() { Program.RenderSections["WhiteBorder"] },
@@ -123,11 +124,19 @@ namespace PixelCraft
                 Position = new Vector3(-0.3f, -0.05f, 0f),
                 Scale = new Vector3(0.3f, 0.05f, 1f),
             });
+            go.Add(new RenderObject()
+            {
+                RenderSections = new List<Section>() { Program.RenderSections["WhiteBorder"] },
+                Shader = Program.Shaders["debugText_shader"],
+                Position = new Vector3(-0.3f, -0.15f, 0f),
+                Scale = new Vector3(0.3f, 0.05f, 1f),
+            });
 
             ui.UpdateDel = new Action(() =>
             {
-                if (go[3].LClicked()) { WorldManager.ChangeLevel("GunTest"); Debug.WriteLine("pew"); }
-                if (go[4].LClicked()) { WorldManager.ChangeLevel("Arcade"); Debug.WriteLine("ding ding"); }
+                if (go[4].LClicked()) { WorldManager.ChangeLevel("GunTest"); Debug.WriteLine("pew"); }
+                if (go[5].LClicked()) { WorldManager.ChangeLevel("Arcade"); Debug.WriteLine("ding ding"); }
+                if (go[6].LClicked()) { WorldManager.ChangeLevel("Peaceful"); Debug.WriteLine("chill"); }
             });
 
             ui.Enabled = true;

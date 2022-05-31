@@ -43,10 +43,9 @@ namespace PixelCraft
 
         public static SpaceObject BuildCore()
         {
-            var sections = new List<RenderObject.Section>();
             var core = new SpaceObject()
             {
-                RenderSections = sections,
+                RenderSections = new List<RenderObject.Section>(),
                 Shader = Program.Shaders["texture_shader"],
                 Position = new Vector3(0f, 0f, 0f),
                 Scale = new Vector3(0.6f, 0.6f, 1f),
@@ -64,10 +63,8 @@ namespace PixelCraft
                 HealthMax = 100,
                 HealthRegen = 0.005f,
             };
-            sections.Add(Program.RenderSections["ShipCore"]);
-            sections.Add(Program.RenderSections["ShipCore_Dead"]);
-            sections[0].Visible = true;
-            sections[1].Visible = false;
+            core.AliveSection = Program.RenderSections["ShipCore"];
+            core.DeadSection = Program.RenderSections["ShipCore_Dead"];
             core.Modules.Add(new SpaceObject()
             {
                 RenderSections = new List<RenderObject.Section>() { new RenderObject.Section(Program.RenderSections["Shield"], true) },

@@ -62,6 +62,7 @@ namespace PixelCraft
                 case "Title": Title(); break;
                 case "GunTest": GunTest(); break;
                 case "Arcade": Arcade(); break;
+                case "Peaceful": Peaceful(); break;
                 default: break;
             }
         }
@@ -99,6 +100,46 @@ namespace PixelCraft
                     fighter.Modules.Clear();
                     Gwin.SpaceObjects.Add(fighter);
                 }
+                if (!AllyAI.Ships.Exists(s => s.NPC == false))
+                {
+                    Debug.WriteLine("Respawn");
+                    AllyAI.PlayerShip = AllyAI.BuildCore();
+                    AllyAI.PlayerShip.Score = 100000;
+                    Gwin.SpaceObjects.Add(AllyAI.PlayerShip);
+                }
+            });
+
+            Gwin.ViewZ = 0.06f;
+            UIManager.UIGroups["Title"].Enabled = false;
+            UIManager.UIGroups["UpgradePanel"].Enabled = true;
+            SpawnTimer.Restart();
+        }
+
+        public static void Peaceful()
+        {
+            var worldObjs = new List<SpaceObject>();
+            worldObjs.Add(new SpaceObject()
+            {
+                RenderSections = new List<Section>() { Program.RenderSections["StarField"] },
+                Shader = Program.Shaders["texture_shader"],
+                Position = new Vector3(0f, 0f, 0.2f),
+                Scale = new Vector3(50f, 50f, 1f),
+                Collidable = false
+            });
+            worldObjs.Add(new SpaceObject()
+            {
+                RenderSections = new List<Section>() { Program.RenderSections["asteroid"] },
+                Shader = Program.Shaders["texture_shader"],
+                Position = new Vector3(15, 0, 0.1f),
+                Scale = new Vector3(25, 25, 1f),
+                Rotation = new Vector3(0, 0, 0),
+                Radius = 25,
+                SOI = 28,
+            });
+            Gwin.SpaceObjects.AddRange(worldObjs);
+
+            LevelAI = new Action(() =>
+            {
                 if (!AllyAI.Ships.Exists(s => s.NPC == false))
                 {
                     Debug.WriteLine("Respawn");
