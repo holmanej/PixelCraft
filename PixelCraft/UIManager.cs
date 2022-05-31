@@ -254,23 +254,23 @@ namespace PixelCraft
 
                 ps.Score -= GR.Upgrade(new Action(() => { ps.Modules[2].Armed = true; }), "GR", ps.Modules[2].Armed == false);
                 ps.Score -= GRD.Upgrade(new Action(() => { ps.Modules[2].Ammo.Damage += 0.2f; }), ps.Modules[2].Ammo.Damage.ToString("F1"), ps.Modules[2].Ammo.Damage < 6);
-                ps.Score -= GRF.Upgrade(new Action(() => { ps.Modules[2].FireRate *= 0.9f; }), ps.Modules[2].FireRate.ToString("F0"), ps.Modules[2].FireRate > 20);
-                ps.Score -= GRA.Upgrade(new Action(() => { ps.Modules[2].Accuracy -= 3f; }), ps.Modules[2].Accuracy.ToString("F0"), ps.Modules[2].Accuracy > 5);
+                ps.Score -= GRF.Upgrade(new Action(() => { ps.Modules[2].FireRate *= 0.9f; }), ps.Modules[2].FireRate.ToString("F0"), ps.Modules[2].FireRate > 50);
+                ps.Score -= GRA.Upgrade(new Action(() => { ps.Modules[2].Accuracy -= 3f; }), ps.Modules[2].Accuracy.ToString("F0"), ps.Modules[2].Accuracy > 10);
 
                 ps.Score -= FB.Upgrade(new Action(() => { ps.Modules[3].Armed = true; }), "FB", ps.Modules[3].Armed == false);
                 ps.Score -= FBD.Upgrade(new Action(() => { ps.Modules[3].Ammo.Damage += 0.2f; }), ps.Modules[3].Ammo.Damage.ToString("F1"), ps.Modules[3].Ammo.Damage < 4);
-                ps.Score -= FBF.Upgrade(new Action(() => { ps.Modules[3].FireRate *= 0.9f; }), ps.Modules[3].FireRate.ToString("F0"), ps.Modules[3].FireRate > 50);
-                ps.Score -= FBR.Upgrade(new Action(() => { ps.Modules[3].Range += 1f; }), ps.Modules[3].Range.ToString("F0"), ps.Modules[3].Range < 25);
+                ps.Score -= FBF.Upgrade(new Action(() => { ps.Modules[3].FireRate *= 0.9f; }), ps.Modules[3].FireRate.ToString("F0"), ps.Modules[3].FireRate > 100);
+                ps.Score -= FBR.Upgrade(new Action(() => { ps.Modules[3].Range += 1.25f; }), ps.Modules[3].Range.ToString("F0"), ps.Modules[3].Range < 25);
 
                 ps.Score -= SP.Upgrade(new Action(() => { ps.Modules[4].Armed = true; }), "SP", ps.Modules[4].Armed == false);
                 ps.Score -= SPD.Upgrade(new Action(() => { ps.Modules[4].Ammo.Damage += 0.5f; }), ps.Modules[4].Ammo.Damage.ToString("F1"), ps.Modules[4].Ammo.Damage < 12);
-                ps.Score -= SPF.Upgrade(new Action(() => { ps.Modules[4].FireRate *= 0.9f; }), ps.Modules[4].FireRate.ToString("F0"), ps.Modules[4].FireRate > 100);
-                ps.Score -= SPA.Upgrade(new Action(() => { ps.Modules[4].Accuracy -= 3f; }), ps.Modules[4].Accuracy.ToString("F0"), ps.Modules[4].Accuracy > 0);
+                ps.Score -= SPF.Upgrade(new Action(() => { ps.Modules[4].FireRate *= 0.9f; }), ps.Modules[4].FireRate.ToString("F0"), ps.Modules[4].FireRate > 200);
+                ps.Score -= SPA.Upgrade(new Action(() => { ps.Modules[4].Accuracy -= 3f; }), ps.Modules[4].Accuracy.ToString("F0"), ps.Modules[4].Accuracy > 5);
 
                 ps.Score -= GB.Upgrade(new Action(() => { ps.Modules[5].Armed = true; }), "GB", ps.Modules[5].Armed == false);
-                ps.Score -= GBD.Upgrade(new Action(() => { ps.Modules[5].Ammo.Damage += 0.5f; }), ps.Modules[5].Ammo.Damage.ToString("F1"), ps.Modules[5].Ammo.Damage < 10);
-                ps.Score -= GBF.Upgrade(new Action(() => { ps.Modules[5].FireRate *= 0.8f; }), ps.Modules[5].FireRate.ToString("F0"), ps.Modules[5].FireRate > 50);
-                ps.Score -= GBA.Upgrade(new Action(() => { ps.Modules[5].Accuracy -= 2.5f; }), ps.Modules[5].Accuracy.ToString("F0"), ps.Modules[5].Accuracy > 10);
+                ps.Score -= GBD.Upgrade(new Action(() => { ps.Modules[5].Ammo.Damage += 0.5f; }), ps.Modules[5].Ammo.Damage.ToString("F1"), ps.Modules[5].Ammo.Damage < 8);
+                ps.Score -= GBF.Upgrade(new Action(() => { ps.Modules[5].FireRate *= 0.85f; }), ps.Modules[5].FireRate.ToString("F0"), ps.Modules[5].FireRate > 150);
+                ps.Score -= GBA.Upgrade(new Action(() => { ps.Modules[5].Accuracy -= 2.5f; }), ps.Modules[5].Accuracy.ToString("F0"), ps.Modules[5].Accuracy > 15);
             });
 
             return ui;
