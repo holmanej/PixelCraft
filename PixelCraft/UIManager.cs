@@ -247,10 +247,10 @@ namespace PixelCraft
                 var ps = AllyAI.PlayerShip;
                 go.OrderByDescending(o => o.Position.Z);
                 ((TextObject)go[1]).Text = "Score  " + ps.Score.ToString("F0");
-                ps.Score -= HealthRegen.Upgrade(new Action(() => { ps.HealthRegen += 0.0005f; }), (ps.HealthRegen * 60).ToString("F2"), ps.HealthRegen < 5 / 60);
+                ps.Score -= HealthRegen.Upgrade(new Action(() => { ps.HealthRegen += 0.0005f; }), (ps.HealthRegen * 60).ToString("F2"), ps.HealthRegen < 5 / 60f);
                 ps.Score -= ArmorUp.Upgrade(new Action(() => { ps.Modules[1].Armor++; }), ps.Modules[1].Armor.ToString("F2"), ps.Modules[1].Armor < 10);
                 ps.Score -= ShieldMax.Upgrade(new Action(() => { ps.Modules[0].ShieldMax += 5f; }), ps.Modules[0].ShieldMax.ToString("F0"), ps.Modules[0].ShieldMax < 300);
-                ps.Score -= ShieldRegen.Upgrade(new Action(() => { ps.Modules[0].ShieldRegen += 0.02f; }), (ps.Modules[0].ShieldRegen * 60).ToString("F1"), ps.Modules[0].ShieldRegen < 50 / 60);
+                ps.Score -= ShieldRegen.Upgrade(new Action(() => { ps.Modules[0].ShieldRegen += 0.02f; }), (ps.Modules[0].ShieldRegen * 60).ToString("F1"), ps.Modules[0].ShieldRegen < 50 / 60f);
 
                 ps.Score -= GR.Upgrade(new Action(() => { ps.Modules[2].Armed = true; }), "GR", ps.Modules[2].Armed == false);
                 ps.Score -= GRD.Upgrade(new Action(() => { ps.Modules[2].Ammo.Damage += 0.2f; }), ps.Modules[2].Ammo.Damage.ToString("F1"), ps.Modules[2].Ammo.Damage < 6);

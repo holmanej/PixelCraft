@@ -68,7 +68,7 @@ namespace PixelCraft
                 Acceleration_Y = 0.01f,
                 Friction = 0.05f,
                 SOI = 1f,
-                ScoreValue = 2,
+                ScoreValue = 1.2f,
                 MaxOrbit = 6,
                 MinOrbit = 2,
                 ObjectState = SpaceObject.SpaceObjectState.ALIVE,

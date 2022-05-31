@@ -49,12 +49,12 @@ namespace PixelCraft
         public bool NPC = true;
         public bool Selected = false;
         public bool Collidable = true;
-        public float Aggression = 1;
-        public float Morale = 1;
-        public float Radius = 1;
-        public float SOI = 2;
-        public int ScoreValue = 1;
-        public int Score = 0;
+        public float Aggression = 0;
+        public float Morale = 0;
+        public float Radius = 0;
+        public float SOI = 0;
+        public float ScoreValue = 0;
+        public float Score = 0;
 
         // MOVEMENT
         public float Velocity_X = 0;
