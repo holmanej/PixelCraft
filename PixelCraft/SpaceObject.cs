@@ -15,6 +15,18 @@ namespace PixelCraft
     {
         // META
         public string Type = "none";
+        private Section _AliveSection;
+        private Section _DeadSection;
+        public Section AliveSection
+        {
+            get { return _AliveSection; }
+            set { _AliveSection = value; RenderSections.Add(value); }
+        }
+        public Section DeadSection
+        {
+            get { return _DeadSection; }
+            set { _DeadSection = value; RenderSections.Add(value); }
+        }
 
         // PHYSICAL
         public float Health = 0;
@@ -165,7 +177,15 @@ namespace PixelCraft
             switch (ObjectState)
             {
                 case SpaceObjectState.ALIVE:
-                    if (Health <= 0) { ObjectState = SpaceObjectState.DEAD; }
+                    if (Health <= 0)
+                    {
+                        ObjectState = SpaceObjectState.DEAD;
+                        Collidable = false;
+                        SOI = 0;
+                        foreach (var mod in Modules) { mod.Armed = false; mod.Enabled = false; }
+                        foreach (var ui in UI) { ui.Enabled = false; }
+                        DespawnSW.Start();
+                    }
                     Health = Math.Min(Health + HealthRegen, HealthMax);
                     if (inSOI != this) { this.Flee(inSOI); }
                     else if (NPC)
@@ -188,22 +208,12 @@ namespace PixelCraft
                     break;
 
                 case SpaceObjectState.DEAD:
-                    Collidable = false;
-                    SOI = 0;
-                    foreach (var mod in Modules) { mod.Armed = false; mod.Enabled = false; }
-                    foreach (var ui in UI) { ui.Enabled = false; }
-                    if (RenderSections.Count > 1)
-                    {
-                        RenderSections[0].Visible = false;
-                        RenderSections[1].Visible = true;
-                    }
-                    DespawnSW.Start();
-                    if (DespawnSW.Elapsed.Seconds > 30) { ObjectState = SpaceObjectState.TBD; }
+                    if (DespawnSW.Elapsed.Seconds > 300) { ObjectState = SpaceObjectState.TBD; }
                     break;
 
                 case SpaceObjectState.TBD:
                     objs.Remove(this);
-                    DeleteTex();
+                    //DeleteTex();
                     break;
 
                 default: break;

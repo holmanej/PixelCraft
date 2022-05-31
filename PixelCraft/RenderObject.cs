@@ -183,6 +183,49 @@ namespace PixelCraft
             //Debug.WriteLine(sw.ElapsedTicks);
         }
 
+        public void Render(Section section, int vArrayObj)
+        {
+            Stopwatch sw = new Stopwatch();
+            if (Enabled && Shader != null && section != null)
+            {
+                Shader.Use();
+                Shader.SetMatrix4("obj_translate", matPos);
+                Shader.SetMatrix4("obj_scale", matScale);
+                Shader.SetMatrix4("obj_rotate", matRot);
+
+                if (section.Visible)
+                {
+                    Shader.SetFloat("tex_alpha", section.Alpha);
+
+                    if (section.ImageHandle == 0)
+                    {
+                        section.ImageHandle = GL.GenTexture();
+                        section.ImageUpdate = true;
+                    }
+
+                    GL.ActiveTexture(TextureUnit.Texture0);
+                    GL.BindTexture(TextureTarget.Texture2D, section.ImageHandle);
+
+                    if (section.ImageUpdate)
+                    {
+                        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, section.ImageSize.Width, section.ImageSize.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, section.ImageData);
+                        GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+                        section.ImageUpdate = false;
+                    }
+                    sw.Start();
+
+                    GL.BindVertexArray(vArrayObj);
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, vArrayObj);
+                    GL.BufferData(BufferTarget.ArrayBuffer, section.VBOData.Count * sizeof(float), section.VBOData.ToArray(), BufferUsageHint.DynamicDraw);
+                    GL.DrawArrays(PrimitiveType.Triangles, 0, section.VBOData.Count);
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+                    sw.Stop();
+                }
+            }
+
+            //Debug.WriteLine(sw.ElapsedTicks);
+        }
+
         private void CalculateNormalData()
         {
             //Stopwatch sw = new Stopwatch();

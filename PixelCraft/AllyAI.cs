@@ -43,10 +43,10 @@ namespace PixelCraft
 
         public static SpaceObject BuildCore()
         {
-            var section = new List<RenderObject.Section>();
+            var sections = new List<RenderObject.Section>();
             var core = new SpaceObject()
             {
-                RenderSections = section,
+                RenderSections = sections,
                 Shader = Program.Shaders["texture_shader"],
                 Position = new Vector3(0f, 0f, 0f),
                 Scale = new Vector3(0.6f, 0.6f, 1f),
@@ -64,8 +64,10 @@ namespace PixelCraft
                 HealthMax = 100,
                 HealthRegen = 0.005f,
             };
-            section.Add(new RenderObject.Section(Program.RenderSections["ShipCore"], true));
-            section.Add(new RenderObject.Section(Program.RenderSections["ShipCore_Dead"], false));
+            sections.Add(Program.RenderSections["ShipCore"]);
+            sections.Add(Program.RenderSections["ShipCore_Dead"]);
+            sections[0].Visible = true;
+            sections[1].Visible = false;
             core.Modules.Add(new SpaceObject()
             {
                 RenderSections = new List<RenderObject.Section>() { new RenderObject.Section(Program.RenderSections["Shield"], true) },
@@ -96,10 +98,9 @@ namespace PixelCraft
 
         public static SpaceObject BuildFighter(float x, float y)
         {
-            var section = new List<RenderObject.Section>();
             var ally = new SpaceObject()
             {
-                RenderSections = section,
+                RenderSections = new List<RenderObject.Section>(),
                 Shader = Program.Shaders["texture_shader"],
                 Position = new Vector3(x, y, 0f),
                 Scale = new Vector3(0.6f, 0.6f, 1f),
@@ -116,8 +117,8 @@ namespace PixelCraft
                 ObjectState = SpaceObject.SpaceObjectState.ALIVE,
                 Team = Team
             };
-            section.Add(new RenderObject.Section(Program.RenderSections["Ally"], true));
-            section.Add(new RenderObject.Section(Program.RenderSections["Ally_Dead"], false));
+            ally.AliveSection = Program.RenderSections["Ally"];
+            ally.DeadSection = Program.RenderSections["Ally_Dead"];
             ally.Modules.Add(GunTypes.GRGun(AmmoTypes.MSAmmo()));
             
             Ships.Add(ally);
@@ -127,10 +128,9 @@ namespace PixelCraft
 
         public static SpaceObject BuildTank(float x, float y)
         {
-            var section = new List<RenderObject.Section>();
             var ally = new SpaceObject()
             {
-                RenderSections = section,
+                RenderSections = new List<RenderObject.Section>(),
                 Shader = Program.Shaders["texture_shader"],
                 Position = new Vector3(x, y, 0f),
                 Scale = new Vector3(3f, 1f, 1f),
@@ -148,8 +148,8 @@ namespace PixelCraft
                 ObjectState = SpaceObject.SpaceObjectState.ALIVE,
                 Team = Team
             };
-            section.Add(new RenderObject.Section(Program.RenderSections["Ally"], true));
-            section.Add(new RenderObject.Section(Program.RenderSections["Ally_Dead"], false));
+            ally.AliveSection = Program.RenderSections["Ally"];
+            ally.DeadSection = Program.RenderSections["Ally_Dead"];
             ally.Modules.Add(GunTypes.FBGun(AmmoTypes.SDAmmo()));
             ally.Modules.Add(new SpaceObject()
             {

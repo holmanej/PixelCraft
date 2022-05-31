@@ -43,10 +43,9 @@ namespace PixelCraft
 
         public static SpaceObject BuildFighter(float x, float y)
         {
-            var section = new List<RenderObject.Section>();
             var enemy = new SpaceObject()
             {
-                RenderSections = section,
+                RenderSections = new List<RenderObject.Section>(),
                 Shader = Program.Shaders["texture_shader"],
                 Position = new Vector3(x, y, 0f),
                 Scale = new Vector3(0.6f, 0.6f, 1f),
@@ -66,8 +65,8 @@ namespace PixelCraft
                 ObjectState = SpaceObject.SpaceObjectState.ALIVE,
                 Team = Team
             };
-            section.Add(new RenderObject.Section(Program.RenderSections["Enemy"], true));
-            section.Add(new RenderObject.Section(Program.RenderSections["Dednemy"], false));
+            enemy.AliveSection = Program.RenderSections["Enemy"];
+            enemy.DeadSection = Program.RenderSections["Dednemy"];
             enemy.Modules.Add(GunTypes.SBGun(AmmoTypes.SDAmmo()));
 
             Ships.Add(enemy);
@@ -77,10 +76,9 @@ namespace PixelCraft
 
         public static SpaceObject BuildGunship(float x, float y)
         {
-            var section = new List<RenderObject.Section>();
             var enemy = new SpaceObject()
             {
-                RenderSections = section,
+                RenderSections = new List<RenderObject.Section>(),
                 Shader = Program.Shaders["texture_shader"],
                 Position = new Vector3(x, y, 0f),
                 Scale = new Vector3(2.6f, 2.6f, 1f),
@@ -99,8 +97,8 @@ namespace PixelCraft
                 ObjectState = SpaceObject.SpaceObjectState.ALIVE,
                 Team = Team
             };
-            section.Add(new RenderObject.Section(Program.RenderSections["Enemy"], true));
-            section.Add(new RenderObject.Section(Program.RenderSections["Dednemy"], false));
+            enemy.AliveSection = Program.RenderSections["Enemy"];
+            enemy.DeadSection = Program.RenderSections["Dednemy"];
             enemy.Modules.Add(GunTypes.GBGun(AmmoTypes.MSAmmo()));
             enemy.Modules.Add(GunTypes.FPGun(AmmoTypes.MDAmmo()));
             enemy.Modules.Add(GunTypes.NovaGun(AmmoTypes.LDAmmo()));

@@ -29,10 +29,10 @@ namespace PixelCraft
             {
                 RenderSections = new List<RenderObject.Section>() { Program.RenderSections["WhiteBullet"] },
                 Shader = Program.Shaders["texture_shader"],
-                Scale = new Vector3(0.4f, 0.2f, 1f),
+                Scale = new Vector3(0.3f, 0.2f, 1f),
                 Damage = 3f,
                 ArmorPen = 0f,
-                TopSpeed = 0.4f
+                TopSpeed = 0.5f
             };
         }
         public static SpaceObject MDAmmo()
@@ -41,7 +41,7 @@ namespace PixelCraft
             {
                 RenderSections = new List<RenderObject.Section>() { Program.RenderSections["WhiteBullet"] },
                 Shader = Program.Shaders["texture_shader"],
-                Scale = new Vector3(0.6f, 0.3f, 1f),
+                Scale = new Vector3(0.4f, 0.3f, 1f),
                 Damage = 5f,
                 ArmorPen = 0.01f,
                 TopSpeed = 0.6f
@@ -53,7 +53,7 @@ namespace PixelCraft
             {
                 RenderSections = new List<RenderObject.Section>() { Program.RenderSections["WhiteBullet"] },
                 Shader = Program.Shaders["texture_shader"],
-                Scale = new Vector3(1f, 0.4f, 1f),
+                Scale = new Vector3(0.6f, 0.4f, 1f),
                 Damage = 10f,
                 ArmorPen = 0.02f,
                 TopSpeed = 0.7f
@@ -65,7 +65,7 @@ namespace PixelCraft
             {
                 RenderSections = new List<RenderObject.Section>() { Program.RenderSections["GreenBullet"] },
                 Shader = Program.Shaders["texture_shader"],
-                Scale = new Vector3(0.2f, 0.2f, 1f),
+                Scale = new Vector3(0.2f, 0.07f, 1f),
                 Damage = 0f,
                 ArmorPen = 0.05f,
                 TopSpeed = 0.5f
@@ -77,7 +77,7 @@ namespace PixelCraft
             {
                 RenderSections = new List<RenderObject.Section>() { Program.RenderSections["GreenBullet"] },
                 Shader = Program.Shaders["texture_shader"],
-                Scale = new Vector3(0.4f, 0.4f, 1f),
+                Scale = new Vector3(0.3f, 0.1f, 1f),
                 Damage = 2,
                 ArmorPen = 0.08f,
                 TopSpeed = 0.6f
@@ -89,7 +89,7 @@ namespace PixelCraft
             {
                 RenderSections = new List<RenderObject.Section>() { Program.RenderSections["GreenBullet"] },
                 Shader = Program.Shaders["texture_shader"],
-                Scale = new Vector3(0.6f, 0.6f, 1f),
+                Scale = new Vector3(0.6f, 0.2f, 1f),
                 Damage = 4f,
                 ArmorPen = 0.1f,
                 TopSpeed = 0.8f
@@ -101,7 +101,7 @@ namespace PixelCraft
             {
                 RenderSections = new List<RenderObject.Section>() { Program.RenderSections["BlueBullet"] },
                 Shader = Program.Shaders["texture_shader"],
-                Scale = new Vector3(0.2f, 0.8f, 1f),
+                Scale = new Vector3(0.2f, 0.6f, 1f),
                 Damage = 1f,
                 ArmorPen = 0.01f,
                 TopSpeed = 0.8f
@@ -113,7 +113,7 @@ namespace PixelCraft
             {
                 RenderSections = new List<RenderObject.Section>() { Program.RenderSections["BlueBullet"] },
                 Shader = Program.Shaders["texture_shader"],
-                Scale = new Vector3(0.2f, 1.2f, 1f),
+                Scale = new Vector3(0.2f, 0.8f, 1f),
                 Damage = 2f,
                 ArmorPen = 0.02f,
                 TopSpeed = 1.0f
@@ -125,7 +125,7 @@ namespace PixelCraft
             {
                 RenderSections = new List<RenderObject.Section>() { Program.RenderSections["BlueBullet"] },
                 Shader = Program.Shaders["texture_shader"],
-                Scale = new Vector3(0.2f, 1.8f, 1f),
+                Scale = new Vector3(0.2f, 1.2f, 1f),
                 Damage = 3f,
                 ArmorPen = 0.03f,
                 TopSpeed = 1.2f

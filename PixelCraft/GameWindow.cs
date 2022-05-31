@@ -267,7 +267,18 @@ namespace PixelCraft
             bulletCnt = 0;
             foreach (var obj in SpaceObjects)
             {
-                obj.Render(VertexArrayObject);
+                if (obj.ObjectState == SpaceObject.SpaceObjectState.ALIVE)
+                {
+                    obj.Render(obj.AliveSection, VertexArrayObject);
+                }
+                else if (obj.ObjectState == SpaceObject.SpaceObjectState.DEAD)
+                {
+                    obj.Render(obj.DeadSection, VertexArrayObject);
+                }
+                else
+                {
+                    obj.Render(VertexArrayObject);
+                }
                 foreach (var p in obj.Projectiles)
                 {
                     bulletCnt += obj.Projectiles.Count;
