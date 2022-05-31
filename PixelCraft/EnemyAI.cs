@@ -41,6 +41,15 @@ namespace PixelCraft
             }
         }
 
+        public static void ClearRoster()
+        {
+            Ships.Clear();
+            foreach (var key in Roster.Keys.ToList())
+            {
+                Roster[key] = 0;
+            }
+        }
+
         public static SpaceObject BuildFighter(float x, float y)
         {
             var enemy = new SpaceObject()
@@ -59,7 +68,7 @@ namespace PixelCraft
                 Acceleration_Y = 0.01f,
                 Friction = 0.05f,
                 SOI = 1f,
-                ScoreValue = 1,
+                ScoreValue = 2,
                 MaxOrbit = 6,
                 MinOrbit = 2,
                 ObjectState = SpaceObject.SpaceObjectState.ALIVE,
@@ -91,7 +100,7 @@ namespace PixelCraft
                 Friction = 0.01f,
                 Agility = 0.7f,
                 SOI = 3f,
-                ScoreValue = 10,
+                ScoreValue = 15,
                 MaxOrbit = 15,
                 MinOrbit = 0,
                 ObjectState = SpaceObject.SpaceObjectState.ALIVE,

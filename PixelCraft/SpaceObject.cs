@@ -208,7 +208,7 @@ namespace PixelCraft
                     break;
 
                 case SpaceObjectState.DEAD:
-                    if (DespawnSW.Elapsed.Seconds > 300) { ObjectState = SpaceObjectState.TBD; }
+                    if (DespawnSW.Elapsed.Seconds > 30) { ObjectState = SpaceObjectState.TBD; }
                     break;
 
                 case SpaceObjectState.TBD:

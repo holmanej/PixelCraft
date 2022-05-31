@@ -51,10 +51,9 @@ namespace PixelCraft
             UIManager.UIGroups["DeathScreen"].GraphicsObjects[0].SetAlpha(0);
             UIManager.UIGroups["Countdown"].Enabled = false;
             Spawners.Clear();
-            AllyAI.Ships.Clear();
-            EnemyAI.Ships.Clear();
+            AllyAI.ClearRoster();
+            EnemyAI.ClearRoster();
             Gwin.SpaceObjects.Clear();
-            SpawnTimer.Restart();
             CurrentLevel = level;
 
             switch (level)
@@ -200,7 +199,7 @@ namespace PixelCraft
             {
                 if (Spawners[0].Update(SpawnTimer.ElapsedMilliseconds))
                 {
-                    for (int i = EnemyAI.Roster["fighter"]; i < SpawnTimer.ElapsedMilliseconds / 45000 + 3; i++)
+                    for (int i = EnemyAI.Roster["fighter"]; i < SpawnTimer.ElapsedMilliseconds / 45000 + 2; i++)
                     {
                         Gwin.SpaceObjects.Add(EnemyAI.BuildFighter(AllyAI.PlayerShip.Position.X - 20, Rand.Next(-20, 20)));
                     }

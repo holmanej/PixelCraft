@@ -41,6 +41,15 @@ namespace PixelCraft
             }
         }
 
+        public static void ClearRoster()
+        {
+            Ships.Clear();
+            foreach (var key in Roster.Keys.ToList())
+            {
+                Roster[key] = 0;
+            }
+        }
+
         public static SpaceObject BuildCore()
         {
             var core = new SpaceObject()
