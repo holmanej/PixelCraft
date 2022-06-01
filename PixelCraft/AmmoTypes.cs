@@ -31,7 +31,7 @@ namespace PixelCraft
                 Shader = Program.Shaders["texture_shader"],
                 Scale = new Vector3(0.3f, 0.2f, 1f),
                 Damage = 3f,
-                ArmorPen = 0f,
+                ArmorPen = 0.005f,
                 TopSpeed = 0.5f
             };
         }

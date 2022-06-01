@@ -75,7 +75,7 @@ namespace PixelCraft
                 Team = Team
             };
             enemy.AliveSection = Program.RenderSections["Enemy"];
-            enemy.DeadSection = Program.RenderSections["Dednemy"];
+            enemy.DeadSection = Program.RenderSections["Enemy_Dead"];
             enemy.Modules.Add(GunTypes.SBGun(AmmoTypes.SDAmmo()));
 
             Ships.Add(enemy);
@@ -107,13 +107,13 @@ namespace PixelCraft
                 Team = Team
             };
             enemy.AliveSection = Program.RenderSections["Enemy"];
-            enemy.DeadSection = Program.RenderSections["Dednemy"];
-            enemy.Modules.Add(GunTypes.GBGun(AmmoTypes.MSAmmo()));
-            enemy.Modules.Add(GunTypes.FPGun(AmmoTypes.MDAmmo()));
-            enemy.Modules.Add(GunTypes.NovaGun(AmmoTypes.LDAmmo()));
+            enemy.DeadSection = Program.RenderSections["Enemy_Dead"];
+            enemy.Modules.Add(GunTypes.GBGun(AmmoTypes.LPAmmo()));
+            enemy.Modules.Add(GunTypes.FRGun(AmmoTypes.MDAmmo()));
+            enemy.Modules.Add(GunTypes.NovaGun(AmmoTypes.LSAmmo()));
             enemy.Modules.Add(new SpaceObject()
             {
-                RenderSections = new List<RenderObject.Section>() { new RenderObject.Section(Program.RenderSections["Shield"], false) },
+                RenderSections = new List<RenderObject.Section>() { new RenderObject.Section(Program.RenderSections["Armor"], true) },
                 Shader = Program.Shaders["texture_shader"],
                 Scale = new Vector3(4f, 4f, 1f),
                 Collidable = false,
